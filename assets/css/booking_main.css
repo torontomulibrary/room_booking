@@ -1,0 +1,185 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+#showtoday{
+	font-size: 0.9em;
+	background-color: #000000;
+	color: #FFFFFF;
+	padding: 0.3em 0.6em;
+	text-align:center;
+	margin: 0 auto;
+	text-decoration: none;
+}
+
+.center{
+	text-align: center;
+	margin: 0 auto;
+}
+
+.calendar_container{
+	margin-bottom:0.4em;
+}
+
+.table_calendar{
+	width: 300px;
+	background-color: #f2f2f2;
+	border: 2px solid #d8d8d8;
+	margin: 0 auto;
+}
+
+.table_calendar  a{
+	text-decoration: none;
+	color: #000075;
+	font-size: 14px;
+}
+
+.table_calendar .month_year a{
+	color: #FFFFFF;
+}
+
+.table_calendar td,.table_calendar th{
+	padding: 0.4em;
+	text-align: center;
+	width: 90px;
+}
+
+.table_calendar .month_year{
+	font-size: 1.8em;
+	text-align: center;
+	border-bottom: 2px solid #d8d8d8;
+	background-color: #f35d3c;
+	color: #FFFFFF;
+	padding: 0.4em;
+}
+
+.table_calendar .calendar_today{
+	
+    
+	text-align: center;
+    -moz-border-radius: 28px; /* or 50% */
+    border-radius: 28px; /* or 50% */
+
+    background-color: #f35d3c;
+    color: #FFFFFF;
+}
+
+.table_calendar .selected_date {
+	
+    text-align: center;
+    -moz-border-radius: 28px; /* or 50% */
+    border-radius: 28px; /* or 50% */
+	
+	background-color: #ffffa4;
+}
+
+.table_calendar .past_date a{
+	color: #bababa;
+}
+
+#booking_container_date{
+	font-weight: bold;
+}
+
+.booking_container{
+	position: relative;
+}
+
+
+.table-wrapper { 
+    overflow-x:scroll;
+    overflow-y:visible;
+   
+    margin-left: 185px;
+}
+
+tr.room_row > td{ 
+   max-width: 70px;
+   min-width: 70px;
+   padding: 0.4em;
+   border: 1px solid #999999;
+}
+
+
+
+.table-wrapper th {
+    padding: 5px 20px;
+    width: 180px;
+    max-width: 180px;
+	border: 1px solid #999999;
+	background-color: #ffffa4;
+	text-align:center;
+	white-space: nowrap;
+	  
+	  
+}
+
+.table-wrapper th:first-child {
+    position: absolute;
+    left: 5px;
+	margin-top: -1px;
+	border-right: none;
+}
+
+.table-wrapper .room_name{
+	color: #FFFFFF;
+	background-color: #f35d3c;
+	text-align: left;
+}
+
+.table-wrapper .room_free{
+	background-color: #63cbd8;
+	display: table-cell;
+	min-width: 90px;
+	border: 1px solid #999999;	
+	height: 30px;
+	text-align: center;
+}
+
+.table-wrapper .not_avail{
+	background-color: #e3e3e3;
+	display: table-cell;
+	min-width: 90px;
+	border: 1px solid #999999;	
+	height: 30px;
+	text-align: center
+}
+
+.booking_cell a{
+	display: block;
+    height: 100%;
+    width: 100%;	
+}
+
+.booking_cell{
+	font-size: 13px;
+}
+
+.room_free{
+	
+}
+
+.booked_cell{
+	background-color: #e3e3e3;
+	text-align: center;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.closed{
+	background-color: #f1e4c9;
+	text-align: center;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.room_resources{
+	display: none;
+}
+
+#filter_container{
+	display: none;
+}

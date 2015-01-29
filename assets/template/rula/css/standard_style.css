@@ -1,0 +1,379 @@
+/* CSS for RULA Template
+Last Modified: May 28, 2013 */
+
+@import "normalize.css";
+
+
+/* =Extra Normalize Rules
+----------------------------------------------- */
+/* Force Safari to style search form fields */
+input[type="search"] {
+  -webkit-appearance: textfield;
+}
+
+/* =Structure
+----------------------------------------------- */
+
+body {
+	background-color: #222d2d;
+	margin: 0px;
+	position: relative;
+	
+	/*font-size: 81.3%;*/
+	min-width: 380px;
+}
+
+#page {
+	width: 960px;
+	margin: 0px;
+	margin-left: auto;
+    margin-right: auto;
+	background-color: #FFFFFF;
+}
+
+#secondnav {
+	float: left;
+	width: 23.5%;
+	margin: 0 1% 0 2%;
+}
+
+#content {
+	/*float: right;
+	width: 69%; */
+	padding: 0 2%;
+	border-left: 1px solid #E8E8E8;
+	margin-bottom: 1em;
+}
+
+.singular #content {
+	width: auto;
+	float: none;
+	margin: 0;
+}
+
+.breadcrumbs {
+    font-size: 0.8em;
+    font-weight: bold;
+    padding: 1em 0 0;
+}
+
+/* Site Footer */
+footer{
+	clear: both;
+	position: relative;
+	padding-top: 5px;
+	padding-bottom: 10px;
+	text-align: center;
+	border-top: 2px solid #e8e8e8;
+	margin: 20px 20px 0 20px;
+	font-size: 0.9em;
+	color: #666666;
+}
+
+footer img {
+	margin: 0;
+	vertical-align: middle;
+	border: 0;
+}
+
+
+/* Header margins are for normalization purposes */
+
+
+
+a:link { /* Links are navy */	
+	color: #003366;
+	background-color: transparent
+}
+a:visited {
+	color: #1072A7;
+}
+a:hover {
+	color: #990000;
+}
+a.active-section {
+	background-color: #f8f8f8;
+}
+
+.grey-gradient{
+	border:1px solid #cccccc;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	background: #f8f8f8;
+	background: -moz-linear-gradient(top, #f8f8f8 0%, #e8e8e8 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f8f8f8), color-stop(100%,#e8e8e8));
+	background: -webkit-linear-gradient(top, #f8f8f8 0%,#e8e8e8 100%);
+	background: -o-linear-gradient(top, #f8f8f8 0%,#e8e8e8 100%);
+	background: -ms-linear-gradient(top, #f8f8f8 0%,#e8e8e8 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f8f8f8', endColorstr='#e8e8e8',GradientType=0 );
+	background: linear-gradient(top, #f8f8f8 0%,#e8e8e8 100%);
+	-webkit-box-shadow: 0px 3px 4px 0px #bc921e;
+	-moz-box-shadow: 0px 3px 4px 0px #bc921e;
+	box-shadow: 0px 3px 4px 0px #bc921e;
+}
+
+
+/* Forms */
+input#searchsubmit {
+	display: none;
+}
+input,
+textarea {
+	max-width: 100%;
+}
+
+
+/* Assistive text */
+.assistive-text {
+	position: absolute !important;
+	clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+	clip: rect(1px, 1px, 1px, 1px);
+}
+#access a.assistive-text:active,
+#access a.assistive-text:focus {
+	background: #eee;
+	border-bottom: 1px solid #ddd;
+	color: #1982d1;
+	clip: auto !important;
+	font-size: 12px;
+	position: absolute;
+	text-decoration: underline;
+	top: 0;
+	left: 7.6%;
+}
+
+
+/* =Header
+-------------------------------------------------------------- */
+
+#branding {
+	text-align: top;
+	margin: 0;
+	padding: 0;
+	background-color: #FFFFFF;
+}
+
+#sitename {
+	float: left;
+	padding: 8px 88px 5px 30px;
+	vertical-align: top;
+}
+
+#banner_right {
+	background-color: #FFF;
+	padding-top: 20px;
+	padding-right: 30px;
+	float: right;
+}
+
+/* Nav Bar */
+#access{
+	clear: both;
+	display: block;
+	width: 100%;
+	background-image:none;
+	padding:0;
+	margin:0;
+	position: relative;
+	font-size: 0.846em; /* originally 11px */
+	height:auto;
+	background-color:#e0b12f;
+	border-top:1px solid #c69c29;
+	border-bottom:1px solid #c69c29;
+}
+#access a {
+	text-decoration: none;
+}
+#top-nav{
+	margin:0;padding:3px 7px 5px 7px;
+	display:block;
+	border-top:1px solid #e5c671;
+}
+#top-nav a {
+	font-weight: normal;
+}
+#top-nav-list{
+	list-style:none;
+	margin:0;padding:0;
+	display:block;
+}
+.top-nav-item{
+	float:left;
+	border-right:1px solid #f4f4f4;
+	border-left:1px solid #d7d7d7;
+	position:relative;
+	
+}
+a.active-section {
+	background-color: #f8f8f8;
+}
+a.nav-link, a.nav-link:link, a.nav-link:visited {
+	padding: 7px 23px;
+	/*height: 25px;*/
+	line-height: 25px;
+	display: inline-block;
+	color:#000000;
+	text-shadow: 0 1px 0 #ffffff;
+}
+a.nav-link:hover{
+	background-color:#f8f8f8;
+	text-shadow:none;
+}
+a.nav-link:active{
+	background-color:#e8e8e8;
+}
+.top-sub-menu{
+	position:absolute;
+	top:39px;
+	left:0;
+	z-index:99;
+	display:none;
+	list-style:none;
+	margin:0;
+	padding:0px;
+	text-align:left;
+	width: 150px;
+	background:#e8e8e8;
+	-moz-border-radius-bottomright: 3px;
+	-moz-border-radius-bottomleft: 3px;
+	-webkit-border-radius: 0px 0px 3px 3px;
+	border-radius: 0px 0px 3px 3px;
+	-webkit-box-shadow: 0px 3px 4px 0px #aaaaaa;
+	-moz-box-shadow: 0px 3px 4px 0px #aaaaaa;
+	box-shadow: 0px 3px 4px 0px #aaaaaa;
+}
+.top-sub-item a, .top-sub-item a:link, .top-sub-item a:visited{
+	color:#000000;
+	border-top:1px solid #e8e8e8;
+	border-bottom:1px solid #e8e8e8;
+	display:block;
+	padding:5px;
+	line-height:16px;
+						
+}
+.top-sub-item a:hover, .top-sub-item a:active{
+	border-top:1px solid #11385f;
+	border-bottom:1px solid #11385f;
+	background-color:#1C5793;
+	color:#ffffff;
+	text-shadow:none;
+	
+}
+.top-nav-item:hover .top-sub-menu{
+	display: block;
+}
+.top-nav-item-first{
+	border-left: 0;
+}
+.top-nav-item-last{
+	border-right: 0;
+	padding: 6px 10px;
+}
+#searchform{
+	padding: 0;
+	margin: 0;
+	display: inline;
+	float: left;
+	text-align: left;
+}
+
+#searchform input {
+	font-size: 0.9em; /* original: 10px */
+	padding-bottom: 0px;
+	vertical-align: top;
+}
+
+/* =Sidebar Nav
+-------------------------------------------------------------- */
+.navhead {
+	margin-bottom: 0.2em;
+	letter-spacing: 0.1em;
+}
+
+.navlist {
+	list-style: none;
+	margin: 0;
+	padding-left: 14px;
+	padding-bottom: 1em;
+}
+
+.navlist + .navhead {
+	margin-top: 0;
+}
+
+.navitem + .navitem {
+	border-top: 1px dotted gray;
+}
+
+.navitem {
+	padding: 0.15em 0 0.15em 4px;
+	text-indent: -0.8em;
+	display: block;
+	margin-left: 0.8em;
+}
+.navitem a {
+	text-decoration: none;
+}
+
+/* To make the coloured boxes in the Legend example */
+.hitarea {
+	display: inline;
+	float: left;
+	height: 14px;
+	width: 14px;
+	margin: 3px 15px 0 -28px;
+}
+
+.select {
+	background-color: #D7EBFF;
+}
+.today {
+	background-color: #FFFFA4;
+}
+.avail {
+	background-color: #E0FFC1;
+}
+.booked {
+	background-color: #FFE8E8;
+}
+.maint { /* special closure */
+	background-color: #F1E4C9;
+}
+.notavail {
+	background-color: #E9E9E9;
+}
+
+/* =Responsive Structure
+----------------------------------------------- */
+
+@media (max-width: 60em) { /* approx 960px */
+	/* Simplify the basic layout */
+	#page { 
+		width: 100%;
+		min-width: 380px;
+	}
+	
+
+	/* Make nav menu wrap */
+	#top-nav-list .top-nav-item {
+		display: inline;
+		float: left;
+		border-bottom: 1px solid #D7D7D7;
+	}
+	#top-nav-list .menu-item-search {
+		width: auto;
+		padding: 0.55em 0.9em;
+	}
+}
+
+@media (max-width: 45em) { /* approx 720px */
+	/* Simplify the basic layout */
+	#content {
+		margin: 0 7.6%;
+		width: auto;
+
+		border: none;
+	}
+
+}
