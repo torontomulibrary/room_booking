@@ -67,6 +67,7 @@
 
 <div class="booking_container">
 	<?php
+		
 		//Display the date for the selected day
 		$date_raw = date_parse_from_format('Ymd', $this->input->get('date', TRUE));
 		$date = mktime(0, 0, 0, $date_raw['month'], $date_raw['day'], $date_raw['year']);
@@ -168,26 +169,44 @@
 							$tNow = $tStart;
 
 							while($tNow <= $tEnd){
+								$end_row = false;
+								
 								//Check for block bookings! (Nested loops, YUCK!)
 								foreach($block_bookings as $block_booking){
-									if(array_key_exists($room->room_id, $block_booking['room']) && strtotime($block_booking['start']) == $tNow){
-										$bbStart = strtotime($block_booking['start']);
-										$bbEnd = strtotime($block_booking['end']);
-										
-										$length = ($bbEnd - $bbStart);
-										$colspan = ($bbEnd - $bbStart) / 60 / 30;
-										
-										
-										
-										echo '<td class="closed booking_cell" colspan="'.$colspan.'">'.$block_booking['reason'].'</td>';
-										$tNow += $length; //4pm....
-										echo $length;
-										break;
-										
-										
-										
+									if(strtotime($block_booking['start']) < $tStart){
+										$block_booking['start'] = date('Y-m-d H:i:s', $tStart);
+									}
+									
+									//Since we bumped the start time forward, make sure it didn't pass the end time. If it did, ignore the block booking (since the booking started/ended during closed hours)
+									if($block_booking['end'] > $block_booking['start']){
+										if(array_key_exists($room->room_id, $block_booking['room']) && strtotime($block_booking['start']) == $tNow){
+											$bbStart = strtotime($block_booking['start']);
+											$bbEnd = strtotime($block_booking['end']);
+											
+											if($bbEnd > $tEnd){
+												$bbEnd = $tEnd;	
+											}
+											
+											$length = ($bbEnd - $bbStart);
+											$colspan = ($bbEnd - $bbStart) / 60 / 30;
+											
+											$tNow += $length; 
+											
+											//If the block booking goes past the end time, set it to the end time
+											if($tNow >= $tEnd){
+												$tNow = $tEnd + (60*30);
+												$colspan += 1; //Need for the edge case, not sure why
+												$end_row = true;
+											}
+											
+											echo '<td class="closed booking_cell" colspan="'.$colspan.'">'.$block_booking['reason'].'</td>';
+											
+											break;
+										}
 									}
 								}
+								
+								if($end_row) break;
 								
 								//End block bookings
 								

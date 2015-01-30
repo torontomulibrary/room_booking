@@ -130,7 +130,7 @@ class booking_Model  extends CI_Model  {
 			
 			$this->db->insert('bookings', $data);
 			
-			return TRUE;
+			return $this->db->insert_id();
 		}
 		else{
 			return FALSE;
@@ -138,11 +138,13 @@ class booking_Model  extends CI_Model  {
 	}
 	
 	//Lists upcoming block bookings (unless optional parameter is true, where past block bookings are shown)
-	function list_block_bookings($include_past = false){
+	function list_block_bookings($date = 0, $include_past = false){
+		if($date == 0) $date = time();
+		
 		$sql = "SELECT bb.*, bbr.room_id, r.name FROM block_booking bb, block_booking_room bbr, rooms r WHERE bb.block_booking_id = bbr.block_booking_id AND bbr.room_id = r.room_id ";
 		
 		if(!$include_past){
-			$sql .= " AND (start > '".date('Y-m-d')."' OR end  > '".date('Y-m-d')."')";
+			$sql .= " AND (start >= '".date('Y-m-d', $date)."' OR end  > '".date('Y-m-d', $date)."')";
 		}
 		
 		$sql .= " ORDER BY start ASC";
@@ -276,5 +278,18 @@ class booking_Model  extends CI_Model  {
 			$this->db->insert('block_booking_room', $data);
 		}
 		
+	}
+	
+	function generate_ics($booking_id){
+		$this->db->where('booking_id', $booking_id);
+		$booking_data = $this->db->get('bookings')->row();
+		
+		$data = array(
+			'start' => strtotime($booking_data->start),
+			'end' => strtotime($booking_data->end),
+		);
+		
+		$ics_content = $this->load->view('email/booking_ics',$data, TRUE);
+		file_put_contents('temp/'.$booking_id.'.ics', $ics_content);
 	}
 }

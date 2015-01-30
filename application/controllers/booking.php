@@ -49,7 +49,6 @@ class Booking extends CI_Controller {
 		
 		//Pull in all the rooms the current user is allowed to view!
 		$data['roles'] = $this->role_model->list_roles();
-		$data['block_bookings'] = $this->booking_model->list_block_bookings();
 		$data['rooms'] = array();
 		
 		$data['resources_filter'] = $this->resource_model->list_resources(true);
@@ -70,7 +69,8 @@ class Booking extends CI_Controller {
 		//Generate the calendar needed
 		if($this->input->get('month') !== false){
 			if($this->input->get('date') !== false){
-			
+				
+				
 				//Return all bookings for the day (as an associative array for easy retrieval) 
 				$bookings = $this->booking_model->get_bookings($this->input->get('date', TRUE));
 				
@@ -83,6 +83,8 @@ class Booking extends CI_Controller {
 				
 				//Load the hours for the selected date
 				$data['hours'] = $this->hours_model->getAllHours(mktime(0,0,0, $current_month['month'],$current_month['day'],$current_month['year']));
+				
+				$data['block_bookings'] = $this->booking_model->list_block_bookings(mktime(0,0,0, $current_month['month'],$current_month['day'],$current_month['year']));
 			}
 			else{
 				$current_month = date_parse_from_format('Ym', $this->input->get('month', TRUE));
@@ -146,11 +148,36 @@ class Booking extends CI_Controller {
 				}
 				else{
 					//Try to make the booking
-					if($this->booking_model->book_room($room_id, $start_time, $finish_time, $comment) == false){
+					$id = $this->booking_model->book_room($room_id, $start_time, $finish_time, $comment);
+					
+					if($id === FALSE){
 						$this->session->set_flashdata('warning', "Another booking already exists for this time. Please choose a different room/time");
 						redirect(base_url() . 'booking?month='.date('Ym', $start_time).'&date='.date('Ymd',$start_time));
 					}
 					else{
+						
+						$this->load->library('email');
+						$this->load->model('room_model');
+						$room = $this->room_model->load_room($room_id);
+						
+						//Send an email
+						$data['name'] = $this->session->userdata('name');
+						$data['start'] = $start_time;
+						$data['end'] = $finish_time;
+						$data['room'] = $room;
+						
+						$this->booking_model->generate_ics($id);
+						
+						$email_content = $this->load->view('email/booking_confirmation', $data, TRUE);
+						$this->email->clear();
+						$this->email->to($this->session->userdata('username').EMAIL_SUFFIX);
+						$this->email->from('noreply'.EMAIL_SUFFIX);
+						$this->email->subject('Booking Confirmation');
+						$this->email->message($email_content);
+						$this->email->attach('temp/'.$id.'.ics');
+						$this->email->send();
+						
+						
 						$this->session->set_flashdata('success', "Booking Successfully Made");
 						redirect(base_url() . 'booking?month='.date('Ym', $start_time).'&date='.date('Ymd',$start_time));
 					}

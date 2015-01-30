@@ -89,12 +89,12 @@
 	
 	<div class="form-group">
 		<label for="start">Start</label>
-		<input class="form-control date_time" type="text"  name="start" id="start" value="<?php if(isset($current)) echo date('Y-m-d H:s',strtotime($current_bb['start'])) ?>" />
+		<input class="form-control date_time" type="text"  name="start" id="start" value="<?php if(isset($current)) echo date('Y-m-d H:i',strtotime($current_bb['start'])) ?>" />
 	</div>
 	
 	<div class="form-group">
 		<label for="end">End</label>
-		<input class="form-control date_time" type="text" id="end" name="end" value="<?php if(isset($current)) echo date('Y-m-d H:s',strtotime($current_bb['end'])) ?>" />
+		<input class="form-control date_time" type="text" id="end" name="end" value="<?php if(isset($current)) echo date('Y-m-d H:i',strtotime($current_bb['end'])) ?>" />
 	</div>
 	
 	<div class="form-group">
