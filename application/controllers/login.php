@@ -17,7 +17,7 @@ class Login extends CI_Controller {
 		parent::__construct();
 		
 		//If site constant is set to debug, enable the profiler (gives analytics for page load). 
-		$this->output->enable_profiler(DEBUG_MODE);
+		//$this->output->enable_profiler(DEBUG_MODE);
 		
 		$this->session->keep_flashdata('origin'); //No idea why this is neccessary, but it does its job
 		
@@ -94,17 +94,23 @@ class Login extends CI_Controller {
 		
 		$this->session->set_userdata('roles', $roles);
 		
-		//If the roles array is empty, display friendly message to user telling them
-		//that they do not have access to the system (and possibly a contact email?)
-		
-		$redirect_url = $this->session->flashdata('origin');
-		//print current_url(); die;
-		//If the origin url is set, redirect to it, else go to the landing page
-		if(strlen($redirect_url) > 0){
-			redirect($redirect_url);
+		//Does the user have any roles in the system? No roles = no access
+		if(count($roles) === 0){
+			$this->template->load('rula_template', 'denied');
+			$this->session->sess_destroy();	
+			
 		}
 		else{
-			redirect(base_url());
+			$redirect_url = $this->session->flashdata('origin');
+			
+			
+			//If the origin url is set, redirect to it, else go to the landing page
+			if(strlen($redirect_url) > 0){
+				redirect($redirect_url);
+			}
+			else{
+				redirect(base_url());
+			}
 		}
 		
 	}
