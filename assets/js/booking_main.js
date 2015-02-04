@@ -6,6 +6,10 @@ $('#filter_link').on('click', function(){
 	$('#filter_container').toggle();
 });
 
+$('.role_title_collapse a').on('click', function(){
+	$(this).parent().parent().next().toggle();
+});
+
 //Create the filter functionality
 $(".filter_checkbox").change(function() {
 		//Reset all the filters, then re-apply them

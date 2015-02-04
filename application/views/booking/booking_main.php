@@ -28,40 +28,56 @@
 <?php if($this->session->flashdata('success') !== FALSE): ?><div class="alert alert-success" role="alert"><?php echo $this->session->flashdata('success'); ?></div><?php endif; ?>
 <?php if($this->session->flashdata('danger') !== FALSE): ?><div class="alert alert-danger" role="alert"><?php echo $this->session->flashdata('danger'); ?></div><?php endif; ?>
 
-<div class="calendar_container">
-	<?php 
-		echo $calendar;
-	?>
+<div id="top_content">
+	<div id="top_left">
+		<div id="app_links">
+			<ul>
+				<li><a class="selected" href="#">Dashboard</a></li>
+				<li><a href="#">MAIN PAGE</a></li>
+				<li><a href="#">MY BOOKINGS</a></li>
+				<li><a href="<?php echo base_url(); ?>logout">LOG OUT</a></li>
+			</ul>
+		</div>
+		
+		<div id="lower_left_content">
+			<div class="center" id="filter_link_title">Specify your Search<a href="#" id="filter_link">+</a>
+				<div id="filter_container">
+					<!-- Disable autocomplete to prevent the browser from leaving boxes checked/unchecked on refresh -->
+					<form autocomplete="off">		
+					<?php foreach($resources_filter->result() as $resource): ?>
+					<div class="checkbox">
+					  <label>
+						<input type="checkbox" class="resource_checkbox filter_checkbox" value="<?php echo $resource->resource_id ?>">
+						<?php echo $resource->name; ?>
+					  </label>
+					</div>
+					<?php endforeach; ?>
+					
+					<?php foreach($buildings->result() as $building): ?>
+					<div class="checkbox">
+					  <label>
+						<input type="checkbox" class="building_checkbox filter_checkbox" value="<?php echo $building->building_id ?>">
+						<?php echo $building->name; ?>
+					  </label>
+					</div>
+					<?php endforeach; ?>
+					</form>
+				
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="calendar_container">
+		<?php 
+			echo $calendar;
+		?>
+	</div>
 </div>
-<div class="center"><a href="<?php echo base_url() . 'booking?month=' . date('Ym') . '&date=' . date('Ymd')?>" id="showtoday">SHOW TODAY</a></div>
 
 <?php if($this->input->get('date') !== FALSE): ?>
 
-<div class="center"><a href="#" id="filter_link">Filter</a>
-	<div id="filter_container">
-		<!-- Disable autocomplete to prevent the browser from leaving boxes checked/unchecked on refresh -->
-		<form autocomplete="off">		
-		<?php foreach($resources_filter->result() as $resource): ?>
-		<div class="checkbox">
-		  <label>
-			<input type="checkbox" class="resource_checkbox filter_checkbox" value="<?php echo $resource->resource_id ?>">
-			<?php echo $resource->name; ?>
-		  </label>
-		</div>
-		<?php endforeach; ?>
-		
-		<?php foreach($buildings->result() as $building): ?>
-		<div class="checkbox">
-		  <label>
-			<input type="checkbox" class="building_checkbox filter_checkbox" value="<?php echo $building->building_id ?>">
-			<?php echo $building->name; ?>
-		  </label>
-		</div>
-		<?php endforeach; ?>
-		</form>
-	
-	</div>
-</div>
+
 <div style="clear:both"></div>
 
 
@@ -84,21 +100,21 @@
 			if(isset($rooms[$role->role_id])): 
 		?>
 		
-		<h4><?php echo $role->name; ?></h4>
+		
 		
 		<?php if($hours['min'] == 2 || $hours['max'] == -1): ?>
+				<h4><?php echo $role->name; ?></h4>
 				<div class="alert alert-warning" role="alert">All rooms are closed!</div>
 		<?php else: ?>
 		
+			<div class="role_title"><?php echo $role->name; ?><span class="role_title_collapse"><a href="#">+</a></span></div>
 			<div class="table-wrapper">
-			
-				
-			
-					<table class="" style="width: 100%;">
+					<table class="booking_table" style="width: 100%; border-collapse: initial;" cellspacing="0">
 						<thead>
+							
 						<?php
 							//Create the top row listing the times as table headers
-							echo '<tr><th>&nbsp;</th>';
+							echo '<tr><th><div class="table_cell_height">&nbsp;</div></th>';
 							
 							$tStart = mktime(0,0,0) + (($hours['min'] * 24) * 60 * 60); 
 							
@@ -110,7 +126,7 @@
 							$tNow = $tStart;
 
 							while($tNow <= $tEnd){
-							  echo '<th>'.date("g:iA",$tNow).'</th>';
+							  echo '<th><div class="table_cell_height">'.date("g:iA",$tNow).'</div></th>';
 							  $tNow += 60 * 30; //30 MINUTES (60 seconds * 30)
 							}
 							
@@ -130,7 +146,7 @@
 							else{
 								$seats = "1 seat";
 							}
-							echo 	'<tr data-buildingid="'.$room->building_id.'" data-seats="'.$room->seats.'" class="room_row"><th class="room_name">'.$room->name .' ('.$seats.') <div class="room_resources">';
+							echo 	'<tr data-buildingid="'.$room->building_id.'" data-seats="'.$room->seats.'" class="room_row"><th class="room_name"><div class="table_cell_height">'.$room->name .' &bull; '.$seats.'</div><div class="room_resources">';
 							
 							foreach($resources[$room->room_id]->result() as $resource){
 								echo '<span class="resource_element" data-resourceid="'.$resource->resource_id.'">'.$resource->name . '</span>';
@@ -144,7 +160,7 @@
 								$numSlots = ceil(((($hours['max'] - $hours['min']) * 24) * 60) / 30) + 1;
 								
 								//Output the placeholder
-								echo '<td colspan="'. $numSlots .'" class="closed booking_cell">Closed</td>';
+								echo '<td colspan="'. $numSlots .'" class="closed booking_cell"><div class="table_cell_height">Closed</div></td>';
 								
 								$tStart = mktime(0,0,0, $date_raw['month'], $date_raw['day'], $date_raw['year']) + (($hours['min'] * 24) * 60 * 60); //Start the "closed" slot at the earliest time
 							}
@@ -153,7 +169,7 @@
 								$numSlots = ceil(((($hours[$room->external_id]->STARTTIME - $hours['min']) * 24) * 60) / 30);
 								
 								//Output the placeholder
-								echo '<td colspan="'. $numSlots .'" class="closed booking_cell">Closed</td>';
+								echo '<td colspan="'. $numSlots .'" class="closed booking_cell"><div class="table_cell_height">Closed</div></td>';
 								
 								//Adjust the starting time to be offset
 								$tStart = mktime(0,0,0,$date_raw['month'], $date_raw['day'], $date_raw['year']) + (($hours[$room->external_id]->STARTTIME * 24) * 60 * 60); 
@@ -176,10 +192,12 @@
 									if(strtotime($block_booking['start']) < $tStart){
 										$block_booking['start'] = date('Y-m-d H:i:s', $tStart);
 									}
-									
+
 									//Since we bumped the start time forward, make sure it didn't pass the end time. If it did, ignore the block booking (since the booking started/ended during closed hours)
 									if($block_booking['end'] > $block_booking['start']){
+										
 										if(array_key_exists($room->room_id, $block_booking['room']) && strtotime($block_booking['start']) == $tNow){
+											
 											$bbStart = strtotime($block_booking['start']);
 											$bbEnd = strtotime($block_booking['end']);
 											
@@ -199,7 +217,7 @@
 												$end_row = true;
 											}
 											
-											echo '<td class="closed booking_cell" colspan="'.$colspan.'">'.$block_booking['reason'].'</td>';
+											echo '<td class="closed booking_cell" colspan="'.$colspan.'"><div class="table_cell_height">'.$block_booking['reason'].'</div></td>';
 											
 											break;
 										}
@@ -219,11 +237,14 @@
 									$booker_name = $bookings[$room->room_id][$tNow]->booker_name;
 									
 									//If this is your booking, or you are admin, show who booked it
-									if($booker_username == $this->session->userdata('username') || $this->session->userdata('super_admin') == TRUE){
-										echo '<td colspan="'.($diff/30) .'" class="booked_cell booking_cell">'.$booker_name.'</td>';
+									if($booker_username == $this->session->userdata('username') ){
+										echo '<td colspan="'.($diff/30) .'" class="my_booked_cell booking_cell"><div class="table_cell_height">'.$booker_name.'</div></td>';
+									}
+									else if($this->session->userdata('super_admin') == TRUE){
+										echo '<td colspan="'.($diff/30) .'" class="booked_cell booking_cell"><div class="table_cell_height">'.$booker_name.'</div></td>';
 									}
 									else{
-										echo '<td colspan="'.($diff/30) .'" class="booked_cell booking_cell">Booked</td>';
+										echo '<td colspan="'.($diff/30) .'" class="booked_cell booking_cell"><div class="table_cell_height">Booked</div></td>';
 									}
 									$tNow += 60 * $diff ; //Add "diff" minutes
 									
@@ -237,10 +258,10 @@
 								
 									//Check to see if the date is in the past, or too far in the future
 									if(time() > $tNow){
-										echo '<td class="not_avail booking_cell">'.date("g:iA",$tNow).'</td>';
+										echo '<td class="not_avail booking_cell"><div class="table_cell_height">'.date("g:iA",$tNow).'</div></td>';
 									}
 									else{
-										echo '<td class="room_free booking_cell"><a class="" href="'. base_url() . 'booking/book_room?' . $uri . '">'.date("g:iA",$tNow).'</a></td>';
+										echo '<td class="room_free booking_cell"><div class="table_cell_height"><a class="" href="'. base_url() . 'booking/book_room?' . $uri . '">'.date("g:iA",$tNow).'</a></div></td>';
 									}
 									
 									$tNow += 60 * 30; //Add 30 minutes
@@ -254,7 +275,7 @@
 								$numSlots = ceil(((($hours['max'] - $hours[$room->external_id]->ENDTIME) * 24) * 60) / 30);
 								
 								//Output the placeholder
-								echo '<td colspan="'. $numSlots .'" class="closed booking_cell">Closed</td>';
+								echo '<td colspan="'. $numSlots .'" class="closed booking_cell"><div class="table_cell_height">Closed</div></td>';
 							}
 							
 							echo '</tr>';

@@ -111,12 +111,16 @@ class booking_Model  extends CI_Model  {
 	
 	function book_room($room_id, $start, $end, $comment){
 		//Make sure the slot is not already booked!
+		$this->db->cache_off();
+		
 		$sql = "SELECT * FROM bookings WHERE 
 				start >= '". date('Y-m-d H:i:s', $start)."'
 				and end <= '". date('Y-m-d H:i:s', $end)."'
 				and room_id = $room_id";
 		
 		$existing_bookings = $this->db->query($sql);
+		
+		$this->db->cache_on();
 		
 		if($existing_bookings->num_rows() == 0){
 			$data = array(
@@ -281,15 +285,27 @@ class booking_Model  extends CI_Model  {
 	}
 	
 	function generate_ics($booking_id){
+		$this->load->model('room_model');
+		
 		$this->db->where('booking_id', $booking_id);
 		$booking_data = $this->db->get('bookings')->row();
+		
+		$room_result = $this->room_model->load_room($booking_data->room_id);
+		$room = $room_result['room_data']->row();
 		
 		$data = array(
 			'start' => strtotime($booking_data->start),
 			'end' => strtotime($booking_data->end),
+			'room' => $room->name,
+			'booking_id' => $booking_id,
 		);
 		
 		$ics_content = $this->load->view('email/booking_ics',$data, TRUE);
 		file_put_contents('temp/'.$booking_id.'.ics', $ics_content);
+	}
+	
+	function delete_ics($booking_id){
+		@unlink('temp/'.$booking_id.'.ics');
+		return;
 	}
 }

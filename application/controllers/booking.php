@@ -15,10 +15,7 @@ class Booking extends CI_Controller {
 	//$this->template->load(template, view, vars) 
 	function Booking(){
 		parent::__construct();
-		
-		//TEMP
-		
-		
+	
 		//Check for existing login
 		if(!strlen($this->session->userdata('username')) > 0){
 			$this->session->set_flashdata('origin', current_url());
@@ -176,6 +173,8 @@ class Booking extends CI_Controller {
 						$this->email->message($email_content);
 						$this->email->attach('temp/'.$id.'.ics');
 						$this->email->send();
+						$this->booking_model->delete_ics($id);
+						
 						
 						
 						$this->session->set_flashdata('success', "Booking Successfully Made");
@@ -193,4 +192,5 @@ class Booking extends CI_Controller {
 			redirect(base_url());
 		}
 	}
+
 }
