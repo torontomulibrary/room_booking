@@ -40,5 +40,10 @@ define('DEBUG_MODE',							TRUE);
 define('SITE_ADMIN',							'steven.marsden@ryerson.ca');
 define('HOURS_URL',								'https://library.cf.ryerson.ca/webapps/hours/view/hours_external.cfm');
 define('EMAIL_SUFFIX',							'@ryerson.ca');
+
+define('RMS_USERNAME',							'libsysadmin');
+define('RMS_PASSWORD',							'&7V!4nBq');
+define('RMS_SERVICE',							'https://rms-wsdata.spi.ryerson.ca/owner/resources/{username}/labs?room=accesscentre');
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
