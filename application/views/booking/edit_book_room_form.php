@@ -20,9 +20,10 @@
 <h3 style="text-align: center; font-weight: bold">Ryerson University Libray Room Booking</h3>
 
 <?php
+var_dump($booking);
 //Verify the required fields are present (and the time is a half hour increment (don't let people mess with the URL)
 //Also make sure the user is allowed to book this room, and that the room is not closed
-if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot')) || $this->input->get('room_id') === FALSE || !is_numeric($this->input->get('room_id')) || ($this->input->get('slot') % 1800) !== 0): ?>
+if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('booking_id'))): ?>
 	<div class="alert alert-danger" role="alert">An Error has occured. </div>
 <?php else: ?>	
 		<?php $room_data = $room['room_data']->row(); ?>
@@ -31,57 +32,54 @@ if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot'))
 			<div class="col-xs-9">
 				<div class="row">
 					<div class="col-xs-3 " style="background-color: #F0F0F0; border: 2px solid #c3c3c3; height:800px">
-							<img style="margin: 3em auto;" src="<?php echo base_url() ?>assets/img/Book-Room-Icon3.png" alt="calendar">
+						
+						
+						<img style="margin: 3em auto;" src="<?php echo base_url() ?>assets/img/Book-Room-Icon3.png" alt="calendar">
+						
+					
 						
 						
 						
-						<span id="month_left"><?php echo date('F', $this->input->get('slot')) ?></span>
-						<span id="date_left"><?php echo date('d', $this->input->get('slot')) ?></span>
+						<span id="month_left"><?php echo date('F',strtotime($booking->start)) ?></span>
+						<span id="date_left"><?php echo date('d', strtotime($booking->start)) ?></span>
 					</div>
 					<div class="col-xs-9" style="border: 2px solid #c3c3c3;  height:800px">
 						
 						
-						<h3 id="page_title">Make a Reservation</h3>
+						<h3 id="page_title">Edit Reservation</h3>
 						
-						<?php if($limits['day_used'] >= $room_data->max_daily_hours): ?>
+						<?php if($limits['day_remaining'] <= 0): ?>
 							<div class="alert alert-danger" role="alert">You have already booked the maximum allowable time for today</div>
 						<?php else: ?>
 						
 							<form action="<?php echo base_url()?>booking/submit" method="post" autocomplete="off">
 							
 								<div class="form_left">When</div>
-								<div class="form_right"><?php echo date('l M d, Y', $this->input->get('slot'));?></div>
+								<div class="form_right"><?php echo date('l M d, Y', strtotime($booking->start)); ?></div>
 								
 								<div class="form_left">Where</div>
 								<div class="form_right"><?php echo $room_data->name;?> (<?php echo $room_data->seats; echo ($room_data->seats>1)? ' seats': ' seat'?>)</div>
-							
-								
+
+								<div class="form_left">Reserved By</div>
+								<div class="form_right"><?php echo $booking->booker_name;?></div>
 								
 								<div class="form_left">Start Time</div>
-								<div class="form_right"><?php echo date('g:ia', $this->input->get('slot'));?></div>
+								<div class="form_right"><?php echo date('g:ia', strtotime($booking->start));?></div>
 								
 								<div class="form_left">Finish Time</div><div style="clear:both"></div>
 								<div class="">
 									<select name="finish_time">
 										<?php
-											$max_per_day = $room_data->max_daily_hours - $limits['day_used'];
+											$max_per_day = $limits['day_remaining'];
 											$max_per_week = $limits['week_remaining'];
-											$start_time = $this->input->get('slot') + (30*60); //Start at the starting time + 30 minutes as the first slot to book
+											$start_time = strtotime($booking->start) + (30*60); //Start at the starting time + 30 minutes as the first slot to book
 											
 											//Figure out the end time. It's either the users max allowed booking time, or midnight
-											//$end_time = $start_time + ($limits['booking_limit'] * 60 * 60) - (30*60);
-											
-											$end_time = $start_time + (($room_data->max_daily_hours - $limits['day_used'])*60*60 ); 
+											$end_time = $start_time + ($limits['booking_limit'] * 60 * 60) - (30*60);
 											
 											//If greater then midnight, set the end time to midnight
-											if($end_time > mktime(0,0,0,date('n',$this->input->get('slot')), date('d',$this->input->get('slot'))+1)){
-												$end_time = mktime(0,0,0,date('n',$this->input->get('slot')), date('d',$this->input->get('slot'))+1);
-											}
-											
-											//If there is another booking ahead of this, do not allow for overlap
-											if($next_booking->num_rows > 0 &&  $end_time > strtotime($next_booking->row()->start)){
-													$end_time = strtotime($next_booking->row()->start);
-													
+											if($end_time > mktime(0,0,0,date('n',strtotime($booking->start)), date('d',strtotime($booking->start))+1)){
+												$end_time = mktime(0,0,0,date('n',strtotime($booking->start)), date('d',strtotime($booking->start))+1);
 											}
 											
 											$slot = $start_time;
@@ -126,8 +124,8 @@ if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot'))
 									<input id="submit_button" type="submit" value="Book Room" /><input type="button" id="cancel_button" value="Cancel" />
 								</div>
 							
-								<input type="hidden" name="slot" value="<?php echo $this->input->get('slot'); ?>" />
-								<input type="hidden" name="room_id" value="<?php echo $this->input->get('room_id'); ?>" />
+								<input type="hidden" name="slot" value="<?php echo strtotime($booking->start); ?>" />
+								<input type="hidden" name="room_id" value="<?php echo $booking->room_id; ?>" />
 								
 							</form>
 						<?php endif; ?>
@@ -147,7 +145,7 @@ if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot'))
 			<h4>You are able to</h4>
 			<ul>
 				<li style="display:none">Make 2 study room bookings per day (keep this?)</li>
-				<li>You have booked <strong><?php echo $limits['day_used']; ?> hours</strong> today</li>
+				<li>Book <strong><?php echo $limits['day_remaining']; ?> hours</strong> in the study rooms today</li>
 				<li>Book <strong><?php echo $limits['week_remaining']; ?> hours</strong> in the study rooms this week</li>  
 			</ul>
 		  
@@ -156,7 +154,7 @@ if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot'))
 		
 		<script type="text/javascript">
 			$('#cancel_button').on('click',function(){
-				window.location = "<?php echo base_url() . '/booking?month='. date('Ym',$this->input->get('slot')) . '&date='.date('Ymd',$this->input->get('slot')); ?>";
+				window.location = "<?php echo base_url() . '/booking?month='. date('Ym',strtotime($booking->start)) . '&date='.date('Ymd',strtotime($booking->start)); ?>";
 			});
 		</script>
 	<?php endif; ?>

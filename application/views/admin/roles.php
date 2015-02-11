@@ -27,7 +27,7 @@
 				<th>Role ID</th>
 				<th>Role Name</th>
 				<th>Bookings per Day</th>
-				<th>Hours per Day</th>
+			
 				<th>Hours per Week</th>
 				<th>Booking Window</th>
 				<th>Options</th>
@@ -39,7 +39,7 @@
 				<td><?= $role->role_id ?></td>
 				<td><?= $role->name ?></td>
 				<td><?= $role->bookings_per_day ?></td>
-				<td><?= ltrim($role->hours_per_day, '0'); ?></td>
+			
 				<td><?= ltrim($role->hours_per_week, '0'); ?></td>
 				<td><?= ltrim($role->booking_window, '0'); ?></td>
 				
@@ -83,11 +83,6 @@
 	<div class="form-group">
 		<label for="bookings_day">Bookings per Day</label>
 		<input class="form-control" type="text" id="bookings_day" name="bookings_day" value="<?php if(isset($current)) echo ltrim($current->bookings_per_day, '0') ?>" />
-	</div>
-	
-	<div class="form-group">
-		<label for="hours_day">Hours per Day</label>
-		<input class="form-control" type="text" id="hours_day" name="hours_day" value="<?php if(isset($current)) echo ltrim($current->hours_per_day, '0') ?>" />
 	</div>
 	
 	<div class="form-group">

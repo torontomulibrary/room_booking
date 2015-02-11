@@ -49,9 +49,10 @@ class Login extends CI_Controller {
 		
 		
 		
-		//---------------------------------------------------------------
-		//TODO: Check for CAS roles that we care about (undergrad/grad)
+		//------------Load Users from existing groups--------------------
 		$cas_roles = $this->cas->getAttribute('activeclasses');
+		
+		//Grad Rooms
 		if(in_array('graduate', $cas_roles)){
 			$object = new stdClass();
 			$object->role_id = 5; //Hardcoded ID. Yuck!
@@ -59,14 +60,17 @@ class Login extends CI_Controller {
 			$roles[] = $object;
 		}
 		
-		if(in_array('undergrad', $cas_roles)){
+		
+		//Undergrad/Grad/CE are all allowed to book these rooms
+		if(in_array('undergrad', $cas_roles) || in_array('cned', $cas_roles) || in_array('graduate', $cas_roles)){
 			$object = new stdClass();
 			$object->role_id = 4; //Hardcoded ID. Yuck!
 			$object->name = "Undergraduate";
 			$roles[] = $object;
 		}
 		
-		if(is_access_center($user_data->userlogin)){
+		//Access centre rooms
+		if(false && is_access_center($user_data->userlogin)){ //TEMP: CRIPPLED THIS FUNCTION
 			$object = new stdClass();
 			$object->role_id = 6; //Hardcoded ID. Yuck!
 			$object->name = "Adaptive";
@@ -76,10 +80,6 @@ class Login extends CI_Controller {
 		
 		$this->session->set_userdata('name', $this->cas->getAttribute('firstname') . ' ' . $this->cas->getAttribute('lastname'));
 		
-		//Grad students contain the "graduate" role in activeclasses
-		//UGrad  students contain the "undergrad" role in activeclasses
-		
-		
 		//---------------------------------------------------------------
 		
 		//Check for super admin rights
@@ -87,7 +87,10 @@ class Login extends CI_Controller {
 			$this->session->set_userdata('super_admin', TRUE);
 		}
 		
-		//Check for local roles/admin rights
+		//Check for reg admin rights
+		$this->session->set_userdata('admin', $this->user_model->is_admin($user_data->userlogin));
+		
+		//Check for local roles rights
 		$local_user = $this->user_model->get_user_by_matrix($user_data->userlogin);
 		
 		//Assign local rows to the session

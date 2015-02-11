@@ -100,7 +100,7 @@ class Booking extends CI_Controller {
 		
 		//User is NOT allowed to make bookings in this room. Redirect to base url
 		if(!$this->booking_model->is_allowed($this->input->get('room_id'))){
-			echo 'here';die; redirect(base_url());
+			redirect(base_url());
 		}
 		
 		if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot')) || $this->input->get('room_id') === FALSE || !is_numeric($this->input->get('room_id'))){
@@ -114,13 +114,17 @@ class Booking extends CI_Controller {
 			$data['room'] = $this->room_model->load_room($this->input->get('room_id'));
 			$data['resources'] = $this->resource_model->load_resources($data['room']['room_resources']);
 			$data['limits'] = $this->booking_model->remaining_hours($this->session->userdata('username'), $this->input->get('slot'));
+			$data['next_booking'] = $this->booking_model->next_booking($this->input->get('slot'));
 			
+			
+			//var_dump($data); die;
 			$this->template->load('rula_template', 'booking/book_room_form', $data);
 		}
 	}
 	
 	function submit(){
 		$this->load->model('booking_model');
+		$this->load->model('room_model');
 		
 		$start_time = $this->input->post('slot');
 		$finish_time = $this->input->post('finish_time');
@@ -135,11 +139,13 @@ class Booking extends CI_Controller {
 		if(is_numeric($start_time) && ($start_time % 1800) == 0 && is_numeric($finish_time) && ($finish_time % 1800) == 0 && is_numeric($room_id)){
 			//Was this user allowed to book this room?
 			if($this->booking_model->is_allowed($room_id)){
+				$room = $this->room_model->load_room($room_id)['room_data']->row();
+				
 				//Check the users remaining bookable hours
 				$limits = $this->booking_model->remaining_hours($this->session->userdata('username'), $start_time);
 				$requested_time = (($finish_time - $start_time) / 60 / 60);
 				
-				if(($limits['day_remaining'] - $requested_time) < 0 || ($limits['week_remaining'] - $requested_time) < 0 ){
+				if(( $room->max_daily_hours - $limits['day_used'] ) < 0 || ($limits['week_remaining'] - $requested_time) < 0 ){
 					$this->session->set_flashdata('danger', "You have exceeded your booking limits. The booking has not been made");
 					redirect(base_url() . 'booking?month='.date('Ym', $start_time).'&date='.date('Ymd',$start_time));
 				}
@@ -191,6 +197,42 @@ class Booking extends CI_Controller {
 			$this->session->set_flashdata('warning', "An error has occured. The booking has not been made");
 			redirect(base_url());
 		}
+	}
+	
+	function edit_room(){
+		$this->load->model('booking_model');
+		
+		
+		
+		if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('booking_id'))){
+			redirect(base_url());
+		}
+		
+		$booking_data = $this->booking_model->get_booking($this->input->get('booking_id'));
+		
+		if($booking_data->num_rows == 0){
+			redirect(base_url());
+		}
+		
+		$data['booking'] = $booking_data->row();
+		
+		//Check for admin status
+		if(!$this->session->userdata('super_admin') || !$this->session->userdata('admin')){
+			//See if user made this booking
+			if($this->session->userdata('username') !== $data['booking']->matrix_id){
+				redirect(base_url());
+			}
+
+		}
+		
+		$this->load->model('room_model');
+		$this->load->model('resource_model');
+		
+		$data['room'] = $this->room_model->load_room($data['booking']->room_id);
+		$data['resources'] = $this->resource_model->load_resources($data['room']['room_resources']);
+		$data['limits'] = $this->booking_model->remaining_hours($this->session->userdata('username'), strtotime($data['booking']->start));
+		
+		$this->template->load('rula_template', 'booking/edit_book_room_form', $data);
 	}
 
 }

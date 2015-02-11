@@ -237,11 +237,11 @@
 									$booker_name = $bookings[$room->room_id][$tNow]->booker_name;
 									
 									//If this is your booking, or you are admin, show who booked it
-									if($booker_username == $this->session->userdata('username') ){
-										echo '<td colspan="'.($diff/30) .'" class="my_booked_cell booking_cell"><div class="table_cell_height">'.$booker_name.'</div></td>';
+									if($booker_username == $this->session->userdata('username')){
+										echo '<td colspan="'.($diff/30) .'" class="my_booked_cell booking_cell"><div class="table_cell_height"><a href="'.base_url().'booking/edit_room?booking_id='.$bookings[$room->room_id][$tNow]->booking_id.'">'.$booker_name.'</a></div></td>';
 									}
-									else if($this->session->userdata('super_admin') == TRUE){
-										echo '<td colspan="'.($diff/30) .'" class="booked_cell booking_cell"><div class="table_cell_height">'.$booker_name.'</div></td>';
+									else if($this->session->userdata('super_admin') == TRUE || $this->session->userdata('admin')){
+										echo '<td colspan="'.($diff/30) .'" class="booked_cell booking_cell"><div class="table_cell_height"><a href="'.base_url().'booking/edit_room?booking_id='.$bookings[$room->room_id][$tNow]->booking_id.'">'.$booker_name.'</a></div></td>';
 									}
 									else{
 										echo '<td colspan="'.($diff/30) .'" class="booked_cell booking_cell"><div class="table_cell_height">Booked</div></td>';

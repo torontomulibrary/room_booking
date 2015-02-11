@@ -20,8 +20,6 @@ function is_access_center($username){
 	$url = str_replace('{username}', urlencode($username), RMS_SERVICE);
 	
 	$file = file_get_contents($url, false, $context);
-	echo "Authorization: Basic ".base64_encode(RMS_USERNAME.":".RMS_PASSWORD)."\r\n";
-	var_dump($http_response_header); die;
 	
 	//Make sure the server gave a 200 response, else return the user an error
 	if($http_response_header[0] === "HTTP/1.1 200 OK"){

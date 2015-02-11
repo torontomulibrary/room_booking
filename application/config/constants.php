@@ -39,7 +39,7 @@ define('FOPEN_READ_WRITE_CREATE_STRICT',		'x+b');
 define('DEBUG_MODE',							TRUE);
 define('SITE_ADMIN',							'steven.marsden@ryerson.ca');
 define('HOURS_URL',								'https://library.cf.ryerson.ca/webapps/hours/view/hours_external.cfm');
-define('EMAIL_SUFFIX',							'@ryerson.ca');
+define('EMAIL_SUFFIX',							'@spi.ryerson.ca');
 
 define('RMS_USERNAME',							'libsysadmin');
 define('RMS_PASSWORD',							'&7V!4nBq');

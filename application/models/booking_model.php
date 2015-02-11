@@ -47,13 +47,25 @@ class booking_Model  extends CI_Model  {
 		}
 	}
 	
-	function get_booking($datetime, $room){
+	function get_booking($booking_id){
+		$this->db->where('booking_id', $booking_id);
+		return $this->db->get('bookings');
+	}
 	
+	function next_booking($datetime){
+		$sql = "SELECT MIN(start) AS start FROM bookings WHERE start > ".$this->db->escape(date('Y-m-d h:i:s', $datetime));
+		
+		$this->db->cache_off();
+		$result = $this->db->query($sql);
+		$this->db->cache_on();
+		
+		return $result;
+		
 	}
 	
 	function remaining_hours($matrix, $date){
 		//Pull down the hours limit (the maximum a users group of roles allows for. Eg, if user is library staff & undergrad, they can book longer then a normal undergrad for all rooms
-		$sql = "SELECT MAX(r.hours_per_day) AS hours_per_day, MAX(r.hours_per_week) AS hours_per_week, MAX(booking_limit) as booking_limit FROM roles r WHERE r.role_id IN ";
+		$sql = "SELECT MAX(r.hours_per_week) AS hours_per_week, MAX(booking_limit) as booking_limit FROM roles r WHERE r.role_id IN ";
 		
 		foreach($this->session->userdata('roles') as $role){
 			if(is_numeric($role->role_id)) $roles[] = $role->role_id;
@@ -69,15 +81,15 @@ class booking_Model  extends CI_Model  {
 		$this->db->cache_on();
 		$weekly_bookings = $weekly_bookings_query->row();
 		
-		//Pull down existing bookings for that 
+		//Pull down existing bookings for that day
 		$this->db->cache_off();
 		$daily_bookings_query = $this->db->query("SELECT IFNULL(sum(TIMESTAMPDIFF(minute,start,end)),0) as daily_minutes FROM bookings where matrix_id = ". $this->db->escape($this->session->userdata('username')). " AND  dayofyear(start) = " . (date('z', $date) + 1));
 		$this->db->cache_on();
 		$daily_bookings = $daily_bookings_query->row();
 		
 		$data['booking_limit'] = (int)$limits->booking_limit;
-		$data['day_limit'] = (int)$limits->hours_per_day;
-		$data['day_remaining'] = $limits->hours_per_day - ($daily_bookings->daily_minutes / 60);
+		//$data['day_limit'] = (int)$limits->hours_per_day;
+		$data['day_used'] = $daily_bookings->daily_minutes / 60;
 		$data['week_limit'] = (int)$limits->hours_per_week;
 		$data['week_remaining'] = $limits->hours_per_week - ($weekly_bookings->weekly_minutes / 60);
 		

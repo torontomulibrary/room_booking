@@ -19,7 +19,7 @@ class role_Model  extends CI_Model  {
 				if(is_numeric($role->role_id)) $roles[] = $role->role_id;
 			}
 			
-			$query .= "(".implode(",", $roles).")";
+			$query .= "(".implode(",", $roles).") ORDER BY name ASC";
 				
 			return $this->db->query($query);
 		}
@@ -46,19 +46,22 @@ class role_Model  extends CI_Model  {
 	}
 	
 	function get_user_roles($user_id){
-		$this->db->select('ur.role_id, r.name')
-          ->from('user_roles ur, roles r')
-          ->where('r.role_id = ur.role_id')
-		  ->where('ur.user_id = '.$user_id);
+		$sql = "select ur.role_id, r.name, u.is_admin
+					from user_roles ur, roles r, users u
+					where r.role_id = ur.role_id
+					and ur.user_id = ".$this->db->escape($user_id)."
+					and u.user_id = ur.user_id";
+					
+					
 		
-		return $this->db->get();		
+		return $this->db->query($sql);		
 	}
 	
-	function add_role($role_name, $bookings_day, $hours_day, $hours_week, $booking_window){
+	function add_role($role_name, $bookings_day, $hours_week, $booking_window){
 		$data = array(
 			'name' => $role_name,
 			'bookings_per_day' => $bookings_day,
-			'hours_per_day' => $hours_day,
+			
 			'hours_per_week' => $hours_week,
 			'booking_window' => $booking_window,
 		);
@@ -75,12 +78,12 @@ class role_Model  extends CI_Model  {
 		return TRUE;
 	}
 	
-	function edit_role($role_id, $role_name, $bookings_day, $hours_day, $hours_week, $booking_window){
+	function edit_role($role_id, $role_name, $bookings_day, $hours_week, $booking_window){
 	
 		$data = array(
 			'name' => $role_name,
 			'bookings_per_day' => $bookings_day,
-			'hours_per_day' => $hours_day,
+		
 			'hours_per_week' => $hours_week,
 			'booking_window' => $booking_window,
 		);
