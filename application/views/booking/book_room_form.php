@@ -19,7 +19,7 @@
 
 <h3 style="text-align: center; font-weight: bold">Ryerson University Libray Room Booking</h3>
 
-<?php
+<?php 
 //Verify the required fields are present (and the time is a half hour increment (don't let people mess with the URL)
 //Also make sure the user is allowed to book this room, and that the room is not closed
 if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot')) || $this->input->get('room_id') === FALSE || !is_numeric($this->input->get('room_id')) || ($this->input->get('slot') % 1800) !== 0): ?>
@@ -64,6 +64,7 @@ if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot'))
 								<div class="">
 									<select name="finish_time">
 										<?php
+										
 											$max_per_day = $room_data->max_daily_hours - $limits['day_used'];
 											$max_per_week = $limits['week_remaining'];
 											$start_time = $this->input->get('slot') + (30*60); //Start at the starting time + 30 minutes as the first slot to book
@@ -79,7 +80,7 @@ if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot'))
 											}
 											
 											//If there is another booking ahead of this, do not allow for overlap
-											if($next_booking->num_rows > 0 &&  $end_time > strtotime($next_booking->row()->start)){
+											if($next_booking->num_rows > 0 && is_numeric($next_booking->row()->start) && $end_time > strtotime($next_booking->row()->start)){
 													$end_time = strtotime($next_booking->row()->start);
 													
 											}

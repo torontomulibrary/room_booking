@@ -48,8 +48,12 @@ class booking_Model  extends CI_Model  {
 	}
 	
 	function get_booking($booking_id){
+		$this->db->cache_off();
 		$this->db->where('booking_id', $booking_id);
-		return $this->db->get('bookings');
+		$result = $this->db->get('bookings');
+		$this->db->cache_on();
+		
+		return $result;
 	}
 	
 	function next_booking($datetime){
@@ -151,6 +155,25 @@ class booking_Model  extends CI_Model  {
 		else{
 			return FALSE;
 		}
+	}
+	
+	function edit_booking($room_id, $start, $end, $comment, $booking_id){
+	
+		$data = array(
+					'room_id' => $room_id,
+					'start' => date('Y-m-d H:i:s', $start),
+					'end' => date('Y-m-d H:i:s', $end),
+					'comment' => $comment,
+					'booker_name' => $this->session->userdata('name'),
+					'matrix_id' => $this->session->userdata('username')
+				);
+			
+			$this->db->where('booking_id', $booking_id);
+			$this->db->update('bookings', $data);
+			
+			return true;
+		
+		
 	}
 	
 	//Lists upcoming block bookings (unless optional parameter is true, where past block bookings are shown)

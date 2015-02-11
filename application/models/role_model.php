@@ -24,6 +24,7 @@ class role_Model  extends CI_Model  {
 			return $this->db->query($query);
 		}
 		else{
+			$this->db->order_by('name');
 			return $this->db->get('roles');
 		}
 	}

@@ -31,7 +31,7 @@
 	color: #FFFFFF;
 }
 
-#submit_button{
+#submit_button, #delete_button{
 	background-color: #BB1111;
 	border: 1px solid #881111;
 }

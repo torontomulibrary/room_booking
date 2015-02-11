@@ -307,8 +307,7 @@ tr.room_row > td{
 #app_links li{
 	list-style: none;
 	margin-bottom: 2px;
-	
-}
+	}
 
 #app_links li a{
 	text-decoration: none;
@@ -323,6 +322,12 @@ tr.room_row > td{
 	font-weight: bold;
 	border-radius:0.4em;
 }
+
+#app_links li a:hover{
+color: #FFFFFF;
+	background-color: #323A45;
+}
+
 
 #app_links .selected{
 	color: #FFFFFF;

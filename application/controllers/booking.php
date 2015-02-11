@@ -116,8 +116,6 @@ class Booking extends CI_Controller {
 			$data['limits'] = $this->booking_model->remaining_hours($this->session->userdata('username'), $this->input->get('slot'));
 			$data['next_booking'] = $this->booking_model->next_booking($this->input->get('slot'));
 			
-			
-			//var_dump($data); die;
 			$this->template->load('rula_template', 'booking/book_room_form', $data);
 		}
 	}
@@ -151,7 +149,29 @@ class Booking extends CI_Controller {
 				}
 				else{
 					//Try to make the booking
-					$id = $this->booking_model->book_room($room_id, $start_time, $finish_time, $comment);
+					
+					//Was this a new booking, or an edit?
+					if($this->input->post('booking_id') !== FALSE && is_numeric($this->input->post('booking_id'))){
+						
+						//Check if user was allowed to make this booking
+						$data['booking'] = $this->booking_model->get_booking($this->input->post('booking_id'));
+						
+						if(!$this->session->userdata('super_admin') || !$this->session->userdata('admin')){
+							//See if user made this booking
+							if($this->session->userdata('username') !== $data['booking']->matrix_id){
+								redirect(base_url());
+							}
+						}
+						$this->booking_model->edit_booking($room_id, $start_time, $finish_time, $comment, $this->input->post('booking_id'));
+						
+						$id = $this->input->post('booking_id');
+					}
+						
+					
+					else{
+						$id = $this->booking_model->book_room($room_id, $start_time, $finish_time, $comment);
+					}
+					
 					
 					if($id === FALSE){
 						$this->session->set_flashdata('warning', "Another booking already exists for this time. Please choose a different room/time");
@@ -231,6 +251,7 @@ class Booking extends CI_Controller {
 		$data['room'] = $this->room_model->load_room($data['booking']->room_id);
 		$data['resources'] = $this->resource_model->load_resources($data['room']['room_resources']);
 		$data['limits'] = $this->booking_model->remaining_hours($this->session->userdata('username'), strtotime($data['booking']->start));
+		$data['next_booking'] = $this->booking_model->next_booking(strtotime($data['booking']->start));
 		
 		$this->template->load('rula_template', 'booking/edit_book_room_form', $data);
 	}

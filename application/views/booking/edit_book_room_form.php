@@ -20,7 +20,6 @@
 <h3 style="text-align: center; font-weight: bold">Ryerson University Libray Room Booking</h3>
 
 <?php
-var_dump($booking);
 //Verify the required fields are present (and the time is a half hour increment (don't let people mess with the URL)
 //Also make sure the user is allowed to book this room, and that the room is not closed
 if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('booking_id'))): ?>
@@ -48,7 +47,7 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 						
 						<h3 id="page_title">Edit Reservation</h3>
 						
-						<?php if($limits['day_remaining'] <= 0): ?>
+						<?php if($room_data->max_daily_hours - $limits['day_used'] + ((strtotime($booking->end) - strtotime($booking->start)) /60 / 60) <= 0): ?>
 							<div class="alert alert-danger" role="alert">You have already booked the maximum allowable time for today</div>
 						<?php else: ?>
 						
@@ -70,7 +69,9 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 								<div class="">
 									<select name="finish_time">
 										<?php
-											$max_per_day = $limits['day_remaining'];
+											//Figure out the allowance for the daily max (not counting the current booking)
+											$max_per_day = $room_data->max_daily_hours - $limits['day_used'] + ((strtotime($booking->end) - strtotime($booking->start)) /60 / 60);
+											
 											$max_per_week = $limits['week_remaining'];
 											$start_time = strtotime($booking->start) + (30*60); //Start at the starting time + 30 minutes as the first slot to book
 											
@@ -82,11 +83,22 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 												$end_time = mktime(0,0,0,date('n',strtotime($booking->start)), date('d',strtotime($booking->start))+1);
 											}
 											
+											//If there is another booking ahead of this, do not allow for overlap
+											if($next_booking->num_rows > 0 && is_numeric($next_booking->row()->start) &&  $end_time > strtotime($next_booking->row()->start)){
+													$end_time = strtotime($next_booking->row()->start);
+													
+											}
+											
 											$slot = $start_time;
 											while($slot <= $end_time){
 												if($max_per_day <= 0 || $max_per_week <= 0) break;
 												
-												echo '<option value="'.$slot.'">'.date('g:ia', $slot).' (EST)</option>';
+												if($slot == strtotime($booking->end)){
+													echo '<option value="'.$slot.'" selected="selected">'.date('g:ia', $slot).' (EST)</option>';
+												}
+												else{
+													echo '<option value="'.$slot.'">'.date('g:ia', $slot).' (EST)</option>';
+												}
 												
 												$slot += 30*60;
 												$max_per_day -= 0.5;
@@ -118,14 +130,15 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 								<br><br>
 								
 								<div class="form_left">Additional Info</div><div style="clear:both"></div>
-								<div><textarea name="comment" rows="6" cols="75"></textarea></div>
+								<div><textarea name="comment" rows="6" cols="75"><?php echo $booking->comment; ?></textarea></div>
 								
 								<div class="form_buttons_container">
-									<input id="submit_button" type="submit" value="Book Room" /><input type="button" id="cancel_button" value="Cancel" />
+									<input id="delete_button" type="button" value="Delete Booking" data-toggle="modal" data-target="#confirm-delete" /><input id="submit_button" type="submit" value="Edit Booking" /><input type="button" id="cancel_button" value="Cancel" />
 								</div>
 							
 								<input type="hidden" name="slot" value="<?php echo strtotime($booking->start); ?>" />
 								<input type="hidden" name="room_id" value="<?php echo $booking->room_id; ?>" />
+								<input type="hidden" name="booking_id" value="<?php echo $this->input->get('booking_id'); ?>" />
 								
 							</form>
 						<?php endif; ?>
@@ -145,12 +158,46 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 			<h4>You are able to</h4>
 			<ul>
 				<li style="display:none">Make 2 study room bookings per day (keep this?)</li>
-				<li>Book <strong><?php echo $limits['day_remaining']; ?> hours</strong> in the study rooms today</li>
+				<li>You have booked <strong><?php echo $limits['day_used']; ?> hours</strong> today</li>
 				<li>Book <strong><?php echo $limits['week_remaining']; ?> hours</strong> in the study rooms this week</li>  
 			</ul>
 		  
 		  </div>
 		</div>
+		
+		<!--- Modal Dialog for delete option --->
+		<div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+				
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="modal-title" id="myModalLabel">Confirm Booking Cancellation</h4>
+					</div>
+				
+					<div class="modal-body">
+						<p>You are about to cancel your booking! The room will be made available to other eligible people.</p>
+						<p>Do you want to proceed?</p>
+						<p class="debug-url"></p>
+					</div>
+					
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+						<a href="#" class="btn btn-danger danger">Delete</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--- End Modal --->
+
+
+			
+		<script>
+			$('#confirm-delete').on('show.bs.modal', function(e) {
+				$(this).find('.danger').attr('href', $(e.relatedTarget).data('href'));
+			})
+		</script>
+
 		
 		<script type="text/javascript">
 			$('#cancel_button').on('click',function(){

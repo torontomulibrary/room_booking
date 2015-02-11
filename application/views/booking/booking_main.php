@@ -32,6 +32,9 @@
 	<div id="top_left">
 		<div id="app_links">
 			<ul>
+				<?php if($this->session->userdata('admin') || $this->session->userdata('super_admin')): ?>
+				<li><a href="<?php echo base_url(); ?>admin">Administrator View</a></li>
+				<?php endif; ?>
 				<li><a class="selected" href="#">Dashboard</a></li>
 				<li><a href="#">MAIN PAGE</a></li>
 				<li><a href="#">MY BOOKINGS</a></li>
