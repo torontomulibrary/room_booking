@@ -79,7 +79,7 @@ class Admin extends CI_Controller {
 				redirect('admin/users');
 			}
 			
-			$this->role_model->delete_role($this->uri->segment(4));
+			$this->user_model->delete_user($this->uri->segment(4));
 			$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">User deleted successfully</div>');
 			$this->db->cache_delete_all(); //Delete all cache to take care of foreign keys
 			redirect('admin/users');

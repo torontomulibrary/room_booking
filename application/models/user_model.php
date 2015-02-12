@@ -159,7 +159,7 @@ class user_Model  extends CI_Model  {
 	}
 	
 	function delete_user($user_id){
-		$this->db->where('user_id', $room_id);
+		$this->db->where('user_id', $user_id);
 		$this->db->delete('users');
 	}
 	
