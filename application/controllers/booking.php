@@ -82,6 +82,8 @@ class Booking extends CI_Controller {
 				$data['hours'] = $this->hours_model->getAllHours(mktime(0,0,0, $current_month['month'],$current_month['day'],$current_month['year']));
 				
 				$data['block_bookings'] = $this->booking_model->list_block_bookings(mktime(0,0,0, $current_month['month'],$current_month['day'],$current_month['year']));
+				
+				$data['limits'] = $this->booking_model->remaining_hours($this->session->userdata('username'), strtotime($this->input->get('date')));
 			}
 			else{
 				$current_month = date_parse_from_format('Ym', $this->input->get('month', TRUE));
@@ -219,7 +221,7 @@ class Booking extends CI_Controller {
 		}
 	}
 	
-	function edit_room(){
+	function edit_booking(){
 		$this->load->model('booking_model');
 		
 		
@@ -254,6 +256,41 @@ class Booking extends CI_Controller {
 		$data['next_booking'] = $this->booking_model->next_booking(strtotime($data['booking']->start));
 		
 		$this->template->load('rula_template', 'booking/edit_book_room_form', $data);
+	}
+	
+	function delete_booking(){
+		$this->load->model('booking_model');
+		
+		if(!is_numeric($this->input->get('booking_id'))){
+			$this->session->set_flashdata('warning', "An error has occured. The booking has not been deleted");
+			redirect(base_url());
+		}
+		
+		//====Make sure user has permission to delete this booking======
+		$booking_data = $this->booking_model->get_booking($this->input->get('booking_id'));
+		$data['booking'] = $booking_data->row();
+		
+		if(!$this->session->userdata('super_admin') || !$this->session->userdata('admin')){
+			if($this->session->userdata('username') !== $data['booking']->matrix_id){
+				$this->session->set_flashdata('warning', "An error has occured. The booking has not been deleted");
+				redirect(base_url());
+			}
+
+		}
+		//======END PERMISSION CHECK======================================
+		
+		//====Make sure that the booking is not in the past, or currently underway===
+		if(strtotime($data['booking']->start) < time()){
+			$this->session->set_flashdata('warning', "Bookings underway or in the past cannot be deleted");
+			redirect(base_url());
+		}
+		//=====END TIME CHECK===========================================
+		
+		$this->booking_model->delete_booking($this->input->get('booking_id'));
+		
+		$this->session->set_flashdata('success', "Booking Deleted");
+		redirect(base_url());
+		
 	}
 
 }

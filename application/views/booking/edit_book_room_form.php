@@ -194,7 +194,7 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 			
 		<script>
 			$('#confirm-delete').on('show.bs.modal', function(e) {
-				$(this).find('.danger').attr('href', $(e.relatedTarget).data('href'));
+				$(this).find('.danger').attr('href', "<?php echo base_url() . 'booking/delete_booking?booking_id='.$this->input->get('booking_id');?>");
 			})
 		</script>
 

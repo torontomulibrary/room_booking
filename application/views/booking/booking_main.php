@@ -85,7 +85,7 @@
 
 
 <div class="booking_container">
-	<?php
+	<?php 
 		
 		//Display the date for the selected day
 		$date_raw = date_parse_from_format('Ymd', $this->input->get('date', TRUE));
@@ -241,10 +241,10 @@
 									
 									//If this is your booking, or you are admin, show who booked it
 									if($booker_username == $this->session->userdata('username')){
-										echo '<td colspan="'.($diff/30) .'" class="my_booked_cell booking_cell"><div class="table_cell_height"><a href="'.base_url().'booking/edit_room?booking_id='.$bookings[$room->room_id][$tNow]->booking_id.'">'.$booker_name.'</a></div></td>';
+										echo '<td colspan="'.($diff/30) .'" class="my_booked_cell booking_cell"><div class="table_cell_height"><a href="'.base_url().'booking/edit_booking?booking_id='.$bookings[$room->room_id][$tNow]->booking_id.'">'.$booker_name.'</a></div></td>';
 									}
 									else if($this->session->userdata('super_admin') == TRUE || $this->session->userdata('admin')){
-										echo '<td colspan="'.($diff/30) .'" class="booked_cell booking_cell"><div class="table_cell_height"><a href="'.base_url().'booking/edit_room?booking_id='.$bookings[$room->room_id][$tNow]->booking_id.'">'.$booker_name.'</a></div></td>';
+										echo '<td colspan="'.($diff/30) .'" class="booked_cell booking_cell"><div class="table_cell_height"><a href="'.base_url().'booking/edit_booking?booking_id='.$bookings[$room->room_id][$tNow]->booking_id.'">'.$booker_name.'</a></div></td>';
 									}
 									else{
 										echo '<td colspan="'.($diff/30) .'" class="booked_cell booking_cell"><div class="table_cell_height">Booked</div></td>';
@@ -259,9 +259,17 @@
 									);
 									$uri = implode($uri, '&amp;');
 								
-									//Check to see if the date is in the past, or too far in the future
+									//Check to see if the date is in the past
 									if(time() > $tNow){
 										echo '<td class="not_avail booking_cell"><div class="table_cell_height">'.date("g:iA",$tNow).'</div></td>';
+									}
+									//If too far in the future (past the roles booking window)
+									else if($tNow > (mktime(0,0,0, date("n"), date("j")+1)+($role->booking_window*24*60*60)) ){
+										echo '<td class="not_avail booking_cell"><div class="table_cell_height">'.date("g:iA",$tNow).'</div></td>';
+									}
+									//If there are not enough hours for the day/week to make a booking
+									else if($limits['day_used'] >= $room->max_daily_hours || $limits['week_remaining'] <= 0){
+											echo '<td class="not_avail booking_cell"><div class="table_cell_height">'.date("g:iA",$tNow).'</div></td>';
 									}
 									else{
 										echo '<td class="room_free booking_cell"><div class="table_cell_height"><a class="" href="'. base_url() . 'booking/book_room?' . $uri . '">'.date("g:iA",$tNow).'</a></div></td>';

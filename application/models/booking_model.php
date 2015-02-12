@@ -176,6 +176,11 @@ class booking_Model  extends CI_Model  {
 		
 	}
 	
+	function delete_booking($booking_id){
+		$this->db->where('booking_id', $booking_id);
+		$this->db->delete('bookings');
+	}
+	
 	//Lists upcoming block bookings (unless optional parameter is true, where past block bookings are shown)
 	function list_block_bookings($date = 0, $include_past = false){
 		if($date == 0) $date = time();

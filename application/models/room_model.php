@@ -10,7 +10,7 @@ class room_Model  extends CI_Model  {
     function list_rooms($exclude_inactive = false){
 		//Only show roles you are a member of, unless user is a super admin 
 		if( !$this->session->userdata('super_admin')){
-			$query = "select distinct r.room_id, r.building_id, r.name, r.seats, r.is_active, b.name as building, b.external_id
+			$query = "select distinct r.room_id, r.max_daily_hours, r.building_id, r.name, r.seats, r.is_active, b.name as building, b.external_id
 				from rooms r, buildings b, room_roles rr, roles ro
 				where r.building_id = b.building_id
 				and rr.room_id = r.room_id  
@@ -31,7 +31,7 @@ class room_Model  extends CI_Model  {
 		}
 		else{
 			return $this->db->query("
-				SELECT DISTINCT r.room_id, r.building_id, r.name, r.seats, r.is_active, b.name AS building, b.external_id
+				SELECT DISTINCT r.room_id, r.max_daily_hours, r.building_id, r.name, r.seats, r.is_active, b.name AS building, b.external_id
 				FROM rooms r, buildings b
 				WHERE r.building_id = b.building_id
 			");
@@ -41,7 +41,7 @@ class room_Model  extends CI_Model  {
 	function list_rooms_by_role($role, $exclude_inactive = false){
 		if(!is_numeric($role)) return false;
 		
-		$sql =  "select distinct r.room_id, r.building_id, r.name, r.seats, r.is_active, b.name as building, b.external_id
+		$sql =  "select distinct r.room_id, r.max_daily_hours, r.building_id, r.name, r.seats, r.is_active, b.name as building, b.external_id
                 from rooms r, buildings b, room_roles rr, roles ro
                 where r.building_id = b.building_id
                 and rr.room_id = r.room_id  
