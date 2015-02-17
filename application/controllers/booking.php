@@ -97,6 +97,14 @@ class Booking extends CI_Controller {
 		$this->template->load('rula_template', 'booking/booking_main', $data);
 	}
 	
+	function main(){
+		$this->load->model('booking_model');
+		
+		$data['limits'] = $this->booking_model->remaining_hours($this->session->userdata('username'), time());
+		
+		$this->template->load('rula_template', 'booking/landing_page', $data);
+	}
+	
 	function book_room(){
 		$this->load->model('booking_model');
 		
