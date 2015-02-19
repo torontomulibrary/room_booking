@@ -2,6 +2,8 @@
 <?php ob_start();?>
 
 <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/booking_main.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/jquery.jscrollpane.css" type="text/css" media="screen" />
+<script src="<?php echo base_url(); ?>assets/js/jquery.jscrollpane.min.js"></script>
 
 
 
@@ -36,39 +38,79 @@
 				<li><a href="<?php echo base_url(); ?>admin">Administrator View</a></li>
 				<?php endif; ?>
 				<li><a class="selected" href="#">Dashboard</a></li>
-				<li><a href="#">MAIN PAGE</a></li>
+				<li><a href="<?php echo base_url(); ?>booking/">MAIN PAGE</a></li>
 				<li><a href="#">MY BOOKINGS</a></li>
 				<li><a href="<?php echo base_url(); ?>logout">LOG OUT</a></li>
 			</ul>
 		</div>
 		
-		<div id="lower_left_content">
-			<div class="center" id="filter_link_title">Specify your Search<a href="#" id="filter_link">+</a>
-				<div id="filter_container">
-					<!-- Disable autocomplete to prevent the browser from leaving boxes checked/unchecked on refresh -->
-					<form autocomplete="off">		
-					<?php foreach($resources_filter->result() as $resource): ?>
-					<div class="checkbox">
-					  <label>
-						<input type="checkbox" class="resource_checkbox filter_checkbox" value="<?php echo $resource->resource_id ?>">
-						<?php echo $resource->name; ?>
-					  </label>
-					</div>
-					<?php endforeach; ?>
+		
+		<div class="center" id="filter_link_title">Specify your Search<a href="#" id="filter_link">+</a>
+			<div id="filter_container" class="">
+				<?php $num_rows = 5; $count = 0; ?>
+				
+				<!-- Disable autocomplete to prevent the browser from leaving boxes checked/unchecked on refresh -->
+				<form id="herp" autocomplete="off">		
+				
+					<div class="filter_row">
+					
+					<?php if($count > 0 && $count % $num_rows == 0):?></div><div class="filter_row"><?php endif; ?>
+					<label>
+						<input type="checkbox" class="seat_checkbox filter_checkbox" value="" data-minseats="1" data-maxseats="4">
+						<span></span>1 - 4 Seats
+					</label>
+					<br>
+					<?php $count++; ?>
+					
+					<?php if($count > 0 && $count % $num_rows == 0):?></div><div class="filter_row"><?php endif; ?>
+					<label>
+						<input type="checkbox" class="seat_checkbox filter_checkbox" value="" data-minseats="5" data-maxseats="8">
+						<span></span>5 - 8 Seats
+					</label>
+					<br>
+					<?php $count++; ?>
+					
+					<?php if($count > 0 && $count % $num_rows == 0):?></div><div class="filter_row"><?php endif; ?>
+					<label>
+						<input type="checkbox" class="seat_checkbox filter_checkbox" value="" data-minseats="9" data-maxseats="1000">
+						<span></span>9 + Seats
+					</label>
+					<br>
+					<?php $count++; ?>
+					
 					
 					<?php foreach($buildings->result() as $building): ?>
-					<div class="checkbox">
-					  <label>
-						<input type="checkbox" class="building_checkbox filter_checkbox" value="<?php echo $building->building_id ?>">
-						<?php echo $building->name; ?>
-					  </label>
-					</div>
+						<?php if($count > 0 && $count % $num_rows == 0):?></div><div class="filter_row"><?php endif; ?>
+						
+						<label>
+							<input type="checkbox" class="building_checkbox filter_checkbox" value="<?php echo $building->building_id ?>">
+							<span></span><?php echo $building->name; ?>
+						</label>
+						<br>
+						
+						<?php $count++; ?>
 					<?php endforeach; ?>
-					</form>
-				
-				</div>
+					
+					<?php foreach($resources_filter->result() as $resource): ?>
+						<?php if($count > 0 && $count % $num_rows == 0):?></div><div class="filter_row"><?php endif; ?>
+						
+						<label>
+							<input type="checkbox" class="resource_checkbox filter_checkbox" value="<?php echo $resource->resource_id ?>">
+							<span></span><?php echo $resource->name; ?> 
+						</label>
+						<br>
+						 
+						<?php $count++; ?>
+					<?php endforeach; ?>
+					
+					</div>
+				</form>
+			
+			
 			</div>
+			<div style="clear:both"></div>
 		</div>
+		
 	</div>
 	
 	<div class="calendar_container">

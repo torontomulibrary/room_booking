@@ -18,7 +18,7 @@ class Calendar {
 		 
 		$output = "";
 		$output .= '<table class="table_calendar" cellpadding="0">';
-		$output .= '<tr><th colspan="7"><div class="month_year" ><a class="month_arrow" style="float: left; " href="'. base_url() .'booking?month=' . date("Ym", strtotime("-1 month", $date)) .'"><img src="'.base_url().'assets/img/Book-Room-Icon5.png" width="50" alt="Previous Month" /></a>'. strtoupper(date('F Y', $date)) .'<a style="float:right;" class="month_arrow" href="'. base_url() .'booking?month=' . date("Ym", strtotime("+1 month", $date)) .'"><img src="'.base_url().'assets/img/Book-Room-Icon4.png" width="50" alt="Next Month" /></a></div></th></tr>';
+		$output .= '<tr><th colspan="7"><div class="month_year" ><a class="month_arrow" style="float: left; " href="'. base_url() .'booking/booking_main?month=' . date("Ym", strtotime("-1 month", $date)) .'"><img src="'.base_url().'assets/img/Book-Room-Icon5.png" width="50" alt="Previous Month" /></a>'. strtoupper(date('F Y', $date)) .'<a style="float:right;" class="month_arrow" href="'. base_url() .'booking/booking_main?month=' . date("Ym", strtotime("+1 month", $date)) .'"><img src="'.base_url().'assets/img/Book-Room-Icon4.png" width="50" alt="Next Month" /></a></div></th></tr>';
 		$output .= "<tr><th>SUN</th><th>MON</th><th>TUE</th><th>WED</th><th>THU</th><th>FRI</th><th>SAT</th></tr>";
 		$output .= "<tr>";
 		 
@@ -35,7 +35,7 @@ class Calendar {
 
 			//Format the link to the date
 			$temp_date = mktime(12, 0, 0, $month, $day, $year);
-			$url_date = '<a href="'. base_url() .'booking?month='.date('Ym',$date).'&date='.date('Ymd', $temp_date).'">'.$day.'</a>';
+			$url_date = '<a href="'. base_url() .'booking/booking_main?month='.date('Ym',$date).'&date='.date('Ymd', $temp_date).'">'.$day.'</a>';
 			
 			//If it is the selected date
 			if($selected_day !== null && $selected_day == $day){

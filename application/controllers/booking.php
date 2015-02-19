@@ -34,7 +34,7 @@ class Booking extends CI_Controller {
 	}
 
 	
-	public function index(){
+	public function booking_main(){
 		$this->load->model('room_model');
 		$this->load->model('role_model');
 		$this->load->model('booking_model');
@@ -97,7 +97,7 @@ class Booking extends CI_Controller {
 		$this->template->load('rula_template', 'booking/booking_main', $data);
 	}
 	
-	function main(){
+	function index(){
 		$this->load->model('booking_model');
 		
 		$data['limits'] = $this->booking_model->remaining_hours($this->session->userdata('username'), time());
@@ -155,7 +155,7 @@ class Booking extends CI_Controller {
 				
 				if(( $room->max_daily_hours - $limits['day_used'] ) < 0 || ($limits['week_remaining'] - $requested_time) < 0 ){
 					$this->session->set_flashdata('danger', "You have exceeded your booking limits. The booking has not been made");
-					redirect(base_url() . 'booking?month='.date('Ym', $start_time).'&date='.date('Ymd',$start_time));
+					redirect(base_url() . 'booking/booking_main?month='.date('Ym', $start_time).'&date='.date('Ymd',$start_time));
 				}
 				else{
 					//Try to make the booking
@@ -169,7 +169,7 @@ class Booking extends CI_Controller {
 						if(!$this->session->userdata('super_admin') || !$this->session->userdata('admin')){
 							//See if user made this booking
 							if($this->session->userdata('username') !== $data['booking']->matrix_id){
-								redirect(base_url());
+								redirect(base_url().'booking/booking_main');
 							}
 						}
 						$this->booking_model->edit_booking($room_id, $start_time, $finish_time, $comment, $this->input->post('booking_id'));
@@ -185,7 +185,7 @@ class Booking extends CI_Controller {
 					
 					if($id === FALSE){
 						$this->session->set_flashdata('warning', "Another booking already exists for this time. Please choose a different room/time");
-						redirect(base_url() . 'booking?month='.date('Ym', $start_time).'&date='.date('Ymd',$start_time));
+						redirect(base_url() . 'booking/booking_main?month='.date('Ym', $start_time).'&date='.date('Ymd',$start_time));
 					}
 					else{
 						
@@ -214,18 +214,18 @@ class Booking extends CI_Controller {
 						
 						
 						$this->session->set_flashdata('success', "Booking Successfully Made");
-						redirect(base_url() . 'booking?month='.date('Ym', $start_time).'&date='.date('Ymd',$start_time));
+						redirect(base_url() . 'booking/booking_main?month='.date('Ym', $start_time).'&date='.date('Ymd',$start_time));
 					}
 				}
 			}
 			else{
 				$this->session->set_flashdata('danger', "You do not have permissions to book this room");
-				redirect(base_url() . 'booking?month='.date('Ym', $start_time).'&date='.date('Ymd',$start_time));
+				redirect(base_url() . 'booking/booking_main?month='.date('Ym', $start_time).'&date='.date('Ymd',$start_time));
 			}
 		}
 		else{
 			$this->session->set_flashdata('warning', "An error has occured. The booking has not been made");
-			redirect(base_url());
+			redirect(base_url().'booking/booking_main');
 		}
 	}
 	
@@ -235,13 +235,13 @@ class Booking extends CI_Controller {
 		
 		
 		if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('booking_id'))){
-			redirect(base_url());
+			redirect(base_url().'booking/booking_main');
 		}
 		
 		$booking_data = $this->booking_model->get_booking($this->input->get('booking_id'));
 		
 		if($booking_data->num_rows == 0){
-			redirect(base_url());
+			redirect(base_url().'booking/booking_main');
 		}
 		
 		$data['booking'] = $booking_data->row();
@@ -250,7 +250,7 @@ class Booking extends CI_Controller {
 		if(!$this->session->userdata('super_admin') || !$this->session->userdata('admin')){
 			//See if user made this booking
 			if($this->session->userdata('username') !== $data['booking']->matrix_id){
-				redirect(base_url());
+				redirect(base_url().'booking/booking_main');
 			}
 
 		}
@@ -271,7 +271,7 @@ class Booking extends CI_Controller {
 		
 		if(!is_numeric($this->input->get('booking_id'))){
 			$this->session->set_flashdata('warning', "An error has occured. The booking has not been deleted");
-			redirect(base_url());
+			redirect(base_url().'booking/booking_main');
 		}
 		
 		//====Make sure user has permission to delete this booking======
@@ -281,7 +281,7 @@ class Booking extends CI_Controller {
 		if(!$this->session->userdata('super_admin') || !$this->session->userdata('admin')){
 			if($this->session->userdata('username') !== $data['booking']->matrix_id){
 				$this->session->set_flashdata('warning', "An error has occured. The booking has not been deleted");
-				redirect(base_url());
+				redirect(base_url().'booking/booking_main');
 			}
 
 		}
@@ -290,14 +290,14 @@ class Booking extends CI_Controller {
 		//====Make sure that the booking is not in the past, or currently underway===
 		if(strtotime($data['booking']->start) < time()){
 			$this->session->set_flashdata('warning', "Bookings underway or in the past cannot be deleted");
-			redirect(base_url());
+			redirect(base_url().'booking/booking_main');
 		}
 		//=====END TIME CHECK===========================================
 		
 		$this->booking_model->delete_booking($this->input->get('booking_id'));
 		
 		$this->session->set_flashdata('success', "Booking Deleted");
-		redirect(base_url());
+		redirect(base_url().'booking/booking_main');
 		
 	}
 

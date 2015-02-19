@@ -14,10 +14,10 @@
 
 <div id="container">
 	<div id="left_container">
-		<div class="nav_link orange" id="book_room"><a href="">Book a Room</a></div>
-		<div id="calendar_icon" class="nav_link grey "><a href=""><img src="<?php echo base_url();?>assets/img/Book-Room-Icon2.png" alt="Calendar" /></a></div>
+		<div class="nav_link orange" id="book_room"><a href="<?php echo base_url(); ?>booking/booking_main">Book a Room</a></div>
+		<div id="calendar_icon" class="nav_link grey "><a href="<?php echo base_url(); ?>booking/booking_main"><img src="<?php echo base_url();?>assets/img/Book-Room-Icon2.png" alt="Calendar" /></a></div>
 		<div class="nav_link aqua"><a href="">My Bookings</a></div>
-		<div class="nav_link dark"><a href="">Booking Policy</a></div>
+		<div class="nav_link dark"><a href="http://library.ryerson.ca/info/policies/study-room-booking-policy/">Booking Policy</a></div>
 		<div class="nav_link blue"><a href="<?php echo base_url();?>logout">Logout</a></div>
 	</div>
 

@@ -286,10 +286,7 @@ tr.room_row > td{
 	display: none;
 }
 
-#filter_container{
-	display: none;
-	color: #000000;
-}
+
 
 #top_left{
 	float: left;
@@ -344,7 +341,7 @@ color: #FFFFFF;
 	line-height: 40px;
 	color: #FFFFFF;
 	font-weight: bold;
-	border-radius: 0.4em;
+	
 }
 
 #filter_link {
@@ -357,4 +354,59 @@ color: #FFFFFF;
 	width: 40px;
 	font-size: 1.5em;
 	text-align: center;
+}
+
+#filter_container {
+	display: none;
+	color: #000000;
+	background-color: #ededed;
+	
+	padding-top: 3px;
+	padding-bottom: 3px;
+	text-align: left;
+	line-height: normal;
+	height: 150px;
+	overflow-x: scroll;	
+	white-space: nowrap;
+	
+}
+
+.filter_row{
+	padding-left: 20px;
+	display: inline-block;
+	vertical-align: bottom;
+	height: 110px;
+	margin-top: 10px;
+}
+
+.filter_row label input {
+  display: none;/* <-- hide the default checkbox */
+}
+.filter_row label span {/* <-- style the artificial checkbox */
+  height: 12px;
+  width: 12px;
+  border: 1px solid grey;
+  display: inline-block;
+  margin-right: 4px;
+  border-radius: 50%;
+}
+.filter_row [type=checkbox]:checked + span {/* <-- style its checked state */
+  background-color: #f27935;
+}
+
+.filter_row label{
+	font-weight: normal;
+}
+
+
+
+
+
+.jspTrack {
+    background-color: #f27935 !important;
+} /* or just remove the background property*/
+
+.jspDrag {
+    background-color: #fbd4be !important;
+	border-radius: 5px;
 }
