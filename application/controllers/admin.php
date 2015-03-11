@@ -187,7 +187,7 @@ class Admin extends CI_Controller {
 			$id = $this->role_model->edit_role($role_id, $role_name, $bookings_day, $hours_week, $booking_window);
 			
 			$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The role has been updated</div>');
-			$this->db->cache_delete('admin', 'roles');
+			$this->db->cache_delete_all();
 			redirect('admin/roles');
 		}
 		
@@ -214,7 +214,7 @@ class Admin extends CI_Controller {
 			
 			if(is_numeric($id)){
 				$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Room added successfully</div>');
-				$this->db->cache_delete('admin', 'rooms');
+				$this->db->cache_delete_all();
 				redirect('admin/rooms');
 			}
 			else{
@@ -252,7 +252,7 @@ class Admin extends CI_Controller {
 				
 				if($data['current_room']['room_data']->num_rows() === 0){
 					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Invalid Room ID</div>');
-					$this->db->cache_delete('admin', 'rooms');
+					$this->db->cache_delete_all();
 					redirect('admin/rooms');
 				}
 			}
@@ -270,7 +270,7 @@ class Admin extends CI_Controller {
 			$id = $this->room_model->edit_room($room_id, $building, $room, $seats, $roles, $active, $resources);
 			
 			$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The room has been updated</div>');
-			$this->db->cache_delete('admin', 'rooms');
+			$this->db->cache_delete_all();
 			redirect('admin/rooms');
 		}
 		
@@ -302,12 +302,12 @@ class Admin extends CI_Controller {
 				
 				if(is_numeric($id)){
 					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Building added successfully</div>');
-					$this->db->cache_delete('admin', 'buildings');
+					$this->db->cache_delete_all();
 					redirect('admin/buildings');
 				}
 				else{
 					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. Data may not have been added</div>');
-					$this->db->cache_delete('admin', 'buildings');
+					$this->db->cache_delete_all();
 					redirect('admin/buildings');
 				}
 			}
@@ -339,7 +339,7 @@ class Admin extends CI_Controller {
 					
 					if($data['current_building']['building_data']->num_rows() === 0){
 						$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Invalid building ID</div>');
-						$this->db->cache_delete('admin', 'buildings');
+						$this->db->cache_delete_all();
 						redirect('admin/buildings');
 					}
 				}
@@ -378,12 +378,12 @@ class Admin extends CI_Controller {
 				
 				if(is_numeric($id)){
 					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">User added successfully</div>');
-					$this->db->cache_delete('admin', 'super_admin');
+					$this->db->cache_delete_all();
 					redirect('admin/super_admin');
 				}
 				else{
 					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. Data may not have been added</div>');
-					$this->db->cache_delete('admin', 'super_admin');
+					$this->db->cache_delete_all();
 					redirect('admin/super_admin');
 				}
 			}
@@ -415,7 +415,7 @@ class Admin extends CI_Controller {
 					
 					if($data['current_user']->num_rows() === 0){
 						$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Invalid admin ID</div>');
-						$this->db->cache_delete('admin', 'super_admin');
+						$this->db->cache_delete_all();
 						redirect('admin/super_admin');
 					}
 				}
@@ -428,7 +428,7 @@ class Admin extends CI_Controller {
 				$id = $this->user_model->edit_super_admin($super_admin_id, $super_admin);
 				
 				$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The super admin has been updated</div>');
-				$this->db->cache_delete('admin', 'super_admin');
+				$this->db->cache_delete_all();
 				redirect('admin/super_admin');
 			}
 			
@@ -457,12 +457,12 @@ class Admin extends CI_Controller {
 				
 				if(is_numeric($id)){
 					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Resource added successfully</div>');
-					$this->db->cache_delete('admin', 'room_resources');
+					$this->db->cache_delete_all();
 					redirect('admin/room_resources');
 				}
 				else{
 					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. Data may not have been added</div>');
-					$this->db->cache_delete('admin', 'room_resources');
+					$this->db->cache_delete_all();
 					redirect('admin/room_resources');
 				}
 			}
