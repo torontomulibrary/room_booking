@@ -72,7 +72,8 @@ class Calendar {
 	
 	function isValidDateTimeString($str_dt, $str_dateformat) {
 		$date = DateTime::createFromFormat($str_dateformat, $str_dt);
-		return $date && DateTime::getLastErrors()["warning_count"] == 0 && DateTime::getLastErrors()["error_count"] == 0;
+		$goodDate = DateTime::getLastErrors();
+		return $date && $goodDate["warning_count"] == 0 && $goodDate["error_count"] == 0; 
 	}
 }
 

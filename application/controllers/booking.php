@@ -147,7 +147,8 @@ class Booking extends CI_Controller {
 		if(is_numeric($start_time) && ($start_time % 1800) == 0 && is_numeric($finish_time) && ($finish_time % 1800) == 0 && is_numeric($room_id)){
 			//Was this user allowed to book this room?
 			if($this->booking_model->is_allowed($room_id)){
-				$room = $this->room_model->load_room($room_id)['room_data']->row();
+				$room = $this->room_model->load_room($room_id);
+				$room = $room['room_data']->row(); 
 				
 				//Check the users remaining bookable hours
 				$limits = $this->booking_model->remaining_hours($this->session->userdata('username'), $start_time);
