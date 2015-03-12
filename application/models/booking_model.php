@@ -56,8 +56,9 @@ class booking_Model  extends CI_Model  {
 		return $result;
 	}
 	
-	function next_booking($datetime){
-		$sql = "SELECT MIN(start) AS start FROM bookings WHERE start > ".$this->db->escape(date('Y-m-d h:i:s', $datetime));
+	function next_booking($datetime, $room_id){
+		if(!is_numeric($room_id)) return;
+		$sql = "SELECT MIN(start) AS start FROM bookings WHERE room_id = ".$room_id."     AND start > ".$this->db->escape(date('Y-m-d H:i:s', $datetime));
 		
 		$this->db->cache_off();
 		$result = $this->db->query($sql);
@@ -69,7 +70,7 @@ class booking_Model  extends CI_Model  {
 	
 	function remaining_hours($matrix, $date){
 		//Pull down the hours limit (the maximum a users group of roles allows for. Eg, if user is library staff & undergrad, they can book longer then a normal undergrad for all rooms
-		$sql = "SELECT MAX(r.hours_per_week) AS hours_per_week, MAX(booking_limit) as booking_limit FROM roles r WHERE r.role_id IN ";
+		$sql = "SELECT MAX(r.hours_per_week) AS hours_per_week FROM roles r WHERE r.role_id IN ";
 		
 		foreach($this->session->userdata('roles') as $role){
 			if(is_numeric($role->role_id)) $roles[] = $role->role_id;
@@ -91,8 +92,6 @@ class booking_Model  extends CI_Model  {
 		$this->db->cache_on();
 		$daily_bookings = $daily_bookings_query->row();
 		
-		$data['booking_limit'] = (int)$limits->booking_limit;
-		//$data['day_limit'] = (int)$limits->hours_per_day;
 		$data['day_used'] = $daily_bookings->daily_minutes / 60;
 		$data['week_limit'] = (int)$limits->hours_per_week;
 		$data['week_remaining'] = $limits->hours_per_week - ($weekly_bookings->weekly_minutes / 60);

@@ -161,12 +161,12 @@
 							//Create the top row listing the times as table headers
 							echo '<tr><th><div class="table_cell_height">&nbsp;</div></th>';
 							
-							$tStart = mktime(0,0,0) + (($hours['min'] * 24) * 60 * 60); 
+							$tStart = mktime(0,0,0) + round((($hours['min'] * 24) * 60 * 60)); 
 							
 							//Avoid going past midnight
-							if($hours['max'] > (23.5/24)){ $hours['max'] = (23.5/24); }
+							if($hours['max'] > 1){ $hours['max'] = 1; }
 							
-							$tEnd = mktime(0,0,0) + (($hours['max'] * 24) * 60 * 60);
+							$tEnd = mktime(0,0,0) + round((($hours['max'] * 24) * 60 * 60)) - 1800;
 
 							$tNow = $tStart;
 
@@ -223,10 +223,10 @@
 								$tStart = mktime(0,0,0,$date_raw['month'], $date_raw['day'], $date_raw['year']) + (($hours[$room->external_id]->STARTTIME * 24) * 60 * 60); 
 							}
 							
-							if($hours[$room->external_id]->ENDTIME > (23.5/24)){
-								$hours[$room->external_id]->ENDTIME = (23.5/24);
+							if($hours[$room->external_id]->ENDTIME > 1){
+								$hours[$room->external_id]->ENDTIME = 1;
 							}
-							$tEnd =  mktime(0,0,0,$date_raw['month'], $date_raw['day'], $date_raw['year']) + (($hours[$room->external_id]->ENDTIME * 24) * 60 * 60); 
+							$tEnd =  mktime(0,0,0,$date_raw['month'], $date_raw['day'], $date_raw['year']) + (($hours[$room->external_id]->ENDTIME * 24) * 60 * 60) - 1800; 
 							$tNow = $tStart;
 
 							while($tNow <= $tEnd){
@@ -325,7 +325,7 @@
 							//Add placeholders to the end if it closes earlier then other rooms (ignore doing this if the room has a closure)
 							if($hours[$room->external_id]->ENDTIME < $hours['max'] && !$hours[$room->external_id]->ISOPEN == false && $hours[$room->external_id]->HASCLOSURE == false && ($hours[$room->external_id]->STARTTIME != $hours[$room->external_id]->ENDTIME)){
 								//How big is the placeholder
-								$numSlots = ceil(((($hours['max'] - $hours[$room->external_id]->ENDTIME) * 24) * 60) / 30);
+								$numSlots = round(((($hours['max'] - $hours[$room->external_id]->ENDTIME) * 24) * 60) / 30);
 								
 								//Output the placeholder
 								echo '<td colspan="'. $numSlots .'" class="closed booking_cell"><div class="table_cell_height">Closed</div></td>';

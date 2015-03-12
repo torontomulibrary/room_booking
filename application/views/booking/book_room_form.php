@@ -16,7 +16,6 @@
 	Create a table listing all of the existing roles, and options available
 	for each role. This only appears when not editing/creating new roles
 --->
-
 <h3 style="text-align: center; font-weight: bold">Ryerson University Libray Room Booking</h3>
 
 <?php 
@@ -74,16 +73,29 @@ if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot'))
 											
 											$end_time = $start_time + (($room_data->max_daily_hours - $limits['day_used'])*60*60 ); 
 											
+											//If there is another booking ahead of this, do not allow for overlap
+											if($next_booking->num_rows > 0 && $next_booking->row()->start != null && $end_time > strtotime($next_booking->row()->start)){
+											
+													$end_time = strtotime($next_booking->row()->start);
+													
+											}
+											
+											//If greater then closing time
+											if($end_time > (mktime(0,0,0, date('n',$this->input->get('slot')),date('j',$this->input->get('slot')),date('Y',$this->input->get('slot'))) + round(($hours[$building['building_data']->row()->external_id]->ENDTIME *24*60*60)))){
+												$end_time = mktime(0,0,0, date('n',$this->input->get('slot')),date('j',$this->input->get('slot')),date('Y',$this->input->get('slot'))) + round(($hours[$building['building_data']->row()->external_id]->ENDTIME *24*60*60));
+											}
+											
 											//If greater then midnight, set the end time to midnight
 											if($end_time > mktime(0,0,0,date('n',$this->input->get('slot')), date('d',$this->input->get('slot'))+1)){
 												$end_time = mktime(0,0,0,date('n',$this->input->get('slot')), date('d',$this->input->get('slot'))+1);
 											}
 											
-											//If there is another booking ahead of this, do not allow for overlap
-											if($next_booking->num_rows > 0 && is_numeric($next_booking->row()->start) && $end_time > strtotime($next_booking->row()->start)){
-													$end_time = strtotime($next_booking->row()->start);
-													
-											}
+											
+											
+											
+											
+											
+											//TODO: Compare this to the buildings closing time & block bookings
 											
 											$slot = $start_time;
 											while($slot <= $end_time){
@@ -157,7 +169,7 @@ if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot'))
 		
 		<script type="text/javascript">
 			$('#cancel_button').on('click',function(){
-				window.location = "<?php echo base_url() . '/booking?month='. date('Ym',$this->input->get('slot')) . '&date='.date('Ymd',$this->input->get('slot')); ?>";
+				window.location = "<?php echo base_url() . 'booking/booking_main?month='. date('Ym',$this->input->get('slot')) . '&date='.date('Ymd',$this->input->get('slot')); ?>";
 			});
 		</script>
 	<?php endif; ?>

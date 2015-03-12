@@ -74,7 +74,7 @@ class room_Model  extends CI_Model  {
 		return $data;
 	}	
 	
-	function add_room($building_id, $name, $seats, $roles, $active){
+	function add_room($building_id, $name, $seats, $roles, $active, $max_daily_hours, $resources){
 		if($active === 'on'){
 			$active = TRUE;
 		}
@@ -86,7 +86,8 @@ class room_Model  extends CI_Model  {
 			'building_id' => $building_id,
 			'name' => $name,
 			'seats' => $seats,
-			'is_active' => $active	
+			'is_active' => $active,	
+			'max_daily_hours' => $max_daily_hours
 		);
 		
 		$this->db->insert('rooms', $data); 
@@ -100,7 +101,7 @@ class room_Model  extends CI_Model  {
 		return $id;
 	}
 	
-	function edit_room($room_id, $building_id, $name, $seats, $roles, $active, $resources){
+	function edit_room($room_id, $building_id, $name, $seats, $roles, $active, $resources, $max_daily_hours){
 		if($active === 'on'){
 			$active = TRUE;
 		}
@@ -112,7 +113,8 @@ class room_Model  extends CI_Model  {
 			'building_id' => $building_id,
 			'name' => $name,
 			'seats' => $seats,
-			'is_active' => $active	
+			'is_active' => $active,	
+			'max_daily_hours' => $max_daily_hours,	
 		);
 		
 		$this->db->where('room_id', $room_id); 

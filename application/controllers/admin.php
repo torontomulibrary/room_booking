@@ -209,8 +209,9 @@ class Admin extends CI_Controller {
 			$resources = $this->input->post('resources');
 			$seats = $this->input->post('seats');
 			$active = $this->input->post('active');
+			$max_daily_hours = $this->input->post('max_daily_hours');
 			
-			$id = $this->room_model->add_room($building, $room, $seats, $role, $active, $resources);
+			$id = $this->room_model->add_room($building, $room, $seats, $role, $active, $resources, $max_daily_hours);
 			
 			if(is_numeric($id)){
 				$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Room added successfully</div>');
@@ -266,9 +267,12 @@ class Admin extends CI_Controller {
 			$seats = $this->input->post('seats');
 			$active = $this->input->post('active');
 			$room_id = $this->input->post('room_id');
+			$max_daily_hours = $this->input->post('max_daily_hours');
 			
-			$id = $this->room_model->edit_room($room_id, $building, $room, $seats, $roles, $active, $resources);
 			
+			
+			$id = $this->room_model->edit_room($room_id, $building, $room, $seats, $roles, $active, $resources, $max_daily_hours);
+
 			$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The room has been updated</div>');
 			$this->db->cache_delete_all();
 			redirect('admin/rooms');

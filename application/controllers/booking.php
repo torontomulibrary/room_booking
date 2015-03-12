@@ -108,6 +108,7 @@ class Booking extends CI_Controller {
 	function book_room(){
 		$this->load->model('booking_model');
 		
+		
 		//User is NOT allowed to make bookings in this room. Redirect to base url
 		if(!$this->booking_model->is_allowed($this->input->get('room_id'))){
 			redirect(base_url());
@@ -118,13 +119,20 @@ class Booking extends CI_Controller {
 		}
 		else{
 			$this->load->model('room_model');
-			
+			$this->load->model('hours_model');
 			$this->load->model('resource_model');
+			$this->load->model('building_model');
+			
+			$data['hours'] = $this->hours_model->getAllHours(mktime(0,0,0, date('n',$this->input->get('slot')),date('j',$this->input->get('slot')),date('Y',$this->input->get('slot'))));
 			
 			$data['room'] = $this->room_model->load_room($this->input->get('room_id'));
+			
+			$data['building'] = $this->building_model->load_building($data['room']['room_data']->row()->building_id);
+			$data['hours'] = $this->hours_model->getAllHours(mktime(0,0,0, date('n',$this->input->get('slot')),date('j',$this->input->get('slot')),date('Y',$this->input->get('slot'))));
+			
 			$data['resources'] = $this->resource_model->load_resources($data['room']['room_resources']);
 			$data['limits'] = $this->booking_model->remaining_hours($this->session->userdata('username'), $this->input->get('slot'));
-			$data['next_booking'] = $this->booking_model->next_booking($this->input->get('slot'));
+			$data['next_booking'] = $this->booking_model->next_booking($this->input->get('slot'), $this->input->get('room_id'));
 			
 			$this->template->load('rula_template', 'booking/book_room_form', $data);
 		}
@@ -257,12 +265,17 @@ class Booking extends CI_Controller {
 		}
 		
 		$this->load->model('room_model');
+		$this->load->model('hours_model');
 		$this->load->model('resource_model');
+		$this->load->model('building_model');
 		
 		$data['room'] = $this->room_model->load_room($data['booking']->room_id);
 		$data['resources'] = $this->resource_model->load_resources($data['room']['room_resources']);
 		$data['limits'] = $this->booking_model->remaining_hours($this->session->userdata('username'), strtotime($data['booking']->start));
-		$data['next_booking'] = $this->booking_model->next_booking(strtotime($data['booking']->start));
+		$data['next_booking'] = $this->booking_model->next_booking(strtotime($data['booking']->start), $data['booking']->room_id);
+		
+		$data['building'] = $this->building_model->load_building($data['room']['room_data']->row()->building_id);
+		$data['hours'] = $this->hours_model->getAllHours(mktime(0,0,0, date('n',strtotime($data['booking']->start)),date('j',strtotime($data['booking']->start)),date('Y',strtotime($data['booking']->start))));
 		
 		$this->template->load('rula_template', 'booking/edit_book_room_form', $data);
 	}

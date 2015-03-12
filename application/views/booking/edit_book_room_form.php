@@ -76,18 +76,28 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 											$start_time = strtotime($booking->start) + (30*60); //Start at the starting time + 30 minutes as the first slot to book
 											
 											//Figure out the end time. It's either the users max allowed booking time, or midnight
-											$end_time = $start_time + ($limits['booking_limit'] * 60 * 60) - (30*60);
+											//$end_time = $start_time + ($limits['booking_limit'] * 60 * 60) - (30*60);
+											
+											$end_time = $start_time + (($room_data->max_daily_hours - $limits['day_used'])*60*60 ); 
+											
+											//If there is another booking ahead of this, do not allow for overlap
+											if($next_booking->num_rows > 0 && $next_booking->row()->start != null && $end_time > strtotime($next_booking->row()->start)){
+											
+													$end_time = strtotime($next_booking->row()->start);
+													
+											}
 											
 											//If greater then midnight, set the end time to midnight
 											if($end_time > mktime(0,0,0,date('n',strtotime($booking->start)), date('d',strtotime($booking->start))+1)){
 												$end_time = mktime(0,0,0,date('n',strtotime($booking->start)), date('d',strtotime($booking->start))+1);
 											}
 											
-											//If there is another booking ahead of this, do not allow for overlap
-											if($next_booking->num_rows > 0 && is_numeric($next_booking->row()->start) &&  $end_time > strtotime($next_booking->row()->start)){
-													$end_time = strtotime($next_booking->row()->start);
-													
+											//If greater then closing time
+											if($end_time > (mktime(0,0,0, date('n',strtotime($booking->start)),date('j',strtotime($booking->start)),date('Y',strtotime($booking->start))) + round(($hours[$building['building_data']->row()->external_id]->ENDTIME *24*60*60)))){
+												$end_time = mktime(0,0,0, date('n',strtotime($booking->start)),date('j',strtotime($booking->start)),date('Y',strtotime($booking->start))) + round(($hours[$building['building_data']->row()->external_id]->ENDTIME *24*60*60));
 											}
+											
+											
 											
 											$slot = $start_time;
 											while($slot <= $end_time){
@@ -201,7 +211,7 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 		
 		<script type="text/javascript">
 			$('#cancel_button').on('click',function(){
-				window.location = "<?php echo base_url() . '/booking?month='. date('Ym',strtotime($booking->start)) . '&date='.date('Ymd',strtotime($booking->start)); ?>";
+				window.location = "<?php echo base_url() . 'booking/booking_main?month='. date('Ym',strtotime($booking->start)) . '&date='.date('Ymd',strtotime($booking->start)); ?>";
 			});
 		</script>
 	<?php endif; ?>

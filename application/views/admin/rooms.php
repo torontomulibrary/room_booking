@@ -29,6 +29,7 @@
 				<th>Building</th>
 				<th>Seats</th>
 				<th>Bookable by</th>
+				<th>User limit per day</th>
 				<th>Active</th>
 				<th>Options</th>
 			</tr>
@@ -50,6 +51,8 @@
 					
 					?>
 				</td>
+				
+				<td><?= $room->max_daily_hours ?></td>
 				
 				<td><?= ($room->is_active)? '<span class="glyphicon glyphicon glyphicon-ok"></span>' : '<span class="glyphicon glyphicon-remove"></span>' ?></td>
 				<td><a href="<?= base_url() ?>admin/rooms/edit/<?= $room->room_id ?>"><span title="Edit" class="glyphicon glyphicon-edit"></span></a> &nbsp; <a data-toggle="modal" data-target="#confirm-delete" data-href="<?= base_url() ?>admin/rooms/delete/<?= $room->room_id ?>" href="#"><span title="Remove" class="glyphicon glyphicon-remove"></span></a></td>
@@ -109,7 +112,13 @@
   <div class="form-group">
     <label for="seats">Number of Seats</label>
 	 <input type="text" class="form-control" id="seats" placeholder="Enter the number of seats" name="seats" <?php if(isset($current)): ?>value="<?= $current->seats ?>" <?php endif; ?>>
+  </div></th>
+  
+  <div class="form-group">
+    <label for="max_daily_hours">User limit per day</label>
+	 <input type="text" class="form-control" id="max_daily_hours" placeholder="Enter the user limit per day" name="max_daily_hours" <?php if(isset($current)): ?>value="<?= $current->max_daily_hours ?>" <?php endif; ?>>
   </div>
+  
   
   <div class="checkbox">
     <label>
