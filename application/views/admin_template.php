@@ -168,26 +168,33 @@
     </div>
 
     <div class="container-fluid">
-      <div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
-          <ul class="nav nav-sidebar">
-            <li class="<?php echo ($method === "index" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin">Overview</a></li>
-			<li class="<?php echo ($method === "block_booking" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/block_booking">Create Block Booking</a></li>
-            <li class="<?php echo ($method === "reports" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/reports">Reports</a></li>
-          </ul>
-		  
-			<ul class="nav nav-sidebar">
-				<li class="<?php echo ($method === "users" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/users">Manage Users</a></li>         
-				<li class="<?php echo ($method === "super_admin" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/super_admin">Manage Super Users</a></li>         
-			</ul>
+		<div class="row">
+			<div class="col-sm-3 col-md-2 sidebar">
+				<ul class="nav nav-sidebar">
+					<li class="<?php echo ($method === "index" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin">Overview</a></li>
+					<li class="<?php echo ($method === "block_booking" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/block_booking">Create Block Booking</a></li>
+					<li class="<?php echo ($method === "reports" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/reports">Reports</a></li>
+				</ul>
 
-		  <ul class="nav nav-sidebar">
-            <li class="<?php echo ($method === "rooms" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/rooms">Manage Rooms</a></li>
-			<li class="<?php echo ($method === "room_resources" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/room_resources">Manage Room Resources</a></li>
-            <li class="<?php echo ($method === "buildings" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/buildings">Manage Buildings</a></li>
-			<li class="<?php echo ($method === "roles" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/roles">Manage Role Types</a></li>
-          </ul>
-        </div>
+				<ul class="nav nav-sidebar">
+					<li class="<?php echo ($method === "users" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/users">Manage Users</a></li>         
+					<li class="<?php echo ($method === "super_admin" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/super_admin">Manage Super Users</a></li>         
+				</ul>
+
+				<ul class="nav nav-sidebar">
+					<li class="<?php echo ($method === "rooms" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/rooms">Manage Rooms</a></li>
+					<li class="<?php echo ($method === "room_resources" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/room_resources">Manage Room Resources</a></li>
+					<li class="<?php echo ($method === "buildings" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/buildings">Manage Buildings</a></li>
+					<li class="<?php echo ($method === "roles" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/roles">Manage Role Types</a></li>
+				</ul>
+				
+				<ul class="nav nav-sidebar">
+					<li class=""><a href="<?= base_url() ?>admin/clear_cache">Clear all cache</a></li>
+				</ul>
+			</div>
+
+			
+		</div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
           
 			

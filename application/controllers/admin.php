@@ -26,8 +26,8 @@ class Admin extends CI_Controller {
 		//Check to see if the user is an administrator
 		$this->load->model('user_model'); //Should this be done in the login process?
 		
-		//Dont do this. Use flashdata instead, and redirect to non-admin area
 		if(!$this->user_model->is_admin($this->session->userdata('username'))){
+		//Dont do this. Use flashdata instead, and redirect to non-admin area
 			$this->session->set_flashdata('warning', 'You an not an administrator');
 			redirect('/');
 		}
@@ -43,6 +43,26 @@ class Admin extends CI_Controller {
 		$this->template->load('admin_template', 'admin/dashboard');
 	}
 	
+	public function clear_cache(){
+		  $this->load->library('user_agent');
+		
+		
+		foreach (glob(FCPATH.'temp'.DIRECTORY_SEPARATOR.'*') as $filename) {
+			if (is_file($filename)) {
+				if(!strstr($filename, 'README.txt')) unlink($filename);
+			}
+		}
+		
+		$this->db->cache_delete_all();
+		
+		if ($this->agent->is_referral()){
+			redirect($this->agent->referrer());
+		}
+		else{
+			redirect('/admin');
+		}
+	}
+	
 	function users(){
 		$this->load->model('role_model');
 		$this->load->model('user_model');
@@ -56,12 +76,12 @@ class Admin extends CI_Controller {
 			
 			if(is_numeric($id)){
 				$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">User added successfully</div>');
-				$this->db->cache_delete('admin', 'users');
+				$this->db->cache_delete_all();
 				redirect('admin/users');
 			}
 			else{
 				$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. Data may not have been added</div>');
-				$this->db->cache_delete('admin', 'users');
+				$this->db->cache_delete_all();
 				redirect('admin/users');
 			}
 		}
@@ -95,7 +115,7 @@ class Admin extends CI_Controller {
 				
 				if($data['current_user']->num_rows() === 0){
 					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Invalid User ID</div>');
-					$this->db->cache_delete('admin', 'users');
+					$this->db->cache_delete_all();
 					redirect('admin/users');
 				}
 			}
@@ -110,7 +130,7 @@ class Admin extends CI_Controller {
 			$id = $this->user_model->edit_user($user_id, $matrix, $admin, $role);
 			
 			$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The user has been updated</div>');
-			$this->db->cache_delete('admin', 'users');
+			$this->db->cache_delete_all();
 			redirect('admin/users');
 		}
 		
@@ -133,12 +153,12 @@ class Admin extends CI_Controller {
 			
 			if(is_numeric($id)){
 				$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Building added successfully</div>');
-				$this->db->cache_delete('admin', 'roles');
+				$this->db->cache_delete_all();
 				redirect('admin/roles');
 			}
 			else{
 				$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. Data may not have been added</div>');
-				$this->db->cache_delete('admin', 'roles');
+				$this->db->cache_delete_all();
 				redirect('admin/roles');
 			}
 		}
@@ -157,7 +177,7 @@ class Admin extends CI_Controller {
 			
 			$this->role_model->delete_role($this->uri->segment(4));
 			$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Role deleted successfully</div>');
-			$this->db->cache_delete_all(); //Delete all cache to take care of foreign keys
+			$this->db->cache_delete_all();
 			redirect('admin/roles');
 		}
 		else if ($this->uri->segment(3) === 'edit'){
@@ -170,7 +190,7 @@ class Admin extends CI_Controller {
 				
 				if($data['current_role']->num_rows() === 0){
 					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Invalid role ID</div>');
-					$this->db->cache_delete('admin', 'roles');
+					$this->db->cache_delete_all();
 					redirect('admin/roles');
 				}
 			}
