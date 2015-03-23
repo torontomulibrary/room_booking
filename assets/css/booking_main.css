@@ -7,7 +7,9 @@ a, a:visited, a:hover, a:active {
   color: inherit;
 }
 
-
+.alert{
+	margin-top: 1.5em;
+}
 
 .center{
 	text-align: center;
@@ -15,6 +17,8 @@ a, a:visited, a:hover, a:active {
 }
 
 .calendar_container{
+	
+	margin-top: 3em;
 	margin-bottom:0.4em;
 	float: right;
 }
@@ -121,7 +125,7 @@ a, a:visited, a:hover, a:active {
 
 .role_title{
 	background-color: #191d23;
-	margin-left: 6px;
+	
 	height: 40px;
 	color: #ffffff;
 	line-height: 40px;
@@ -149,7 +153,7 @@ a, a:visited, a:hover, a:active {
     overflow-x:scroll;
     overflow-y:visible;
    
-    margin-left: 185px;
+    margin-left: 179px;
 	
 }
 
@@ -211,7 +215,7 @@ tr.room_row > td{
 
 .table-wrapper th:first-child {
     position: absolute;
-    left: 6px;
+    left: 0;
 
 	
 }
@@ -290,6 +294,7 @@ tr.room_row > td{
 
 #top_left{
 	float: left;
+	margin-top: 2em;
 }
 
 #top_content{
@@ -357,7 +362,7 @@ color: #FFFFFF;
 }
 
 #filter_container {
-	display: none;
+	/*display: none;*/
 	color: #000000;
 	background-color: #ededed;
 	

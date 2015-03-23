@@ -22,7 +22,7 @@
 	for each role. This only appears when not editing/creating new roles
 --->
 
-<h3 style="text-align: center; font-weight: bold">Ryerson University Library Room Booking</h3>
+
 
 <!--- Show warnings or notices --->
 <?php if($this->session->flashdata('notice') !== FALSE): ?><div class="alert alert-danger" role="alert"><?php echo $this->session->flashdata('notice'); ?></div><?php endif; ?>
@@ -113,6 +113,9 @@
 		
 	</div>
 	
+	<h3 style="text-align: center; font-weight: bold; margin-top: 2em; width: 450px; float: right;">Ryerson University Library<br> Room Booking</h3>
+	
+	
 	<div class="calendar_container">
 		<?php 
 			echo $calendar;
@@ -127,6 +130,8 @@
 
 
 <div class="booking_container">
+
+	
 	<?php 
 		
 		//Display the date for the selected day
@@ -350,8 +355,47 @@
 	
 </div>
 
+	<!-- bottom scrollbar -->
+	<div id="footer_scrollbar" style="width: 920px; overflow-x: scroll; position: fixed; bottom: 0; z-index: 999" ><div id="test" style="width: 5000px">&nbsp;</div></div>
+
 <?php endif;?>
 
 <script type="text/javascript" src="<?php echo base_url(); ?>assets/js/booking_main.js" /></script>
+
+<script>
+	$('#test').css('width', $('.booking_table').first().width() + 180);
+	
+	$('#footer_scrollbar').on('scroll', function(){
+		var scroll_position = this;
+		
+		$('.table-wrapper').each(function(){
+			$(this).scrollLeft($(scroll_position).scrollLeft());
+		});
+	});
+	
+	$('.table-wrapper').on('scroll', function(){
+		var scroll_position = this;
+		
+		$('#footer_scrollbar').scrollLeft($(scroll_position).scrollLeft());
+	});
+	
+	$('#filter_container').jScrollPane({
+			horizontalDragMinWidth: 70,
+			horizontalDragMaxWidth: 70
+	});
+	
+	<?php
+	//If user is looking at today, scroll to the current time!
+	if($this->input->get('date') === date('Ymd')):
+	
+		$scroll = floor((time() - (mktime(0,$hours['min']*24*60))) / 1800) * 126; //Calculate time past from start to now (in seconds), divide by number of half hour blocks, multiply by 126 (width of a block)
+		if($scroll < 0) $scroll = 0;
+	?>
+	var scroll_amount = <?php echo $scroll; ?>;
+	$('#footer_scrollbar').scrollLeft(scroll_amount);
+	
+	<?php endif; ?>
+	
+</script>
 
 <?php $content = ob_get_contents();ob_end_clean();$this->template->set('content', $content);?>

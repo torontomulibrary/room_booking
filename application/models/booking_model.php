@@ -133,8 +133,8 @@ class booking_Model  extends CI_Model  {
 		$this->db->cache_off();
 		
 		$sql = "SELECT * FROM bookings WHERE 
-				start >= '". date('Y-m-d H:i:s', $start)."'
-				and end <= '". date('Y-m-d H:i:s', $end)."'
+				start <= '". date('Y-m-d H:i:s', $start)."'
+				and end > '". date('Y-m-d H:i:s', $start)."'
 				and room_id = $room_id";
 		
 		$existing_bookings = $this->db->query($sql);
@@ -160,7 +160,24 @@ class booking_Model  extends CI_Model  {
 		}
 	}
 	
-	function edit_booking($room_id, $start, $end, $comment, $booking_id){
+	function edit_booking($room_id, $start, $end, $comment, $booking_id, $matrix_id, $booker_name){
+		if(!is_numeric($booking_id)) return FALSE;
+		
+		//Make sure the slot is not already booked by someone else (prevent changing start time)!
+		$this->db->cache_off();
+		
+		$sql = "SELECT * FROM bookings WHERE 
+				start <= '". date('Y-m-d H:i:s', $start)."'
+				and end > '". date('Y-m-d H:i:s', $start)."'
+				and room_id = $room_id
+				and booking_id <> " . $booking_id;
+		
+		$existing_bookings = $this->db->query($sql);
+		
+		$this->db->cache_on();
+	
+		if($existing_bookings->num_rows() > 0) return FALSE;
+	
 	
 		$data = array(
 					'room_id' => $room_id,
@@ -168,7 +185,8 @@ class booking_Model  extends CI_Model  {
 					'end' => date('Y-m-d H:i:s', $end),
 					'comment' => $comment,
 					'booker_name' => $this->session->userdata('name'),
-					'matrix_id' => $this->session->userdata('username')
+					'matrix_id' => $matrix_id,
+					'booker_name' => $booker_name
 				);
 			
 			$this->db->where('booking_id', $booking_id);
@@ -182,6 +200,26 @@ class booking_Model  extends CI_Model  {
 	function delete_booking($booking_id){
 		$this->db->where('booking_id', $booking_id);
 		$this->db->delete('bookings');
+	}
+	
+	function checkout($booking_id){
+		if(date('i') > 30){
+			$minute = 0;
+			$hour = date('H') + 1;
+		}
+		else{
+			$minute = 30;
+			$hour = date('H');
+		}
+		
+		$data = array(
+				'end' => date('Y-m-d H:i:s', mktime($hour, $minute,0)),
+		);
+		
+		echo date('Y-m-d H:i:s', mktime($hour, $minute,0));
+		
+		$this->db->where('booking_id', $booking_id);
+		$this->db->update('bookings', $data);
 	}
 	
 	//Lists upcoming block bookings (unless optional parameter is true, where past block bookings are shown)

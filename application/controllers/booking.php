@@ -35,6 +35,20 @@ class Booking extends CI_Controller {
 
 	
 	public function booking_main(){
+		//Default to today if no date is selected
+		if($this->input->get('month') === FALSE && $this->input->get('date') === FALSE){
+			
+			//Keep flashdata if redirecting to "today"
+			foreach($this->session->all_userdata() as $key => $val){
+			  if(strpos($key,'flash:old:') > -1){ // key is flashdata
+				$item = substr($key , strlen('flash:old:'));
+				$this->session->keep_flashdata($item);
+			  }
+			}
+			
+			redirect(base_url() . 'booking/booking_main?month='. date('Ym') .'&date='. date('Ymd'));
+		}
+		
 		$this->load->model('room_model');
 		$this->load->model('role_model');
 		$this->load->model('booking_model');
@@ -175,20 +189,28 @@ class Booking extends CI_Controller {
 						//Check if user was allowed to make this booking
 						$data['booking'] = $this->booking_model->get_booking($this->input->post('booking_id'));
 						
+						$booking = $data['booking']->row();
+						
+						if(strtotime($data['booking']->start) < time()){
+							$this->session->set_flashdata('warning', "Cannot edit bookings in the past");
+							 redirect(base_url().'booking/booking_main');
+						}
+						
 						if(!$this->session->userdata('super_admin') || !$this->session->userdata('admin')){
-							//See if user made this booking
-							if($this->session->userdata('username') !== $data['booking']->matrix_id){
+							//See if user made this booking, if not, redirect them to to the homepage
+							if($this->session->userdata('username') !== $data['booking']->row()->matrix_id){
 								redirect(base_url().'booking/booking_main');
 							}
 						}
-						$this->booking_model->edit_booking($room_id, $start_time, $finish_time, $comment, $this->input->post('booking_id'));
+						$id = $this->booking_model->edit_booking($room_id, $start_time, $finish_time, $comment, $this->input->post('booking_id'), $booking->matrix_id, $booking->booker_name);
 						
-						$id = $this->input->post('booking_id');
+						if($id !== FALSE) $id = $this->input->post('booking_id'); 
 					}
 						
 					
 					else{
-						$id = $this->booking_model->book_room($room_id, $start_time, $finish_time, $comment);
+						//Get the ID of the new booking. Returns false if the booking slot was not free
+						$id = $this->booking_model->book_room($room_id, $start_time, $finish_time, $comment); 
 					}
 					
 					
@@ -244,16 +266,23 @@ class Booking extends CI_Controller {
 		
 		
 		if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('booking_id'))){
+			$this->session->set_flashdata('warning', "An error has occured. ");
 			redirect(base_url().'booking/booking_main');
 		}
 		
 		$booking_data = $this->booking_model->get_booking($this->input->get('booking_id'));
 		
 		if($booking_data->num_rows == 0){
+			$this->session->set_flashdata('warning', "An error has occured.");
 			redirect(base_url().'booking/booking_main');
 		}
 		
 		$data['booking'] = $booking_data->row();
+		
+		if(strtotime($data['booking']->end) < time()){			
+			$this->session->set_flashdata('warning', "Cannot edit bookings in the past");
+			 redirect(base_url().'booking/booking_main');
+		}
 		
 		//Check for admin status
 		if(!$this->session->userdata('super_admin') || !$this->session->userdata('admin')){
@@ -271,13 +300,42 @@ class Booking extends CI_Controller {
 		
 		$data['room'] = $this->room_model->load_room($data['booking']->room_id);
 		$data['resources'] = $this->resource_model->load_resources($data['room']['room_resources']);
-		$data['limits'] = $this->booking_model->remaining_hours($this->session->userdata('username'), strtotime($data['booking']->start));
+		$data['limits'] = $this->booking_model->remaining_hours($data['booking']->matrix_id, strtotime($data['booking']->start));
 		$data['next_booking'] = $this->booking_model->next_booking(strtotime($data['booking']->start), $data['booking']->room_id);
 		
 		$data['building'] = $this->building_model->load_building($data['room']['room_data']->row()->building_id);
 		$data['hours'] = $this->hours_model->getAllHours(mktime(0,0,0, date('n',strtotime($data['booking']->start)),date('j',strtotime($data['booking']->start)),date('Y',strtotime($data['booking']->start))));
 		
 		$this->template->load('rula_template', 'booking/edit_book_room_form', $data);
+	}
+	
+	function checkout(){
+		$this->load->model('booking_model');
+		
+		//Check if user was allowed to make this booking
+		$data['booking'] = $this->booking_model->get_booking($this->input->post('booking_id'));
+		
+		$booking = $data['booking']->row();
+		
+		if(time() > strtotime($booking->start) && time() < strtotime($booking->end)){
+			if(!$this->session->userdata('super_admin') || !$this->session->userdata('admin')){
+				//See if user made this booking, if not, redirect them to to the homepage
+				if($this->session->userdata('username') !== $booking->matrix_id){
+					$this->session->set_flashdata('warning', "You do not have permissions to edit this booking");
+					redirect(base_url().'booking/booking_main');
+				}
+			}
+			$this->booking_model->checkout($this->input->post('booking_id'));
+			$this->session->set_flashdata('success', "You have checked out!");
+			redirect(base_url().'booking/booking_main');
+			
+		}
+		else{
+			$this->session->set_flashdata('warning', "Cannot checkout. Booking has already ended");
+			 redirect(base_url().'booking/booking_main');
+		}
+		
+		
 	}
 	
 	function delete_booking(){
@@ -302,13 +360,15 @@ class Booking extends CI_Controller {
 		//======END PERMISSION CHECK======================================
 		
 		//====Make sure that the booking is not in the past, or currently underway===
+		
+		
 		if(strtotime($data['booking']->start) < time()){
-			$this->session->set_flashdata('warning', "Bookings underway or in the past cannot be deleted");
-			redirect(base_url().'booking/booking_main');
+			$this->session->set_flashdata('warning', "Cannot delete bookings in the past");
+			 redirect(base_url().'booking/booking_main');
 		}
 		//=====END TIME CHECK===========================================
 		
-		$this->booking_model->delete_booking($this->input->get('booking_id'));
+		$this->booking_model->delete_booking($this->input->get('booking_id')); 
 		
 		$this->session->set_flashdata('success', "Booking Deleted");
 		redirect(base_url().'booking/booking_main');

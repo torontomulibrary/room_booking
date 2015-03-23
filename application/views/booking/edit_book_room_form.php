@@ -27,6 +27,19 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 <?php else: ?>	
 		<?php $room_data = $room['room_data']->row(); ?>
 
+		<?php
+			//Check to see if booking is upcoming, current, or in the past
+			if(strtotime($booking->end) < time()){
+				$past_booking = true;
+			}
+			else if(time() > strtotime($booking->start) && time() < strtotime($booking->end)){
+				$current_booking = true; 
+			}
+			else{
+				$future_booking = true;
+			}
+			
+		?>
 		<div class="row">
 			<div class="col-xs-9">
 				<div class="row">
@@ -47,8 +60,24 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 						
 						<h3 id="page_title">Edit Reservation</h3>
 						
+						<!--<?php if(isset($past_booking) && $past_booking):?><h2>This booking is in the past</h2><?php endif; ?>-->
+						
 						<?php if($room_data->max_daily_hours - $limits['day_used'] + ((strtotime($booking->end) - strtotime($booking->start)) /60 / 60) <= 0): ?>
 							<div class="alert alert-danger" role="alert">You have already booked the maximum allowable time for today</div>
+						<?php elseif(isset($current_booking) && $current_booking === TRUE): ?>
+							<div class="alert alert-info" role="alert">This booking is currently underway! You are able to checkout early from this booking, reclaiming any unused time (rounded up to the nearest half hour). 
+							
+							<br><br>Checking out will make <strong><?php echo $room_data->name;?></strong> available to other eligible users.</div>
+						
+							<div class="form_buttons_container">
+								<form method="post" action="<?php echo base_url()?>booking/checkout">
+									<input id="submit_button" type="submit" value="Checkout" />
+									<input type="button" id="cancel_button" value="Cancel" />
+									<input type="hidden" name="booking_id" value="<?php echo $this->input->get('booking_id'); ?>" />
+								</form>
+							
+							</div>
+
 						<?php else: ?>
 						
 							<form action="<?php echo base_url()?>booking/submit" method="post" autocomplete="off">
@@ -72,18 +101,20 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 											//Figure out the allowance for the daily max (not counting the current booking)
 											$max_per_day = $room_data->max_daily_hours - $limits['day_used'] + ((strtotime($booking->end) - strtotime($booking->start)) /60 / 60);
 											
-											$max_per_week = $limits['week_remaining'];
+											$max_per_week = $limits['week_remaining'] + ((strtotime($booking->end) - strtotime($booking->start)) /60 / 60);
 											$start_time = strtotime($booking->start) + (30*60); //Start at the starting time + 30 minutes as the first slot to book
 											
 											//Figure out the end time. It's either the users max allowed booking time, or midnight
 											//$end_time = $start_time + ($limits['booking_limit'] * 60 * 60) - (30*60);
 											
-											$end_time = $start_time + (($room_data->max_daily_hours - $limits['day_used'])*60*60 ); 
+											$end_time = $start_time + $max_per_day * 60*60;
+										
 											
 											//If there is another booking ahead of this, do not allow for overlap
 											if($next_booking->num_rows > 0 && $next_booking->row()->start != null && $end_time > strtotime($next_booking->row()->start)){
 											
 													$end_time = strtotime($next_booking->row()->start);
+													
 													
 											}
 											
@@ -101,6 +132,8 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 											
 											$slot = $start_time;
 											while($slot <= $end_time){
+												
+												
 												if($max_per_day <= 0 || $max_per_week <= 0) break;
 												
 												if($slot == strtotime($booking->end)){
