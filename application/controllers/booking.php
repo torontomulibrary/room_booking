@@ -119,6 +119,10 @@ class Booking extends CI_Controller {
 		$this->template->load('rula_template', 'booking/landing_page', $data);
 	}
 	
+	function my_bookings(){
+		
+	}
+	
 	function book_room(){
 		$this->load->model('booking_model');
 		
@@ -166,7 +170,7 @@ class Booking extends CI_Controller {
 		//TODO: make sure time isnt past midnight, or before opening hours
 		
 		//Validate all the date/times submitted 
-		if(is_numeric($start_time) && ($start_time % 1800) == 0 && is_numeric($finish_time) && ($finish_time % 1800) == 0 && is_numeric($room_id)){
+		if(is_numeric($start_time) && ($start_time % 1800) == 0 && is_numeric($finish_time) && ($finish_time % 1800) == 0 && is_numeric($room_id) && $start_time > time()){
 			//Was this user allowed to book this room?
 			if($this->booking_model->is_allowed($room_id)){
 				$room = $this->room_model->load_room($room_id);
@@ -191,7 +195,7 @@ class Booking extends CI_Controller {
 						
 						$booking = $data['booking']->row();
 						
-						if(strtotime($data['booking']->start) < time()){
+						if(strtotime($booking->start) < time()){
 							$this->session->set_flashdata('warning', "Cannot edit bookings in the past");
 							 redirect(base_url().'booking/booking_main');
 						}

@@ -7,7 +7,8 @@ function is_access_center($username){
 	// Create a stream
 	$opts = array(
 	  'http'=>array(
-		'method'=>	"POST",
+		'method'=>	"GET",
+		'User-agent' => "LibraryBooking/1.0",
 		'header'=> 	"Authorization: Basic ".base64_encode(RMS_USERNAME.":".RMS_PASSWORD)."\r\n",
 		'content'=>	'',
 		'timeout'=>	60
@@ -23,7 +24,14 @@ function is_access_center($username){
 	
 	//Make sure the server gave a 200 response, else return the user an error
 	if($http_response_header[0] === "HTTP/1.1 200 OK"){
-		return TRUE;
+		$data = json_decode($file);
+		
+		if($data->hasOwnerResource == true){
+			return true;
+		}
+		else{
+			return false;
+		}
 	}
 	else{
 		return FALSE;

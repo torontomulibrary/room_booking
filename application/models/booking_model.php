@@ -216,7 +216,6 @@ class booking_Model  extends CI_Model  {
 				'end' => date('Y-m-d H:i:s', mktime($hour, $minute,0)),
 		);
 		
-		echo date('Y-m-d H:i:s', mktime($hour, $minute,0));
 		
 		$this->db->where('booking_id', $booking_id);
 		$this->db->update('bookings', $data);
