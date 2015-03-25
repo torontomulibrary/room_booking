@@ -120,7 +120,13 @@ class Booking extends CI_Controller {
 	}
 	
 	function my_bookings(){
+		$this->load->model('booking_model');
 		
+		$data['upcoming'] = $this->booking_model->get_upcoming_bookings($this->session->userdata('username'));
+		$data['previous'] = $this->booking_model->get_previous_bookings($this->session->userdata('username'), 5);
+		
+		
+		$this->template->load('rula_template', 'booking/my_bookings', $data);
 	}
 	
 	function book_room(){

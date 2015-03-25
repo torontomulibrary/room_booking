@@ -39,7 +39,7 @@
 				<?php endif; ?>
 				<li><a class="selected" href="<?php echo current_url(); ?>">Dashboard</a></li>
 				<li><a href="<?php echo base_url(); ?>booking/">MAIN PAGE</a></li>
-				<li><a href="#">MY BOOKINGS</a></li>
+				<li><a href="<?php echo base_url(); ?>booking/my_bookings/">MY BOOKINGS</a></li>
 				<li><a href="<?php echo base_url(); ?>logout">LOG OUT</a></li>
 			</ul>
 		</div>

@@ -1,0 +1,93 @@
+@import url('http://fonts.googleapis.com/css?family=Open+Sans');
+
+#app_links{
+	margin-bottom: 2em;
+}
+
+#app_links li{
+	list-style: none;
+	margin-bottom: 2px;
+	}
+
+#app_links li a{
+	text-decoration: none;
+	height: 40px;
+	line-height: 40px;
+	background-color: #F2F2F2;
+	color: #5E6D82;
+	text-align: center;
+	width: 280px;
+	display: inline-block;
+	
+	font-weight: bold;
+	border-radius:0.4em;
+}
+
+#app_links li a:hover{
+color: #FFFFFF;
+	background-color: #323A45;
+}
+
+
+#app_links .selected{
+	color: #FFFFFF;
+	background-color: #323A45;
+}
+
+.role_title{
+	background-color: #191d23;
+	
+	height: 40px;
+	color: #ffffff;
+	line-height: 40px;
+	padding-left: 3em;
+	font-size: 17px;
+	font-family: 'Open Sans', sans-serif;
+	position: relative;
+	top: 1px;
+	margin-top: 2em;
+}
+
+#top_left{
+	float: left;
+	margin-top: 2em;
+}
+
+.booking_table tr{
+	height: 3em;
+	
+}
+
+.booking_table td{
+	padding-left: 0.5em;
+	width: 280px;
+	font-size: 16px;
+}
+
+.booking_table  a{
+	width: 280px;
+	font-size: 16px;
+	color: #ffffff;
+}
+
+.booking_table tr.even_row.upcoming{
+	background-color: #4cc9b8;
+	color: #ffffff;
+}
+
+.booking_table tr.odd_row.upcoming{
+	background-color: #1fbba6;
+	color: #ffffff;
+}
+
+.booking_table tr.even_row.previous{
+	background-color: #e6e6e6;
+	color: #000000;
+}
+
+.booking_table tr.odd_row.previous{
+	background-color: #f2f2f2;
+	color: #000000;
+}
+
+

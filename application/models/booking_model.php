@@ -221,6 +221,38 @@ class booking_Model  extends CI_Model  {
 		$this->db->update('bookings', $data);
 	}
 	
+	function get_upcoming_bookings($matrix_id){
+		$sql = "select b.booking_id, b.room_id, r.name, b.matrix_id, b.booker_name, b.start, b.end from bookings b, rooms r
+				where 
+				b.room_id = r.room_id
+				and start > ". $this->db->escape(date('Y-m-d H:i:s'))."
+				AND matrix_id = '".$matrix_id."'";
+		
+		$this->db->cache_off();
+		$query = $this->db->query($sql);
+		$this->db->cache_on();
+		
+		return $query;
+	}
+	
+	function get_previous_bookings($matrix_id, $limit = 5){
+		if(!is_numeric($limit)) return false;
+		
+		$sql = "select b.booking_id, b.room_id, r.name, b.matrix_id, b.booker_name, b.start, b.end from bookings b, rooms r
+				where 
+				b.room_id = r.room_id
+				and end < ". $this->db->escape(date('Y-m-d H:i:s'))."
+				AND matrix_id = '".$matrix_id."'
+				ORDER BY end DESC
+				LIMIT 0,".$limit;
+				
+		$this->db->cache_off();
+		$query = $this->db->query($sql);
+		$this->db->cache_on();
+		
+		return $query;
+	}
+	
 	//Lists upcoming block bookings (unless optional parameter is true, where past block bookings are shown)
 	function list_block_bookings($date = 0, $include_past = false){
 		if($date == 0) $date = time();
