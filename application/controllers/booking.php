@@ -215,12 +215,19 @@ class Booking extends CI_Controller {
 						$id = $this->booking_model->edit_booking($room_id, $start_time, $finish_time, $comment, $this->input->post('booking_id'), $booking->matrix_id, $booking->booker_name);
 						
 						if($id !== FALSE) $id = $this->input->post('booking_id'); 
+						
+							$this->load->model('log_model');
+							$this->log_model->log_event('desktop', $this->session->userdata('username'), "Edit Booking", $id);
 					}
 						
 					
 					else{
 						//Get the ID of the new booking. Returns false if the booking slot was not free
 						$id = $this->booking_model->book_room($room_id, $start_time, $finish_time, $comment); 
+						
+						
+						$this->load->model('log_model');
+						$this->log_model->log_event('desktop', $this->session->userdata('username'), "Create Booking", $id);
 					}
 					
 					
@@ -337,6 +344,10 @@ class Booking extends CI_Controller {
 			}
 			$this->booking_model->checkout($this->input->post('booking_id'));
 			$this->session->set_flashdata('success', "You have checked out!");
+			
+			$this->load->model('log_model');
+			$this->log_model->log_event('desktop', $this->session->userdata('username'), "Checkout", $this->input->post('booking_id'));
+			
 			redirect(base_url().'booking/booking_main');
 			
 		}

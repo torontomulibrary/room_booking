@@ -40,7 +40,12 @@ class Admin extends CI_Controller {
 
 	
 	public function index(){
-		$this->template->load('admin_template', 'admin/dashboard');
+		$this->load->model('log_model');
+		
+		$data['usage_by_type'] = $this->log_model->report_by_device(mktime(0,0,0,date('n'),1), mktime(23,59,59,date('n')+1,0)); //Mobile vs Desktop for current month
+		$data['usage_by_hour'] = $this->log_model->usage_by_hour(mktime(0,0,0,date('n'),1), mktime(23,59,59,date('n')+1,0)); //Mobile vs Desktop for current month
+		
+		$this->template->load('admin_template', 'admin/dashboard', $data);
 	}
 	
 	public function clear_cache(){
@@ -646,7 +651,48 @@ class Admin extends CI_Controller {
 	}
 	
 	function reports(){
-		echo "Coming soon!";
+		$this->load->model('log_model');
+		$this->load->model('building_model');
+		$this->load->model('room_model');
+		
+		$data['buildings'] = $this->building_model->list_buildings();
+		$data['rooms'] = $this->room_model->list_rooms();
+		
+		//Refine by buildings
+		if($this->input->get('building') !== FALSE && is_numeric($this->input->get('building'))){
+			$building_id = $this->input->get('building');
+		}
+		else{
+			$building_id = null;
+		}
+		
+		if($this->input->get('room') !== FALSE && is_numeric($this->input->get('room'))){
+			$room_id = $this->input->get('room');
+		}
+		else{
+			$room_id = null;
+		}
+		
+		
+		
+		//Refine by start/end times
+		if($this->input->get('start_date') !== FALSE && strlen($this->input->get('start_date')) > 0 && $this->input->get('end_date') !== FALSE && strlen($this->input->get('end_date')) > 0){
+			$start_time = strtotime($this->input->get('start_date'));
+			$end_time = strtotime($this->input->get('end_date'))+ ((24*60*60)-1); //Add a day (minus a second) to get as late as possible
+		}
+		else{
+			$start_time = mktime(0,0,0,date('n'),1);
+			$end_time = mktime(23,59,59,date('n')+1,0);
+		}
+		
+		$data['usage_by_hour'] = $this->log_model->usage_by_hour($start_time, $end_time, $building_id, $room_id);
+		$data['usage_by_type'] = $this->log_model->report_by_device($start_time, $end_time); 
+	
+	
+		
+		
+		
+		$this->template->load('admin_template', 'admin/reports', $data);
 	}
 }
 

@@ -222,7 +222,7 @@ class booking_Model  extends CI_Model  {
 	}
 	
 	function get_upcoming_bookings($matrix_id){
-		$sql = "select b.booking_id, b.room_id, r.name, b.matrix_id, b.booker_name, b.start, b.end from bookings b, rooms r
+		$sql = "select b.booking_id, b.room_id, r.name, b.matrix_id, b.booker_name, b.start, b.end, r.seats from bookings b, rooms r
 				where 
 				b.room_id = r.room_id
 				and start > ". $this->db->escape(date('Y-m-d H:i:s'))."
@@ -238,7 +238,7 @@ class booking_Model  extends CI_Model  {
 	function get_previous_bookings($matrix_id, $limit = 5){
 		if(!is_numeric($limit)) return false;
 		
-		$sql = "select b.booking_id, b.room_id, r.name, b.matrix_id, b.booker_name, b.start, b.end from bookings b, rooms r
+		$sql = "select b.booking_id, b.room_id, r.name, b.matrix_id, b.booker_name, b.start, b.end, r.seats from bookings b, rooms r
 				where 
 				b.room_id = r.room_id
 				and end < ". $this->db->escape(date('Y-m-d H:i:s'))."

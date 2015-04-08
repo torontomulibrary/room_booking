@@ -1,11 +1,13 @@
 <?php ob_start();?>
 
+<script src="<?php echo base_url(); ?>assets/js/highcharts.js"></script>
+
 <?php $head = ob_get_contents();ob_end_clean();$this->template->set('headers', $head);?>
 
 <?php ob_start();?>
 
-	  <h1 class="page-header">Dashboard</h1>
-	  <div class="row placeholders">
+	  <h1 class="page-header">Usage at a Glance for <?php echo date('F Y') ?></h1>
+<!--	  <div class="row placeholders">
 		<div class="col-xs-6 col-sm-3 placeholder">
 		  <img data-src="holder.js/200x200/auto/sky" class="img-responsive" alt="Generic placeholder thumbnail">
 		  <h4>Label</h4>
@@ -48,113 +50,144 @@
 			  <td>dolor</td>
 			  <td>sit</td>
 			</tr>
-			<tr>
-			  <td>1,002</td>
-			  <td>amet</td>
-			  <td>consectetur</td>
-			  <td>adipiscing</td>
-			  <td>elit</td>
-			</tr>
-			<tr>
-			  <td>1,003</td>
-			  <td>Integer</td>
-			  <td>nec</td>
-			  <td>odio</td>
-			  <td>Praesent</td>
-			</tr>
-			<tr>
-			  <td>1,003</td>
-			  <td>libero</td>
-			  <td>Sed</td>
-			  <td>cursus</td>
-			  <td>ante</td>
-			</tr>
-			<tr>
-			  <td>1,004</td>
-			  <td>dapibus</td>
-			  <td>diam</td>
-			  <td>Sed</td>
-			  <td>nisi</td>
-			</tr>
-			<tr>
-			  <td>1,005</td>
-			  <td>Nulla</td>
-			  <td>quis</td>
-			  <td>sem</td>
-			  <td>at</td>
-			</tr>
-			<tr>
-			  <td>1,006</td>
-			  <td>nibh</td>
-			  <td>elementum</td>
-			  <td>imperdiet</td>
-			  <td>Duis</td>
-			</tr>
-			<tr>
-			  <td>1,007</td>
-			  <td>sagittis</td>
-			  <td>ipsum</td>
-			  <td>Praesent</td>
-			  <td>mauris</td>
-			</tr>
-			<tr>
-			  <td>1,008</td>
-			  <td>Fusce</td>
-			  <td>nec</td>
-			  <td>tellus</td>
-			  <td>sed</td>
-			</tr>
-			<tr>
-			  <td>1,009</td>
-			  <td>augue</td>
-			  <td>semper</td>
-			  <td>porta</td>
-			  <td>Mauris</td>
-			</tr>
-			<tr>
-			  <td>1,010</td>
-			  <td>massa</td>
-			  <td>Vestibulum</td>
-			  <td>lacinia</td>
-			  <td>arcu</td>
-			</tr>
-			<tr>
-			  <td>1,011</td>
-			  <td>eget</td>
-			  <td>nulla</td>
-			  <td>Class</td>
-			  <td>aptent</td>
-			</tr>
-			<tr>
-			  <td>1,012</td>
-			  <td>taciti</td>
-			  <td>sociosqu</td>
-			  <td>ad</td>
-			  <td>litora</td>
-			</tr>
-			<tr>
-			  <td>1,013</td>
-			  <td>torquent</td>
-			  <td>per</td>
-			  <td>conubia</td>
-			  <td>nostra</td>
-			</tr>
-			<tr>
-			  <td>1,014</td>
-			  <td>per</td>
-			  <td>inceptos</td>
-			  <td>himenaeos</td>
-			  <td>Curabitur</td>
-			</tr>
-			<tr>
-			  <td>1,015</td>
-			  <td>sodales</td>
-			  <td>ligula</td>
-			  <td>in</td>
-			  <td>libero</td>
-			</tr>
+			
 		  </tbody>
 		</table>
 	  </div>
-	</div>
+	  -->
+	  
+	  <div id="hourly_usage" style="max-width: 600px; margin: 0 auto 3em auto" ></div>
+	
+	
+	<div id="usage_by_type" style="max-width: 600px; margin: 0 auto 3em auto;"></div>
+	
+	
+	
+	
+	<script>
+	
+	
+	
+	<?php 
+		
+		$hour_array = array();
+		
+		//Prepopulate every column with zero
+		for($i=7; $i <= 23; $i++){
+			$hour_array[$i] = 0;
+		}
+	
+		foreach($usage_by_hour->result() as $hour){
+			$hour_array[$hour->hour_slot] = $hour->num_bookings;
+		}
+	
+		//var_dump($hour_array);
+	
+	?>
+	
+	$(function () {
+		$('#hourly_usage').highcharts({
+			chart: {
+				type: 'column'
+			},
+			title: {
+				text: 'Booking Usage by Hour'
+			},
+			
+			xAxis: {
+				categories: [
+					'7AM',
+					'8AM',
+					'9AM',
+					'10AM',
+					'11AM',
+					'12PM',
+					'1PM',
+					'2PM',
+					'3PM',
+					'4PM',
+					'5PM',
+					'6PM',
+					'7PM',
+					'8PM',
+					'9PM',
+					'10PM',
+					'11PM'
+				],
+				crosshair: true
+			},
+			yAxis: {
+				min: 0,
+				title: {
+					text: 'Number of bookings'
+				}
+			},
+			tooltip: {
+				headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+				pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+					'<td style="padding:0"><b>{point.y:.0f} bookings</b></td></tr>',
+				footerFormat: '</table>',
+				shared: true,
+				useHTML: true
+			},
+			plotOptions: {
+				column: {
+					pointPadding: 0.2,
+					borderWidth: 0
+				}
+			},
+			series: [{
+				showInLegend: false,               
+				data: [<?php echo implode(',', $hour_array); ?>]
+
+			}]
+		});
+	});
+	
+	<?php $type_data = $usage_by_type->row(); ?>
+	
+	$(function () {
+		$('#usage_by_type').highcharts({
+			chart: {
+				plotBackgroundColor: null,
+				plotBorderWidth: null,
+				plotShadow: false
+			},
+			title: {
+				text: 'Mobile vs. Desktop'
+			},
+			 subtitle: {
+            text: 'Based on number of logins'
+			},
+			tooltip: {
+				pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+			},
+			plotOptions: {
+				pie: {
+					allowPointSelect: true,
+					cursor: 'pointer',
+					dataLabels: {
+						enabled: true,
+						format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+						style: {
+							color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+						}
+					}
+				}
+			},
+			series: [{
+				type: 'pie',
+				name: 'Number of logins',
+				data: [
+					['Desktop',  <?php echo $type_data->desktop; ?>],
+					['Mobile', <?php echo $type_data->mobile; ?>]
+					
+				]
+			}]
+		});
+	});
+	
+	
+	</script>
+	
 <?php $content = ob_get_contents();ob_end_clean();$this->template->set('content', $content);?>

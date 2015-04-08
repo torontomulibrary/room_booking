@@ -27,7 +27,6 @@ class Login extends CI_Controller {
 
 	
 	public function index(){
-		//$this->template->load('rula_template', 'admin/dashboard');
 		$this->load->view('rula_template');
 	}
 	
@@ -112,7 +111,18 @@ class Login extends CI_Controller {
 			$this->session->sess_destroy();	
 			
 		}
+		//Successful login
 		else{
+			$this->load->model('log_model');
+			$this->load->library('user_agent');
+			
+			if($this->agent->is_mobile()){
+				$this->log_model->log_event('mobile', $this->session->userdata('username'), "Login");
+			}
+			else{
+				$this->log_model->log_event('desktop', $this->session->userdata('username'), "Login");
+			}
+			
 			$redirect_url = $this->session->flashdata('origin');
 			
 			
@@ -128,6 +138,9 @@ class Login extends CI_Controller {
 	}
 	
 	function logout(){
+		$this->load->model('log_model');
+		$this->log_model->log_event('desktop', $this->session->userdata('username'), "Logout");
+		
 		$this->session->sess_destroy();
 		
 		$this->load->library('cas');

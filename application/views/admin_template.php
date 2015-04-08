@@ -16,7 +16,7 @@
 	<link href="<?= base_url() ?>assets/css/bootstrap.min.css" rel="stylesheet">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script src="<?= base_url() ?>assets/js/bootstrap.min.js"></script>
-	<script src="<?= base_url() ?>assets/js/docs.min.js"></script>
+	
 
     <?php if(isset($title)):?><title><?= $title?></title><?php endif;?>
 	<?php if(isset($headers)) echo $headers; ?>
@@ -172,10 +172,13 @@
 			<div class="col-sm-3 col-md-2 sidebar">
 				<ul class="nav nav-sidebar">
 					<li class="<?php echo ($method === "index" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin">Overview</a></li>
-					<li class="<?php echo ($method === "block_booking" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/block_booking">Create Block Booking</a></li>
-					<li class="<?php echo ($method === "reports" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/reports">Reports</a></li>
+					<li class="<?php echo ($method === "reports" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/reports">Reports</a></li>					
 				</ul>
-
+				
+				<ul class="nav nav-sidebar">
+					<li class="<?php echo ($method === "block_booking" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/block_booking">Create Block Booking</a></li>
+				</ul>
+					
 				<ul class="nav nav-sidebar">
 					<li class="<?php echo ($method === "users" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/users">Manage Users</a></li>         
 					<li class="<?php echo ($method === "super_admin" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/super_admin">Manage Super Users</a></li>         
