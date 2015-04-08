@@ -49,5 +49,15 @@
 		 <a href="tel:416-979-5055">416-979-5055</a>
 	 </div>
 	 
+	 <script>
+		jQuery(document).on('pagehide', 'div', function(event, ui){
+		  var page = jQuery(event.target);
+
+		  if(page.attr('data-cache') == 'never'){
+			page.remove();
+		  };
+		});
+	 </script>
+	 
 </body>
 </html>

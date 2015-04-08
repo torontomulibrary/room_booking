@@ -17,12 +17,11 @@
 	<?php if($this->session->flashdata('success') !== FALSE): ?><div class="alert alert-success" role="alert"><?php print_message('Success', $this->session->flashdata('success')); ?></div><?php endif; ?>
 	<?php if($this->session->flashdata('danger') !== FALSE): ?><div class="alert alert-danger" role="alert"><?php print_message('Error', $this->session->flashdata('danger')); ?></div><?php endif; ?>
 		
+	<form method="GET" id="date_form"  action="book_room">
 	<?php if($this->input->get('selected_date') === FALSE): ?>
-		<form method="GET" id="date_form"  action="book_room">
 			<input id="date" type="hidden" name="selected_date" value="">
 			<div id="cal_container"></div>
 	<?php else: ?>
-		<form method="GET" id="date_form"  action="create_booking">
 			<input id="date" type="hidden" name="selected_date" value="<?php echo $this->input->get('selected_date'); ?>">
 	<?php endif; ?>
 	
@@ -37,21 +36,27 @@
 		<?php else: ?>
 			<select name="set_time">
 			<?php
-				$tStart = mktime(0,0,0) + round((($hours['min'] * 24) * 60 * 60)); 
+				$date = strtotime($this->input->get('selected_date'));
+				$tStart = mktime(0,0,0,date('n', $date), date('j', $date), date('Y', $date)) + round((($hours['min'] * 24) * 60 * 60)); 
 				
 				//Avoid going past midnight
 				if($hours['max'] > 1){ $hours['max'] = 1; }
 				
-				$tEnd = mktime(0,0,0) + round((($hours['max'] * 24) * 60 * 60)) - 1800;
+				$tEnd = mktime(0,0,0,date('n', $date), date('j', $date), date('Y', $date)) + round((($hours['max'] * 24) * 60 * 60)) - 1800;
 
 				$tNow = $tStart;
 
 				while($tNow <= $tEnd){
-				  echo '<option value="'.$tNow.'">'.date("g:iA",$tNow).'</option>';
+					if($this->input->get('set_time') !== FALSE && $tNow == $this->input->get('set_time')){
+						echo '<option value="'.$tNow.'" selected="selected">'.date("g:iA",$tNow).'</option>';
+					}
+					else{
+						echo '<option value="'.$tNow.'">'.date("g:iA",$tNow).'</option>';
+					}
+				
+				  
 				  $tNow += 60 * 30; //30 MINUTES (60 seconds * 30)
 				}
-				
-		
 			?>
 			</select>
 			<input type="submit" value="Check Availability" />
@@ -60,7 +65,54 @@
 		
 		
 	<?php endif; ?>
+	
 	</form>
+
+	<?php if($this->input->get('selected_date') !== FALSE && $this->input->get('set_time') !== FALSE): ?>
+	<?php //var_Dump($bookings); ?>
+	<ul data-role="listview" data-inset="true">
+		<?php foreach($roles->result() as $role): ?>
+	
+			<?php if(isset($rooms[$role->role_id])): ?>
+		
+				<li data-role="list-divider"><?php echo $role->name; ?>:</li>
+				
+				
+				<?php foreach($rooms[$role->role_id] as $room): ?>
+				
+					<?php 
+						//Does an existing booking start at this time? 
+						if(!isset($bookings[$room->room_id][$this->input->get('set_time')])){
+							
+							//Does an earlier booking overlap this time?
+							$overlap = false;
+							
+							if(isset($bookings[$room->room_id])){
+								foreach($bookings[$room->room_id] as $booking){
+									//var_dump($booking);
+									if((strtotime($booking->start) < $this->input->get('set_time')) && (strtotime($booking->end) > $this->input->get('set_time'))){
+										$overlap = true;
+										break;
+									}
+								}
+							}
+							if(!$overlap){
+								echo '	<li>
+											<a href="#">'.$room->name .'(<strong>'.$room->seats .' seats</strong>)<br />
+											<span id="font_pos">Available </span>
+											<span class="showArrow secondaryWArrow">&nbsp;</span></a>
+										</li>';
+							}
+							
+						}
+					?>
+	
+				<?php endforeach; ?>
+			<?php endif; ?>
+		
+		<?php endforeach; ?>
+	</ul>
+	<?php endif; ?>
 
 	
 	<div class="back_img" style="margin-top: 5em">
@@ -70,6 +122,7 @@
 
 	<script src="<?php echo base_url(); ?>assets/datepicker/external/jquery-ui/jquery-ui.min.js"></script>
 	
+	<?php if($this->input->get('selected_date') === FALSE): ?>
 	<script>
 	$(function() {
 		$( "#cal_container" ).datepicker({
@@ -81,8 +134,7 @@
 			}
 		});
 	});
-	
-	
 	</script>	
+	<?php endif; ?>
 
 <?php $content = ob_get_contents();ob_end_clean();$this->template->set('content', $content);?>

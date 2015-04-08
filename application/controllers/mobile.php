@@ -45,12 +45,40 @@ class Mobile extends CI_Controller {
 	}
 	
 	function book_room(){
+		$this->load->model('hours_model');
+		$this->load->model('role_model');
+		$this->load->model('room_model');
+		$this->load->model('booking_model');
+			
+		
 		$data = array();
 		
 		if($this->input->get('selected_date') !== FALSE && strtotime($this->input->get('selected_date')) !== FALSE){
-			$this->load->model('hours_model');
-			
 			$data['hours'] = $this->hours_model->getAllHours(strtotime($this->input->get('selected_date')));
+		}
+		
+		
+		
+		if($this->input->get('selected_date') !== FALSE && $this->input->get('set_time') !== FALSE){
+			$data['roles'] = $this->role_model->list_roles();
+			
+			//Load the room data for every role the user has
+			foreach ($data['roles']->result() as $role){
+				$rooms = $this->room_model->list_rooms_by_role($role->role_id, true);
+				
+				foreach ($rooms->result() as $room){
+					$data['rooms'][$role->role_id][] = $room;
+				}
+			}
+			
+			//Return all bookings for the day (as an associative array for easy retrieval) 
+			$bookings = $this->booking_model->get_bookings(date('Ymd',strtotime($this->input->get('selected_date'))));
+			
+			$data['bookings'] = array();
+			
+			foreach($bookings->result() as $booking){
+				$data['bookings'][$booking->room_id][strtotime($booking->start)] = $booking; 
+			}
 		}
 		
 		$this->template->load('mobile_template', 'mobile/book_room', $data);
