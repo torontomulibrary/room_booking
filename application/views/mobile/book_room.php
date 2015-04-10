@@ -69,10 +69,10 @@
 	</form>
 
 	<?php if($this->input->get('selected_date') !== FALSE && $this->input->get('set_time') !== FALSE): ?>
-	<?php //var_Dump($bookings); ?>
+	<?php //var_Dump($hours); ?>
 	<ul data-role="listview" data-inset="true">
 		<?php foreach($roles->result() as $role): ?>
-	
+			<?php $count = 0; ?>
 			<?php if(isset($rooms[$role->role_id])): ?>
 		
 				<li data-role="list-divider"><?php echo $role->name; ?>:</li>
@@ -84,19 +84,39 @@
 						//Does an existing booking start at this time? 
 						if(!isset($bookings[$room->room_id][$this->input->get('set_time')])){
 							
-							//Does an earlier booking overlap this time?
-							$overlap = false;
 							
-							if(isset($bookings[$room->room_id])){
-								foreach($bookings[$room->room_id] as $booking){
-									//var_dump($booking);
-									if((strtotime($booking->start) < $this->input->get('set_time')) && (strtotime($booking->end) > $this->input->get('set_time'))){
-										$overlap = true;
+							$skip = false;
+							
+							//Is this time during the building hours?
+							$current_time = round(date('G', $this->input->get('set_time')) + (date('i', $this->input->get('set_time'))/60),1);
+							if($current_time < round(($hours[$room->external_id]->STARTTIME) * 24,1) || $current_time > round(($hours[$room->external_id]->ENDTIME) * 24,1)){
+								$skip = true;
+							}
+							
+							//Does an earlier booking overlap this time?
+							if(!$skip){
+								if(isset($bookings[$room->room_id])){
+									foreach($bookings[$room->room_id] as $booking){
+										if((strtotime($booking->start) < $this->input->get('set_time')) && (strtotime($booking->end) > $this->input->get('set_time'))){
+											$skip = true;
+											break;
+										}
+									}
+								}
+							}
+							
+							//Is this time slot "block booked"? (also if we are already skipping the room, no need to check)
+							if(!$skip){
+								foreach($block_bookings as $block_booking){
+									if(array_key_exists($room->room_id, $block_booking['room']) && strtotime($block_booking['start']) <= $this->input->get('set_time') && strtotime($block_booking['end']) > $this->input->get('set_time')){
+										$skip = true;
 										break;
 									}
 								}
 							}
-							if(!$overlap){
+							
+							if(!$skip){
+								$count++;								
 								echo '	<li>
 											<a href="#">'.$room->name .'(<strong>'.$room->seats .' seats</strong>)<br />
 											<span id="font_pos">Available </span>
@@ -106,8 +126,15 @@
 							
 						}
 					?>
-	
+					
 				<?php endforeach; ?>
+				<?php if($count === 0): ?>
+						<li>
+							<span id="font_pos">No Available Rooms</span>
+							
+						</li>
+					<?php endif; ?>
+				
 			<?php endif; ?>
 		
 		<?php endforeach; ?>

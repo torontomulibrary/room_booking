@@ -71,6 +71,10 @@ class Mobile extends CI_Controller {
 				}
 			}
 			
+			//Get all block bookings
+			$data['block_bookings'] = $this->booking_model->list_block_bookings(strtotime($this->input->get('selected_date')));
+			
+			
 			//Return all bookings for the day (as an associative array for easy retrieval) 
 			$bookings = $this->booking_model->get_bookings(date('Ymd',strtotime($this->input->get('selected_date'))));
 			
