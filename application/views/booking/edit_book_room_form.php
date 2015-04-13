@@ -43,7 +43,7 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 		<div class="row">
 			<div class="col-xs-9">
 				<div class="row">
-					<div class="col-xs-3 " style="background-color: #F0F0F0; border: 2px solid #c3c3c3; height:800px">
+					<div class="col-xs-3 " style="background-color: #F0F0F0; border: 2px solid #c3c3c3; height:670px">
 						
 						
 						<img style="margin: 3em auto;" src="<?php echo base_url() ?>assets/img/Book-Room-Icon3.png" alt="calendar">
@@ -55,7 +55,7 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 						<span id="month_left"><?php echo date('F',strtotime($booking->start)) ?></span>
 						<span id="date_left"><?php echo date('d', strtotime($booking->start)) ?></span>
 					</div>
-					<div class="col-xs-9" style="border: 2px solid #c3c3c3;  height:800px">
+					<div class="col-xs-9" style="border: 2px solid #c3c3c3;  height:670px">
 						
 						
 						<h3 id="page_title">Edit Reservation</h3>
@@ -94,8 +94,8 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 								<div class="form_left">Start Time</div>
 								<div class="form_right"><?php echo date('g:ia', strtotime($booking->start));?></div>
 								
-								<div class="form_left">Finish Time</div><div style="clear:both"></div>
-								<div class="">
+								<div class="form_left">Finish Time</div>
+								<div class="form_right">
 									<select name="finish_time">
 										<?php
 											//Figure out the allowance for the daily max (not counting the current booking)
@@ -190,7 +190,7 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 				</div>
 			</div>
 		  
-		  <div class="col-xs-3" style="background-color: #F0F0F0; border: 2px solid #c3c3c3; height:800px">
+		  <div class="col-xs-3" style="background-color: #F0F0F0; border: 2px solid #c3c3c3; height:670px">
 			<h4>Please Note</h4>
 			<ul>
 				<li>Study Rooms are for groups of 3 or more people</li>

@@ -37,7 +37,7 @@
 				<li><a href="<?php echo base_url(); ?>admin">Administrator View</a></li>
 				<?php endif; ?>
 				<li><a  href="<?php echo base_url(); ?>booking/booking_main">Dashboard</a></li>
-				<li><a href="<?php echo base_url(); ?>booking/">MAIN PAGE</a></li>
+				<li><a href="<?php echo base_url(); ?>booking/">BOOK A ROOM</a></li>
 				<li><a class="selected" href="<?php echo base_url(); ?>booking/my_bookings/">MY BOOKINGS</a></li>
 				<li><a href="<?php echo base_url(); ?>logout">LOG OUT</a></li>
 			</ul>

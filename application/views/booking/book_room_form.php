@@ -16,20 +16,20 @@
 	Create a table listing all of the existing roles, and options available
 	for each role. This only appears when not editing/creating new roles
 --->
-<h3 style="text-align: center; font-weight: bold">Ryerson University Libray Room Booking</h3>
+<h3 style="text-align: center; font-weight: bold">Ryerson University Library Room Booking</h3>
 
 <?php 
 //Verify the required fields are present (and the time is a half hour increment (don't let people mess with the URL)
 //Also make sure the user is allowed to book this room, and that the room is not closed
 if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot')) || $this->input->get('room_id') === FALSE || !is_numeric($this->input->get('room_id')) || ($this->input->get('slot') % 1800) !== 0): ?>
-	<div class="alert alert-danger" role="alert">An Error has occured. </div>
+	<div class="alert alert-danger" role="alert">An Error has occurred. </div>
 <?php else: ?>	
 		<?php $room_data = $room['room_data']->row(); ?>
 
 		<div class="row">
 			<div class="col-xs-9">
 				<div class="row">
-					<div class="col-xs-3 " style="background-color: #F0F0F0; border: 2px solid #c3c3c3; height:800px">
+					<div class="col-xs-3 " style="background-color: #F0F0F0; border: 2px solid #c3c3c3; height:670px">
 							<img style="margin: 3em auto;" src="<?php echo base_url() ?>assets/img/Book-Room-Icon3.png" alt="calendar">
 						
 						
@@ -37,7 +37,7 @@ if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot'))
 						<span id="month_left"><?php echo date('F', $this->input->get('slot')) ?></span>
 						<span id="date_left"><?php echo date('d', $this->input->get('slot')) ?></span>
 					</div>
-					<div class="col-xs-9" style="border: 2px solid #c3c3c3;  height:800px">
+					<div class="col-xs-9" style="border: 2px solid #c3c3c3;  height:670px">
 						
 						
 						<h3 id="page_title">Make a Reservation</h3>
@@ -59,8 +59,8 @@ if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot'))
 								<div class="form_left">Start Time</div>
 								<div class="form_right"><?php echo date('g:ia', $this->input->get('slot'));?></div>
 								
-								<div class="form_left">Finish Time</div><div style="clear:both"></div>
-								<div class="">
+								<div class="form_left">Finish Time</div>
+								<div class="form_right">
 									<select name="finish_time">
 										<?php
 										
@@ -149,7 +149,7 @@ if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot'))
 				</div>
 			</div>
 		  
-		  <div class="col-xs-3" style="background-color: #F0F0F0; border: 2px solid #c3c3c3; height:800px">
+		  <div class="col-xs-3" style="background-color: #F0F0F0; border: 2px solid #c3c3c3; height:670px">
 			<h4>Please Note</h4>
 			<ul>
 				<li>Study Rooms are for groups of 3 or more people</li>

@@ -37,7 +37,7 @@
 				<?php if($this->session->userdata('admin') || $this->session->userdata('super_admin')): ?>
 				<li><a href="<?php echo base_url(); ?>admin">Administrator View</a></li>
 				<?php endif; ?>
-				<li><a class="selected" href="<?php echo current_url(); ?>">Dashboard</a></li>
+				<li><a class="selected" href="<?php echo current_url(); ?>">BOOK A ROOM</a></li>
 				<li><a href="<?php echo base_url(); ?>booking/">MAIN PAGE</a></li>
 				<li><a href="<?php echo base_url(); ?>booking/my_bookings/">MY BOOKINGS</a></li>
 				<li><a href="<?php echo base_url(); ?>logout">LOG OUT</a></li>
@@ -45,7 +45,7 @@
 		</div>
 		
 		
-		<div class="center" id="filter_link_title">Specify your Search<a href="#" id="filter_link">+</a>
+		<div class="center" id="filter_link_title">Narrow your Search<a href="#" id="filter_link">+</a>
 			<div id="filter_container" class="">
 				<?php $num_rows = 5; $count = 0; ?>
 				
@@ -113,7 +113,7 @@
 		
 	</div>
 	
-	<h3 style="text-align: center; font-weight: bold; margin-top: 2em; width: 450px; float: right;">Ryerson University Library<br> Room Booking</h3>
+	<h3 style="text-align: center; font-weight: bold; margin-top: 2em; width: 450px; float: right;">Book a Room -<br> Ryerson University Library</h3>
 	
 	
 	<div class="calendar_container">
@@ -353,6 +353,10 @@
 	
 
 	
+</div>
+
+<div id="privacy">
+	<strong>Privacy Statement:</strong>  The Study Room Booking module collects only the minimum amount of information from users necessary to book a room - this includes name and email address. This information is stored on a secure site, and will not be used for any other purpose.
 </div>
 
 	<!-- bottom scrollbar -->
