@@ -17,13 +17,13 @@
 	for each role. This only appears when not editing/creating new roles
 --->
 
-<h3 style="text-align: center; font-weight: bold">Ryerson University Libray Room Booking</h3>
+<h3 style="text-align: center; font-weight: bold">Ryerson University Library Room Booking</h3>
 
 <?php
 //Verify the required fields are present (and the time is a half hour increment (don't let people mess with the URL)
 //Also make sure the user is allowed to book this room, and that the room is not closed
 if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('booking_id'))): ?>
-	<div class="alert alert-danger" role="alert">An Error has occured. </div>
+	<div class="alert alert-danger" role="alert">An Error has occurred. </div>
 <?php else: ?>	
 		<?php $room_data = $room['room_data']->row(); ?>
 
