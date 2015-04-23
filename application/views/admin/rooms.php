@@ -119,6 +119,10 @@
 	 <input type="text" class="form-control" id="max_daily_hours" placeholder="Enter the user limit per day" name="max_daily_hours" <?php if(isset($current)): ?>value="<?= $current->max_daily_hours ?>" <?php endif; ?>>
   </div>
   
+  <div class="form-group">
+		<label for="notes">Notes</label>
+		<textarea class="form-control" name="notes" id="notes" rows="3"><?php if(isset($current)) echo $current->notes ?></textarea>
+	</div>
   
   <div class="checkbox">
     <label>

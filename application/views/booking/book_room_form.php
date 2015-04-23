@@ -29,7 +29,7 @@ if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot'))
 		<div class="row">
 			<div class="col-xs-9">
 				<div class="row">
-					<div class="col-xs-3 " style="background-color: #F0F0F0; border: 2px solid #c3c3c3; height:670px">
+					<div class="col-xs-3 " style="background-color: #F0F0F0; border: 2px solid #c3c3c3; height:720px">
 							<img style="margin: 3em auto;" src="<?php echo base_url() ?>assets/img/Book-Room-Icon3.png" alt="calendar">
 						
 						
@@ -37,7 +37,7 @@ if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot'))
 						<span id="month_left"><?php echo date('F', $this->input->get('slot')) ?></span>
 						<span id="date_left"><?php echo date('d', $this->input->get('slot')) ?></span>
 					</div>
-					<div class="col-xs-9" style="border: 2px solid #c3c3c3;  height:670px">
+					<div class="col-xs-9" style="border: 2px solid #c3c3c3;  height:720px">
 						
 						
 						<h3 id="page_title">Make a Reservation</h3>
@@ -129,9 +129,15 @@ if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot'))
 										?>
 									</ul>
 								</div>
+								
+								<?php if(strlen($room_data->notes) > 0): ?>
+									<div style="clear:both"></div>
+									<br>
+									<div class="form_left">Note</div><div style="clear:both"><strong><?php echo $room_data->notes; ?></strong></div>
+								<?php endif; ?>
+								
 								<div style="clear:both"></div>
 								<br><br>
-								
 								<div class="form_left">Additional Info</div><div style="clear:both"></div>
 								<div><textarea name="comment" rows="6" cols="75"></textarea></div>
 								
@@ -149,7 +155,7 @@ if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot'))
 				</div>
 			</div>
 		  
-		  <div class="col-xs-3" style="background-color: #F0F0F0; border: 2px solid #c3c3c3; height:670px">
+		  <div class="col-xs-3" style="background-color: #F0F0F0; border: 2px solid #c3c3c3; height:720px">
 			<h4>Please Note</h4>
 			<ul>
 				<li>Study Rooms are for groups of 3 or more people</li>

@@ -57,7 +57,7 @@
 					<?php if($count > 0 && $count % $num_rows == 0):?></div><div class="filter_row"><?php endif; ?>
 					<label>
 						<input type="checkbox" class="seat_checkbox filter_checkbox" value="" data-minseats="1" data-maxseats="4">
-						<span></span>1 - 4 Seats
+						<span></span>2 - 4 Seats
 					</label>
 					<br>
 					<?php $count++; ?>
@@ -131,6 +131,26 @@
 
 <div class="booking_container">
 
+	<?php
+		//Figure out of any limits were reached
+		$disabled_rooms = false;		
+		
+		foreach ($roles->result() as $role){
+			if(isset($rooms[$role->role_id])){
+				foreach($rooms[$role->role_id] as $room){
+					if($limits['day_used'] >= $room->max_daily_hours || $limits['week_remaining'] <= 0){
+						$disabled_rooms = true;
+						break;
+					}
+				}
+			}
+			if($disabled_rooms) break;
+		}
+		
+		if($disabled_rooms){
+			echo '<div class="alert alert-danger" role="alert">Some rooms may not be available because you have reached your maximum daily/weekly limits</div>';
+		}
+	?>
 	
 	<?php 
 		
