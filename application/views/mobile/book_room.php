@@ -68,6 +68,7 @@
 	
 	</form>
 
+
 	<?php if($this->input->get('selected_date') !== FALSE && $this->input->get('set_time') !== FALSE): ?>
 	<?php //var_Dump($hours); ?>
 	<ul data-role="listview" data-inset="true">
@@ -86,6 +87,12 @@
 							
 							
 							$skip = false;
+							
+							//Do you have any hours remaining to book
+							if($room->max_daily_hours <= $limits['day_used'] || $limits['week_remaining'] <= 0){
+								$skip = true;
+							}
+							
 							
 							//Is this time during the building hours?
 							$current_time = round(date('G', $this->input->get('set_time')) + (date('i', $this->input->get('set_time'))/60),1);
@@ -118,7 +125,7 @@
 							if(!$skip){
 								$count++;								
 								echo '	<li>
-											<a href="#">'.$room->name .'(<strong>'.$room->seats .' seats</strong>)<br />
+											<a href="'.base_url().'mobile/create_booking?slot='.$this->input->get('set_time').'&room_id='.$room->room_id.'">'.$room->name .'(<strong>'.$room->seats .' seats</strong>)<br />
 											<span id="font_pos">Available </span>
 											<span class="showArrow secondaryWArrow">&nbsp;</span></a>
 										</li>';

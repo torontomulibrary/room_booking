@@ -56,6 +56,12 @@
 				
 			<?php endif; ?>
 			
+			<span class="detail_label">Notes</span>
+			<span style="display: inline-block; float: left">
+				<?php echo htmlspecialchars($booking->comment); ?><br />
+			</span>
+			<div style="clear: both"></div>
+			
 			
 		
 		

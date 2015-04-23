@@ -44,6 +44,54 @@ class Mobile extends CI_Controller {
 		$this->template->load('mobile_template', 'mobile/my_bookings', $data);
 	}
 	
+	function next_available(){
+		$this->load->model('hours_model');
+		$this->load->model('role_model');
+		$this->load->model('room_model');
+		$this->load->model('booking_model');
+			
+		$data = array();
+		$data['roles'] = $this->role_model->list_roles();
+		
+		$booking_data = array();
+		
+		//Get the next half hour slot
+		$time = (time() - (time() % 1800)) + 1800;
+
+		$num_slots = 6; //6 half hours for 3 hours in future
+		
+		for($i=$num_slots; $i > 0; $i--){
+			//Prepare the data here, rather then call these functions in triplicate
+			$data['hours'] = $this->hours_model->getAllHours($time);
+			$data['limits'] = $this->booking_model->remaining_hours($this->session->userdata('username'), $time);
+			$data['block_bookings'] = $this->booking_model->list_block_bookings($time);
+			$data['bookings'] = $this->booking_model->get_bookings(date('Ymd',$time));
+			
+			foreach($data['bookings']->result() as $booking){
+				$booking_data[$booking->room_id][strtotime($booking->start)] = $booking; 
+			}
+			
+			$data['bookings'] = $booking_data; 
+			
+			foreach ($data['roles']->result() as $role){
+				$raw_rooms = $this->room_model->list_rooms_by_role($role->role_id, true);
+				
+				foreach ($raw_rooms->result() as $room){
+					$data['r'][$role->role_id][] = $room;
+				}
+			}
+			
+			
+			$data['rooms'][$time] = $this->booking_model->get_random_free_bookings($time, 1, 4, 2, $data);
+			$data['rooms'][$time] = array_merge($data['rooms'][$time], $this->booking_model->get_random_free_bookings($time, 5, 8, 2, $data));
+			$data['rooms'][$time] = array_merge($data['rooms'][$time], $this->booking_model->get_random_free_bookings($time, 9, 16, 2, $data));
+			
+			$time += 1800; //Add 30mins to the time;
+		}
+		
+		$this->template->load('mobile_template', 'mobile/next_booking', $data);
+	}
+	
 	function book_room(){
 		$this->load->model('hours_model');
 		$this->load->model('role_model');
@@ -55,12 +103,13 @@ class Mobile extends CI_Controller {
 		
 		if($this->input->get('selected_date') !== FALSE && strtotime($this->input->get('selected_date')) !== FALSE){
 			$data['hours'] = $this->hours_model->getAllHours(strtotime($this->input->get('selected_date')));
-		}
+		}		
 		
 		
 		
 		if($this->input->get('selected_date') !== FALSE && $this->input->get('set_time') !== FALSE){
 			$data['roles'] = $this->role_model->list_roles();
+			$data['limits'] = $this->booking_model->remaining_hours($this->session->userdata('username'), $this->input->get('set_time'));
 			
 			//Load the room data for every role the user has
 			foreach ($data['roles']->result() as $role){
@@ -89,9 +138,25 @@ class Mobile extends CI_Controller {
 	}
 	
 	function create_booking(){
-		$data['date'] = $this->input->get('selected_date');
+		if(!is_numeric($this->input->get('room_id'))) return false;
 		
-		$this->template->load('mobile_template', 'mobile/find_slot', $data);
+		$this->load->model('room_model');
+		$this->load->model('resource_model');
+		$this->load->model('building_model');
+		$this->load->model('booking_model');
+		$this->load->model('hours_model');
+		
+		
+		
+		$data['date'] = $this->input->get('selected_date');
+		$data['limits'] = $this->booking_model->remaining_hours($this->session->userdata('username'), $this->input->get('slot'));
+		$data['room'] = $this->room_model->load_room($this->input->get('room_id'));
+		$data['resources'] = $this->resource_model->load_resources($data['room']['room_resources']);
+		$data['building'] = $this->building_model->load_building($data['room']['room_data']->row()->building_id);
+		$data['next_booking'] = $this->booking_model->next_booking($this->input->get('slot'), $this->input->get('room_id'));
+		$data['hours'] = $this->hours_model->getAllHours(mktime(0,0,0, date('n',$this->input->get('slot')),date('j',$this->input->get('slot')),date('Y',$this->input->get('slot'))));
+		
+		$this->template->load('mobile_template', 'mobile/booking_form', $data);
 	}
 	
 	function edit_booking(){
@@ -140,6 +205,91 @@ class Mobile extends CI_Controller {
 		$this->template->load('mobile_template', 'mobile/edit_booking', $data);
 		
 		
+	}
+	
+	function submit(){
+		$this->load->model('booking_model');
+		$this->load->model('room_model');
+		
+		$start_time = $this->input->post('slot');
+		$finish_time = $this->input->post('end_time');
+		$room_id = $this->input->post('room_id');
+		$comment = $this->input->post('add_info');
+		
+		
+		
+		//TODO: make sure time isnt past midnight, or before opening hours
+		
+		//Validate all the date/times submitted 
+		if(is_numeric($start_time) && ($start_time % 1800) == 0 && is_numeric($finish_time) && ($finish_time % 1800) == 0 && is_numeric($room_id) && $start_time > time()){
+			//Was this user allowed to book this room?
+			if($this->booking_model->is_allowed($room_id)){
+				$room = $this->room_model->load_room($room_id);
+				$room = $room['room_data']->row(); 
+				
+				//Check the users remaining bookable hours
+				$limits = $this->booking_model->remaining_hours($this->session->userdata('username'), $start_time);
+				$requested_time = (($finish_time - $start_time) / 60 / 60);
+				
+				if(( $room->max_daily_hours - $limits['day_used'] ) < 0 || ($limits['week_remaining'] - $requested_time) < 0 ){
+					$this->session->set_flashdata('danger', "You have exceeded your booking limits. The booking has not been made");
+					redirect(base_url() . 'mobile');
+				}
+				else{
+					//Try to make the booking
+					
+					
+					//Get the ID of the new booking. Returns false if the booking slot was not free
+					$id = $this->booking_model->book_room($room_id, $start_time, $finish_time, $comment); 
+					
+					
+					$this->load->model('log_model');
+					$this->log_model->log_event('desktop', $this->session->userdata('username'), "Create Booking", $id);
+				
+					if($id === FALSE){
+						$this->session->set_flashdata('warning', "Another booking already exists for this time. Please choose a different room/time");
+						redirect(base_url() . 'mobile');
+					}
+					else{
+						
+						$this->load->library('email');
+						$this->load->model('room_model');
+						$room = $this->room_model->load_room($room_id);
+						
+						//Send an email
+						$data['name'] = $this->session->userdata('name');
+						$data['start'] = $start_time;
+						$data['end'] = $finish_time;
+						$data['room'] = $room;
+						
+						$this->booking_model->generate_ics($id);
+						
+						$email_content = $this->load->view('email/booking_confirmation', $data, TRUE);
+						$this->email->clear();
+						$this->email->to($this->session->userdata('username').EMAIL_SUFFIX);
+						$this->email->from('noreply'.EMAIL_SUFFIX);
+						$this->email->subject('Booking Confirmation');
+						$this->email->message($email_content);
+						$this->email->attach('temp/'.$id.'.ics');
+						$this->email->send();
+						$this->booking_model->delete_ics($id);
+						
+						
+						
+						$this->session->set_flashdata('success', "Booking Successfully Made");
+						redirect(base_url() . 'mobile');
+					}
+				}
+			}
+			else{
+				$this->session->set_flashdata('danger', "You do not have permissions to book this room");
+				redirect(base_url() . 'mobile');
+			}
+		}
+		else{
+			$this->session->set_flashdata('warning', "An error has occured. The booking has not been made");
+			redirect(base_url() . 'mobile');
+		}
 	}
 	
 	function cancel_booking(){

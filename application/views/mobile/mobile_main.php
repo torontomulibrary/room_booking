@@ -18,7 +18,7 @@
 
 		<li><a rel="" href="<?php echo base_url(); ?>mobile/my_bookings">My Bookings</a></li>
 		<li><a rel="" href="<?php echo base_url(); ?>mobile/book_room">Book a Study Room</a></li>
-		<li><a rel="external" href="next_available_room.cfm">View Room Availability<br />(Within the next 3 hours)</a></li>
+		<li><a rel="" href="<?php echo base_url(); ?>mobile/next_available">View Room Availability<br />(Within the next 3 hours)</a></li>
 	</ul>
 
 
