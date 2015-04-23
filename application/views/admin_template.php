@@ -182,6 +182,7 @@
 				<ul class="nav nav-sidebar">
 					<li class="<?php echo ($method === "users" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/users">Manage Users</a></li>         
 					<li class="<?php echo ($method === "super_admin" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/super_admin">Manage Super Users</a></li>         
+					<li class="<?php echo ($method === "ban_users" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/ban_users">Ban Users</a></li>
 				</ul>
 
 				<ul class="nav nav-sidebar">

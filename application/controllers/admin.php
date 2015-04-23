@@ -221,6 +221,39 @@ class Admin extends CI_Controller {
 		$this->template->load('admin_template', 'admin/roles', $data);
 	}
 	
+	function ban_users(){
+		$this->load->model('user_model');
+		
+		if($this->uri->segment(3) === 'add'){
+			$matrix_id = $this->input->post('matrix_id');
+			$reason = $this->input->post('reason');
+			$reporter = $this->session->userdata('name');
+			$date = date('Y-m-d H:i:s');
+			
+			$this->user_model->ban_user($matrix_id, $reason, $date, $reporter);
+			$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">User successfully banned</div>');
+			redirect('admin/ban_users');
+		}
+		
+		//Set variable so the view loads the form, rather then list out existing roles
+		else if ($this->uri->segment(3) === 'new'){
+			$data['new'] = true;
+		}
+		
+		else if ($this->uri->segment(3) === 'delete'){
+			
+			$this->user_model->delete_banned_user($this->uri->segment(4));
+			$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">User ban removed</div>');
+			$this->db->cache_delete_all();
+			redirect('admin/ban_users');
+		}
+		
+		$data['banned_users'] = $this->user_model->load_banned_users();
+		
+		$this->template->load('admin_template', 'admin/ban_users', $data);
+	}
+	
+	
 	function rooms(){
 		$this->load->model('room_model');
 		$this->load->model('resource_model');
@@ -235,8 +268,9 @@ class Admin extends CI_Controller {
 			$seats = $this->input->post('seats');
 			$active = $this->input->post('active');
 			$max_daily_hours = $this->input->post('max_daily_hours');
+			$notes = $this->input->post('notes');
 			
-			$id = $this->room_model->add_room($building, $room, $seats, $role, $active, $resources, $max_daily_hours);
+			$id = $this->room_model->add_room($building, $room, $seats, $role, $active, $resources, $max_daily_hours, $notes);
 			
 			if(is_numeric($id)){
 				$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Room added successfully</div>');
@@ -293,10 +327,11 @@ class Admin extends CI_Controller {
 			$active = $this->input->post('active');
 			$room_id = $this->input->post('room_id');
 			$max_daily_hours = $this->input->post('max_daily_hours');
+			$notes = $this->input->post('notes');
 			
 			
 			
-			$id = $this->room_model->edit_room($room_id, $building, $room, $seats, $roles, $active, $resources, $max_daily_hours);
+			$id = $this->room_model->edit_room($room_id, $building, $room, $seats, $roles, $active, $resources, $max_daily_hours, $notes);
 
 			$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The room has been updated</div>');
 			$this->db->cache_delete_all();

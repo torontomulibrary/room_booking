@@ -253,6 +253,93 @@ class booking_Model  extends CI_Model  {
 		return $query;
 	}
 	
+	//Return a random-generated list of free rooms for a given time
+	function get_random_free_bookings($datetime, $min_seats, $max_seats, $limit, $data){
+		
+		$hours = $data['hours'];
+		$roles = $data['roles'];
+		$limits = $data['limits'];
+		$block_bookings = $data['block_bookings'];
+		$bookings = $data['bookings'];
+		$rooms = $data['r'];
+		
+			
+		$good_rooms = array();
+		
+		foreach($roles->result() as $role){
+			if(isset($rooms[$role->role_id])){
+				foreach($rooms[$role->role_id] as $room){
+					$skip = false;
+					
+					if($room->seats > $max_seats || $room->seats < $min_seats){
+						$skip = true;
+					
+					}
+					
+					//Do you have any hours remaining to book
+					if($room->max_daily_hours <= $limits['day_used'] || $limits['week_remaining'] <= 0){
+						$skip = true;
+					}
+					
+					//Is this time during the building hours?
+					$current_time = round(date('G', $datetime) + (date('i', $datetime)/60),1);
+					if($current_time < round(($hours[$room->external_id]->STARTTIME) * 24,1) || $current_time > round(($hours[$room->external_id]->ENDTIME) * 24,1)){
+						$skip = true;
+					}
+					
+					//Does an earlier booking overlap this time?
+					if(!$skip){
+						if(isset($bookings[$room->room_id])){
+							foreach($bookings[$room->room_id] as $booking){
+							
+								if((strtotime($booking->start) <= $datetime) && (strtotime($booking->end) > $datetime)){
+									//var_dump($booking); die;
+									$skip = true;
+									break;
+								}
+							}
+						}
+					}
+					
+					//Is this time slot "block booked"? (also if we are already skipping the room, no need to check)
+					if(!$skip){
+						foreach($block_bookings as $block_booking){
+							if(array_key_exists($room->room_id, $block_booking['room']) && strtotime($block_booking['start']) <= $this->input->get('set_time') && strtotime($block_booking['end']) > $this->input->get('set_time')){
+								$skip = true;
+								break;
+							}
+						}
+					}
+					
+					if(!$skip){
+						$good_rooms[] = $room;
+					}	
+				}
+			}
+		}
+		
+		//Now that we have a list of rooms, pick $limit amount randomly
+		$results = array();
+		
+		for($i=0; $i < $limit; $i++){
+			if(count($good_rooms) == 0) break; //Limit is higher then avail rooms
+			
+			$random_number = rand(0,count($good_rooms)-1);
+			
+			$next_booking = $this->next_booking($datetime, $good_rooms[$random_number]->room_id);
+			$next_booking = $next_booking->row();
+			
+			$good_rooms[$random_number]->next_booking = strtotime($next_booking->start); //Kick in the next booking
+			
+			$results[] = $good_rooms[$random_number];
+			
+			unset($good_rooms[$random_number]);
+			$good_rooms = array_values($good_rooms);
+		}
+		
+		return $results;
+	}
+	
 	//Lists upcoming block bookings (unless optional parameter is true, where past block bookings are shown)
 	function list_block_bookings($date = 0, $include_past = false){
 		if($date == 0) $date = time();

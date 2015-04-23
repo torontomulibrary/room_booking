@@ -167,5 +167,37 @@ class user_Model  extends CI_Model  {
 		$this->db->where('admin_id', $admin_id);
 		$this->db->delete('admin');
 	}
+	
+	function load_banned_users(){
+		return $this->db->get('banned_users');
+	}
+	
+	function is_banned($matrix_id){
+		$this->db->where('matrix_id', $matrix_id);
+		$result = $this->db->get('banned_users');
+		
+		if($result->num_rows() > 0) return TRUE;
+		else return FALSE;
+	}
+	
+	function ban_user($matrix_id, $reason, $date, $reporter){
+		
+		$data = array(
+			'matrix_id' => $matrix_id,
+			'reason' => $reason,
+			'date' => $date,
+			'reporter' => $reporter,
+		);
+		
+		$this->db->insert('banned_users', $data); 
+		$this->db->cache_delete_all();
+		
+		return TRUE;
+	}
+	
+	function delete_banned_user($matrix_id){
+		$this->db->where('matrix_id', $matrix_id);
+		$this->db->delete('banned_users');
+	}
 
 }

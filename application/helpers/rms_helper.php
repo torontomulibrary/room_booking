@@ -20,7 +20,7 @@ function is_access_center($username){
 	// Block the user using the HTTP headers set above
 	$url = str_replace('{username}', urlencode($username), RMS_SERVICE);
 	
-	$file = file_get_contents($url, false, $context);
+	$file = @file_get_contents($url, false, $context);
 	
 	//Make sure the server gave a 200 response, else return the user an error
 	if($http_response_header[0] === "HTTP/1.1 200 OK"){

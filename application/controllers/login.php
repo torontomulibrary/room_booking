@@ -69,7 +69,7 @@ class Login extends CI_Controller {
 		}
 		
 		//Access centre rooms
-		if(false && is_access_center($user_data->userlogin)){ //TEMP: CRIPPLED THIS FUNCTION
+		if( !strstr($_SERVER['HTTP_HOST'], 'localhost') && is_access_center($user_data->userlogin)){ //Disable on localhost
 			$object = new stdClass();
 			$object->role_id = 6; //Hardcoded ID. Yuck!
 			$object->name = "Adaptive";
@@ -110,6 +110,10 @@ class Login extends CI_Controller {
 			$this->template->load('rula_template', 'denied');
 			$this->session->sess_destroy();	
 			
+		}
+		else if($this->user_model->is_banned($user_data->userlogin)){
+			$this->template->load('rula_template', 'banned');
+			$this->session->sess_destroy();	
 		}
 		//Successful login
 		else{
