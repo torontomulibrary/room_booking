@@ -129,6 +129,10 @@ class Login extends CI_Controller {
 			
 			$redirect_url = $this->session->flashdata('origin');
 			
+			//If they are going to root of application, see if they are a mobile user and redirect if they are
+			if($redirect_url == base_url() && $this->agent->is_mobile()){
+				redirect(base_url(). 'mobile');
+			}
 			
 			//If the origin url is set, redirect to it, else go to the landing page
 			if(strlen($redirect_url) > 0){
