@@ -16,6 +16,13 @@ class Mobile extends CI_Controller {
 	function Mobile(){
 		parent::__construct();
 		
+		$this->load->library('cas');
+		if(!$this->cas->is_authenticated()){
+			$this->session->unset_userdata('username');
+			$this->session->set_flashdata('origin', current_url());
+			redirect('login/login_user');
+		}
+		
 		$this->load->helper('mobile_message');
 		
 		//Check for existing login

@@ -52,8 +52,8 @@
 				
 			<?php endif; ?>
 			
-			<span class="detail_label">Start Time</span>
-			<span class="detail"><?php echo date('g:iA', ($this->input->get('slot'))); ?></span>
+			<span style="margin-top: 0.6em" class="detail_label">Start Time</span>
+			<span style="margin-top: 0.6em" class="detail"><?php echo date('g:iA', ($this->input->get('slot'))); ?></span>
 			<div style="clear: both"></div>
 		
 			<span class="detail_label select_label">Finish Time</span>

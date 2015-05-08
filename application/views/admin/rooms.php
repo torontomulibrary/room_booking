@@ -103,7 +103,7 @@
   </div>
   <div class="form-group">
     <label for="resources">Resources</label>
-	<select multiple id="resources" class="form-control" name="resources[]">
+	<select multiple id="resources" class="form-control" name="resources[]" size="20">
 		<?php foreach($resources->result() as $resource): ?>
 			<option value="<?= $resource->resource_id ?>" <?php if(isset($current_room) && in_array($resource->resource_id, $current_room['room_resources'])):?>selected="selected"<?php endif; ?>><?= $resource->name ?></option>
 		<?php endforeach; ?>

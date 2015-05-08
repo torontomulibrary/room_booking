@@ -31,13 +31,13 @@
 </head>
 <body>
 	<div data-role="header" >
-		<div><img id="logo_left" style="padding: 0.6em;" src="https://library.cf.ryerson.ca/studentbooking/mobile/img/mobile-logo.png" class="" alt="Ryerson Library and Archives" ></div>
+		<div><a rel="external" href="<?php echo base_url(); ?>mobile"><img id="logo_left" src="<?php echo base_url(); ?>assets/img/rula_logo.png" height="60" class="" alt="Ryerson Library and Archives" ></a></div>
 		
 		
 		
 	</div><!-- /header -->
 	
-	<div data-role="content" data-dom-cache=false>	
+	<div data-role="content" data-dom-cache="false" data-cache="never">	
 	
 	 <?php if(isset($content)) echo $content; ?>
 	 
@@ -49,7 +49,10 @@
 		 <a href="tel:416-979-5055">416-979-5055</a>
 	 </div>
 	 
-
+	<script>
+		//More fighting with jquery mobile. Stop. Caching. Everything.
+		jQuery('.ui-page').on('pagehide',function(){ $(this).remove(); });
+	</script>
 	 
 </body>
 </html>

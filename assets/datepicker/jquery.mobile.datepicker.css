@@ -127,7 +127,7 @@ div.hasDatepicker {
 	padding: .6em .5em;
 }
 .ui-datepicker .ui-state-disabled {
-	opacity: 1;
+	/*opacity: 1;*/
 }
 .ui-datepicker.ui-corner-all,
 .ui-datepicker .ui-datepicker-header.ui-corner-all {

@@ -40,6 +40,7 @@
 				<li><a class="selected" href="<?php echo current_url(); ?>">BOOK A ROOM</a></li>
 				<li><a href="<?php echo base_url(); ?>booking/">MAIN PAGE</a></li>
 				<li><a href="<?php echo base_url(); ?>booking/my_bookings/">MY BOOKINGS</a></li>
+				<li><a href="<?php echo base_url(); ?>mobile/">MOBILE</a></li>
 				<li><a href="<?php echo base_url(); ?>logout">LOG OUT</a></li>
 			</ul>
 		</div>
@@ -72,8 +73,8 @@
 					
 					<?php if($count > 0 && $count % $num_rows == 0):?></div><div class="filter_row"><?php endif; ?>
 					<label>
-						<input type="checkbox" class="seat_checkbox filter_checkbox" value="" data-minseats="9" data-maxseats="1000">
-						<span></span>9 + Seats
+						<input type="checkbox" class="seat_checkbox filter_checkbox" value="" data-minseats="9" data-maxseats="16">
+						<span></span>9 - 16 Seats
 					</label>
 					<br>
 					<?php $count++; ?>

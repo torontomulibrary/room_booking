@@ -33,7 +33,8 @@ class room_Model  extends CI_Model  {
 			return $this->db->query("
 				SELECT DISTINCT r.room_id, r.max_daily_hours, r.building_id, r.name, r.seats, r.is_active, b.name AS building, b.external_id
 				FROM rooms r, buildings b
-				WHERE r.building_id = b.building_id
+				WHERE r.building_id = b.building_id 
+				order by building asc, r.name asc
 			");
 		}
 	}

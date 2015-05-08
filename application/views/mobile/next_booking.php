@@ -16,20 +16,33 @@
 	<?php foreach($rooms as $time => $rooms): ?>
 		<li data-role="list-divider"><?php echo date('g:iA', $time); ?>:</li>
 		
+		<?php $count = 0; ?>
+		
 		<?php foreach ($rooms as $room): ?>
-		<li>
-			<a href="<?php echo base_url(); ?>mobile/create_booking?slot=<?php echo $time; ?>&room_id=<?php echo $room->room_id; ?>"><?php echo $room->name; ?>(<strong><?php echo $room->seats ?> seats</strong>)<br />
-			<span id="font_pos">Available 
-				<?php 
-					if(($room->next_booking - $time) < ($room->max_daily_hours * 60 * 60) && date('Y-m-d') === date('Y-m-d',$room->next_booking)){
-					echo " until ". date('g:ia', $room->next_booking); 
-					}
-				
-				?>
-			</span>
-			<span class="showArrow secondaryWArrow">&nbsp;</span></a>
-		</li>
+			<li>
+				<a href="<?php echo base_url(); ?>mobile/create_booking?slot=<?php echo $time; ?>&room_id=<?php echo $room->room_id; ?>"><?php echo $room->name; ?>(<strong><?php echo $room->seats ?> seats</strong>)<br />
+				<span id="font_pos">Available 
+					<?php 
+						if(($room->next_booking - $time) < ($room->max_daily_hours * 60 * 60) && date('Y-m-d') === date('Y-m-d',$room->next_booking)){
+						echo " until ". date('g:ia', $room->next_booking); 
+						}
+					
+					?>
+				</span>
+				<span class="showArrow secondaryWArrow">&nbsp;</span></a>
+			</li>
+			<?php $count += 1; ?>
+		
 		<?php endforeach; ?>
+		
+		<?php if($count == 0): ?>
+			<li>
+				<span id="font_pos">No Available Rooms</span>
+				
+			</li>
+		<?php endif; ?>
+			
+		
 	<?php endforeach; ?>
 	
 

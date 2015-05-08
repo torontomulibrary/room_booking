@@ -235,6 +235,21 @@ class booking_Model  extends CI_Model  {
 		return $query;
 	}
 	
+	function get_current_bookings($matrix_id){
+		$sql = "select b.booking_id, b.room_id, r.name, b.matrix_id, b.booker_name, b.start, b.end, r.seats from bookings b, rooms r
+				where 
+				b.room_id = r.room_id
+				and start <= ". $this->db->escape(date('Y-m-d H:i:s'))."
+				and end > ". $this->db->escape(date('Y-m-d H:i:s'))."
+				AND matrix_id = '".$matrix_id."'";
+		
+		$this->db->cache_off();
+		$query = $this->db->query($sql);
+		$this->db->cache_on();
+		
+		return $query;
+	}
+	
 	function get_previous_bookings($matrix_id, $limit = 5){
 		if(!is_numeric($limit)) return false;
 		
@@ -480,6 +495,61 @@ class booking_Model  extends CI_Model  {
 			
 			$this->db->insert('block_booking_room', $data);
 		}
+		
+	}
+	
+	function count_free_rooms($role_id, $time = 0){
+		if(!is_numeric($role_id)) break;
+		
+		if($time == 0){
+			//If time not set, assume the next half hour slot
+			
+			$hour = date('H');
+			
+			if(date('i') < 30){
+				$minute = 30;
+				
+			}
+			else{
+				$minute = 0;
+				$hour += 1;
+			}
+			
+			$time = mktime($hour, $minute,0);
+		}
+		
+		$sql = "SELECT 
+					COUNT(*) - (SELECT 
+							COUNT(*)
+						FROM
+							bookings
+						WHERE
+							(start = '".date('Y-m-d H:i:s', $time)."'
+								OR (start < '".date('Y-m-d H:i:s', $time)."'
+								AND end > '".date('Y-m-d H:i:s', $time)."'))
+								AND room_id NOT IN (SELECT 
+									bbr.room_id
+								FROM
+									block_booking_room bbr,
+									block_booking bb
+								WHERE
+									bb.block_booking_id = bbr.block_booking_id
+										AND (bb.start = '".date('Y-m-d H:i:s', $time)."'
+										OR (bb.start < '".date('Y-m-d H:i:s', $time)."'
+										AND bb.end > '".date('Y-m-d H:i:s', $time)."')))) as free_rooms
+				FROM
+					rooms r,
+					room_roles rr
+				WHERE
+					r.room_id = rr.room_id
+						AND rr.role_id = ".$role_id;
+		
+		
+		$this->db->cache_off();
+		$query = $this->db->query($sql);
+		$this->db->cache_on();
+		
+		return $query;
 		
 	}
 	

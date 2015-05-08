@@ -37,7 +37,25 @@
 			<select name="set_time">
 			<?php
 				$date = strtotime($this->input->get('selected_date'));
-				$tStart = mktime(0,0,0,date('n', $date), date('j', $date), date('Y', $date)) + round((($hours['min'] * 24) * 60 * 60)); 
+				$tStart = mktime(0,0,0,date('n', $date), date('j', $date), date('Y', $date)) + round((($hours['min'] * 24) * 60 * 60)); //Date + earliest time available
+				
+				//If same day, do not show past times
+				if(date('Y-m-d', $tStart) === date('Y-m-d') && $tStart < time()){
+					$hour = date("H");
+					$minute =  date("i");
+					
+					if($minute >= 30){
+						$minute = 0;
+						$hour += 1;
+					}
+					else{
+						$minute = 30;
+					}
+					
+					
+					$tStart = mktime($hour,$minute,0,date('n', $date), date('j', $date), date('Y', $date)); 
+				}
+				
 				
 				//Avoid going past midnight
 				if($hours['max'] > 1){ $hours['max'] = 1; }
@@ -70,82 +88,92 @@
 
 
 	<?php if($this->input->get('selected_date') !== FALSE && $this->input->get('set_time') !== FALSE): ?>
-	<?php //var_Dump($hours); ?>
-	<ul data-role="listview" data-inset="true">
-		<?php foreach($roles->result() as $role): ?>
-			<?php $count = 0; ?>
-			<?php if(isset($rooms[$role->role_id])): ?>
+	
+		<?php if($this->input->get('set_time') > time()): ?>
 		
-				<li data-role="list-divider"><?php echo $role->name; ?>:</li>
+			<ul data-role="listview" data-inset="true">
+				<?php foreach($roles->result() as $role): ?>
+					<?php $count = 0; ?>
+					<?php if(isset($rooms[$role->role_id])): ?>
 				
-				
-				<?php foreach($rooms[$role->role_id] as $room): ?>
-				
-					<?php 
-						//Does an existing booking start at this time? 
-						if(!isset($bookings[$room->room_id][$this->input->get('set_time')])){
-							
-							
-							$skip = false;
-							
-							//Do you have any hours remaining to book
-							if($room->max_daily_hours <= $limits['day_used'] || $limits['week_remaining'] <= 0){
-								$skip = true;
-							}
-							
-							
-							//Is this time during the building hours?
-							$current_time = round(date('G', $this->input->get('set_time')) + (date('i', $this->input->get('set_time'))/60),1);
-							if($current_time < round(($hours[$room->external_id]->STARTTIME) * 24,1) || $current_time > round(($hours[$room->external_id]->ENDTIME) * 24,1)){
-								$skip = true;
-							}
-							
-							//Does an earlier booking overlap this time?
-							if(!$skip){
-								if(isset($bookings[$room->room_id])){
-									foreach($bookings[$room->room_id] as $booking){
-										if((strtotime($booking->start) < $this->input->get('set_time')) && (strtotime($booking->end) > $this->input->get('set_time'))){
+						<li data-role="list-divider"><?php echo $role->name; ?>:</li>
+						
+						
+						<?php foreach($rooms[$role->role_id] as $room): ?>
+						
+							<?php 
+								//Does an existing booking start at this time? 
+								if(!isset($bookings[$room->room_id][$this->input->get('set_time')])){
+									
+									
+									$skip = false;
+									
+									//Has the time already passed?
+									if($this->input->get('set_time') < time()){
 											$skip = true;
-											break;
+									}
+									
+									//Do you have any hours remaining to book
+									if($room->max_daily_hours <= $limits['day_used'] || $limits['week_remaining'] <= 0){
+										$skip = true;
+									}
+									
+									
+									//Is this time during the building hours?
+									$current_time = round(date('G', $this->input->get('set_time')) + (date('i', $this->input->get('set_time'))/60),1);
+									if($current_time < round(($hours[$room->external_id]->STARTTIME) * 24,1) || $current_time > round(($hours[$room->external_id]->ENDTIME) * 24,1)){
+										$skip = true;
+									}
+									
+									//Does an earlier booking overlap this time?
+									if(!$skip){
+										if(isset($bookings[$room->room_id])){
+											foreach($bookings[$room->room_id] as $booking){
+												if((strtotime($booking->start) < $this->input->get('set_time')) && (strtotime($booking->end) > $this->input->get('set_time'))){
+													$skip = true;
+													break;
+												}
+											}
 										}
 									}
-								}
-							}
-							
-							//Is this time slot "block booked"? (also if we are already skipping the room, no need to check)
-							if(!$skip){
-								foreach($block_bookings as $block_booking){
-									if(array_key_exists($room->room_id, $block_booking['room']) && strtotime($block_booking['start']) <= $this->input->get('set_time') && strtotime($block_booking['end']) > $this->input->get('set_time')){
-										$skip = true;
-										break;
+									
+									//Is this time slot "block booked"? (also if we are already skipping the room, no need to check)
+									if(!$skip){
+										foreach($block_bookings as $block_booking){
+											if(array_key_exists($room->room_id, $block_booking['room']) && strtotime($block_booking['start']) <= $this->input->get('set_time') && strtotime($block_booking['end']) > $this->input->get('set_time')){
+												$skip = true;
+												break;
+											}
+										}
 									}
+									
+									if(!$skip){
+										$count++;								
+										echo '	<li>
+													<a href="'.base_url().'mobile/create_booking?slot='.$this->input->get('set_time').'&room_id='.$room->room_id.'">'.$room->name .'(<strong>'.$room->seats .' seats</strong>)<br />
+													<span id="font_pos">Available </span>
+													<span class="showArrow secondaryWArrow">&nbsp;</span></a>
+												</li>';
+									}
+									
 								}
-							}
+							?>
 							
-							if(!$skip){
-								$count++;								
-								echo '	<li>
-											<a href="'.base_url().'mobile/create_booking?slot='.$this->input->get('set_time').'&room_id='.$room->room_id.'">'.$room->name .'(<strong>'.$room->seats .' seats</strong>)<br />
-											<span id="font_pos">Available </span>
-											<span class="showArrow secondaryWArrow">&nbsp;</span></a>
-										</li>';
-							}
-							
-						}
-					?>
-					
-				<?php endforeach; ?>
-				<?php if($count === 0): ?>
-						<li>
-							<span id="font_pos">No Available Rooms</span>
-							
-						</li>
+						<?php endforeach; ?>
+						<?php if($count === 0): ?>
+								<li>
+									<span id="font_pos">No Available Rooms</span>
+									
+								</li>
+							<?php endif; ?>
+						
 					<?php endif; ?>
 				
-			<?php endif; ?>
-		
-		<?php endforeach; ?>
-	</ul>
+				<?php endforeach; ?>
+			</ul>
+		<?php else: ?>
+			<?php echo "set time: ". $this->input->get('set_time'); echo "<br>Time: ".time(); ?>
+		<?php endif; ?>
 	<?php endif; ?>
 
 	
@@ -161,6 +189,7 @@
 	$(function() {
 		$( "#cal_container" ).datepicker({
 			inline: true,
+			minDate: 0,
 			dateFormat: 'dd-mm-yy',
 			onSelect: function(date){
 				$('#date').val(date);

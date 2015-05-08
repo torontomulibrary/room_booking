@@ -15,6 +15,18 @@ class Booking extends CI_Controller {
 	//$this->template->load(template, view, vars) 
 	function Booking(){
 		parent::__construct();
+		
+		$this->load->library('cas');
+		if(!$this->cas->is_authenticated()){
+			$CI =& get_instance();
+			$url = $CI->config->site_url($CI->uri->uri_string());
+			
+			
+			$this->session->unset_userdata('username');
+			$this->session->set_flashdata('origin', $_SERVER['QUERY_STRING'] ? $url.'?'.$_SERVER['QUERY_STRING'] : $url);
+			redirect('login/login_user');
+		}
+	
 	
 		//Check for existing login
 		if(!strlen($this->session->userdata('username')) > 0){
@@ -122,8 +134,13 @@ class Booking extends CI_Controller {
 	function my_bookings(){
 		$this->load->model('booking_model');
 		
+		$data['today'] = $this->booking_model->remaining_hours($this->session->userdata('username'), time());
+		$data['next_week'] = $this->booking_model->remaining_hours($this->session->userdata('username'), time() + 60*60*24*7);
+		
+		
 		$data['upcoming'] = $this->booking_model->get_upcoming_bookings($this->session->userdata('username'));
 		$data['previous'] = $this->booking_model->get_previous_bookings($this->session->userdata('username'), 5);
+		$data['current'] = $this->booking_model->get_current_bookings($this->session->userdata('username'), 5);
 		
 		
 		$this->template->load('rula_template', 'booking/my_bookings', $data);
@@ -246,11 +263,13 @@ class Booking extends CI_Controller {
 						$data['start'] = $start_time;
 						$data['end'] = $finish_time;
 						$data['room'] = $room;
+						$data['booking_id'] = $id;
 						
 						$this->booking_model->generate_ics($id);
 						
 						$email_content = $this->load->view('email/booking_confirmation', $data, TRUE);
 						$this->email->clear();
+						$this->email->set_mailtype('html');
 						$this->email->to($this->session->userdata('username').EMAIL_SUFFIX);
 						$this->email->from('noreply'.EMAIL_SUFFIX);
 						$this->email->subject('Booking Confirmation');
@@ -395,5 +414,6 @@ class Booking extends CI_Controller {
 		redirect(base_url().'booking/booking_main');
 		
 	}
+
 
 }

@@ -39,6 +39,7 @@
 				<li><a  href="<?php echo base_url(); ?>booking/booking_main">BOOK A ROOM</a></li>
 				<li><a href="<?php echo base_url(); ?>booking/">MAIN PAGE</a></li>
 				<li><a class="selected" href="<?php echo base_url(); ?>booking/my_bookings/">MY BOOKINGS</a></li>
+				<li><a class="" href="<?php echo base_url(); ?>mobile/">MOBILE</a></li>
 				<li><a href="<?php echo base_url(); ?>logout">LOG OUT</a></li>
 			</ul>
 		</div>
@@ -48,10 +49,17 @@
 		
 	</div>
 	
-	
-	
-	
-	
+	<div id="right_container">
+		<div id="usage_title" class="dark">Usage</div>
+		<div id="usage_graphic" class="grey">
+			
+			<div id="remaining">
+				Used today: <span class="remaining_number"><?php echo $today['day_used']; ?> hours</span><br>
+				Remaining this week: <span class="remaining_number"><?php echo $today['week_remaining']; ?> hours</span><br>
+				Remaining next week: <span class="remaining_number"><?php echo $next_week['week_remaining']; ?> hours</span>
+			</div>
+		</div>
+	</div>
 </div>
 
 
@@ -61,7 +69,31 @@
 
 
 <div class="booking_container">
-
+	<?php if($current->num_rows > 0): ?>
+		<div class="role_title">Current Bookings</div>
+		<div class="table-wrapper">
+		
+			<table class="booking_table" style="width: 100%; border-collapse: initial;" cellspacing="0">
+				<thead></thead>
+				<tbody>
+					<?php $count = 0 ?>
+					<?php foreach ($current->result() as $current): ?>
+					<tr class="current <?php if($count %2 === 0) echo 'odd_row'; else echo 'even_row';?>">
+						<td><?php echo date('M d, Y', strtotime($current->start)); ?></td>
+						<td><?php echo date('g:iA', strtotime($current->start)) . ' - '. date('g:iA', strtotime($current->end)); ?></td>
+						<td><?php echo $current->name; ?></td>
+						<td><a href="<?php echo base_url(); ?>booking/edit_booking?booking_id=<?php echo $current->booking_id; ?>">Checkout</a></td>
+					
+					</tr>
+					<?php $count += 1; ?>
+					<?php endforeach; ?>
+					
+					
+				</tbody>
+			</table>
+		</div>
+	<?php endif; ?>
+	
 	<div class="role_title">Upcoming Bookings</div>
 	<div class="table-wrapper">
 		<?php if($upcoming->num_rows > 0): ?>
@@ -84,7 +116,20 @@
 			</tbody>
 		</table>
 		<?php else: ?>
-			You do not have any upcoming bookings
+			<table class="booking_table" style="width: 100%; border-collapse: initial;" cellspacing="0">
+				<thead></thead>
+				<tbody>
+					<?php $count = 0 ?>
+					
+					<tr class="upcoming <?php if($count %2 === 0) echo 'odd_row'; else echo 'even_row';?>">
+						<td colspan="4">You do not have any upcoming bookings</td>
+					</tr>
+					<?php $count += 1; ?>
+				
+					
+					
+				</tbody>
+			</table>
 		<?php endif; ?>
 	</div>
 	
@@ -110,7 +155,20 @@
 			</tbody>
 		</table>
 		<?php else: ?>
-			You do not have any previous bookings
+			<table class="booking_table" style="width: 100%; border-collapse: initial;" cellspacing="0">
+				<thead></thead>
+				<tbody>
+					<?php $count = 0 ?>
+					
+					<tr class="previous <?php if($count %2 === 0) echo 'odd_row'; else echo 'even_row';?>">
+						<td colspan="4">You do not have any previous bookings</td>
+					</tr>
+					<?php $count += 1; ?>
+				
+					
+					
+				</tbody>
+			</table>
 		<?php endif; ?>
 	</div>
 	

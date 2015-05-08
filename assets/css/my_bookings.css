@@ -2,6 +2,7 @@
 
 #app_links{
 	margin-bottom: 2em;
+	float: left;
 }
 
 #app_links li{
@@ -75,6 +76,11 @@ color: #FFFFFF;
 	color: #ffffff;
 }
 
+.booking_table tr.current{
+	background-color: #F27935;
+	color: #ffffff;
+}
+
 .booking_table tr.odd_row.upcoming{
 	background-color: #1fbba6;
 	color: #ffffff;
@@ -91,3 +97,44 @@ color: #FFFFFF;
 }
 
 
+#right_container{
+	margin-left: 3em;
+	margin-top: 2em;
+	float: left;
+	width: 500px;
+	
+	display:inline;
+	text-align: center;
+	
+}
+
+#usage_title {
+	display: block;
+	color: #ffffff;
+	text-align: center;
+	margin-bottom: 0;
+	min-height: 2.5em;
+	line-height: 2.5em;
+	font-size: 20px;
+}
+
+.dark{
+	background-color: #323a45;
+}
+
+.grey{
+	background-color: #ededed;
+}
+
+#usage_graphic{
+	display: block;
+	
+	margin-bottom: 0;
+	min-height: 3em;
+	line-height: 2em;
+	font-size: 18px;
+	height: 160px;
+	
+	
+	
+}
