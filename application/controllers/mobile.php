@@ -251,7 +251,7 @@ class Mobile extends CI_Controller {
 					
 					
 					$this->load->model('log_model');
-					$this->log_model->log_event('desktop', $this->session->userdata('username'), "Create Booking", $id);
+					$this->log_model->log_event('mobile', $this->session->userdata('username'), "Create Booking", $id);
 				
 					if($id === FALSE){
 						$this->session->set_flashdata('warning', "Another booking already exists for this time. Please choose a different room/time");
@@ -330,6 +330,9 @@ class Mobile extends CI_Controller {
 		//=====END TIME CHECK===========================================
 		
 		$this->booking_model->delete_booking($this->input->get('booking_id')); 
+		
+		$this->load->model('log_model');
+		$this->log_model->log_event('mobile', $this->session->userdata('username'), "Delete Booking", $this->input->get('booking_id'));
 		
 		$this->session->set_flashdata('success', "Booking Deleted");
 		redirect(base_url().'mobile');

@@ -410,6 +410,11 @@ class Booking extends CI_Controller {
 		
 		$this->booking_model->delete_booking($this->input->get('booking_id')); 
 		
+		$this->load->model('log_model');
+		$this->log_model->log_event('desktop', $this->session->userdata('username'), "Delete Booking", $this->input->get('booking_id'));
+		
+		
+		
 		$this->session->set_flashdata('success', "Booking Deleted");
 		redirect(base_url().'booking/booking_main');
 		
