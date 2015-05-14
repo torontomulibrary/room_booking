@@ -108,6 +108,8 @@ class Mobile extends CI_Controller {
 		
 		$data = array();
 		
+		$data['roles'] = $this->role_model->list_roles();
+		
 		if($this->input->get('selected_date') !== FALSE && strtotime($this->input->get('selected_date')) !== FALSE){
 			$data['hours'] = $this->hours_model->getAllHours(strtotime($this->input->get('selected_date')));
 		}		
@@ -115,7 +117,7 @@ class Mobile extends CI_Controller {
 		
 		
 		if($this->input->get('selected_date') !== FALSE && $this->input->get('set_time') !== FALSE){
-			$data['roles'] = $this->role_model->list_roles();
+			
 			$data['limits'] = $this->booking_model->remaining_hours($this->session->userdata('username'), $this->input->get('set_time'));
 			
 			//Load the room data for every role the user has
@@ -273,6 +275,7 @@ class Mobile extends CI_Controller {
 						
 						$email_content = $this->load->view('email/booking_confirmation', $data, TRUE);
 						$this->email->clear();
+						$this->email->set_mailtype('html');
 						$this->email->to($this->session->userdata('username').EMAIL_SUFFIX);
 						$this->email->from('noreply'.EMAIL_SUFFIX);
 						$this->email->subject('Booking Confirmation');

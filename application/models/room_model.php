@@ -39,6 +39,7 @@ class room_Model  extends CI_Model  {
 		}
 	}
 	
+	
 	function list_rooms_by_role($role, $exclude_inactive = false){
 		if(!is_numeric($role)) return false;
 		
@@ -74,6 +75,32 @@ class room_Model  extends CI_Model  {
 		
 		return $data;
 	}	
+	
+	
+	function load_room_by_name($name){
+		$this->db->like('name', $name);
+		$data['room_data'] = $this->db->get('rooms',1);
+		
+		//Get the room_id
+		if($data['room_data']->num_rows > 0){
+			$temp_result = $data['room_data']->row();
+			$id = $temp_result->room_id;
+		}
+		else{
+			return false;
+		}
+		
+		$this->db->where('room_id', $id);
+		$resources = $this->db->get('room_resource');
+		
+		$data['room_resources'] = array();
+		
+		foreach($resources->result() as $resource){
+			$data['room_resources'][] = $resource->resource_id;
+		}
+		
+		return $data;
+	}
 	
 	function add_room($building_id, $name, $seats, $roles, $active, $max_daily_hours, $resources, $notes){
 		if($active === 'on'){

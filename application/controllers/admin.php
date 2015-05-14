@@ -689,9 +689,11 @@ class Admin extends CI_Controller {
 		$this->load->model('log_model');
 		$this->load->model('building_model');
 		$this->load->model('room_model');
+		$this->load->model('role_model');
 		
 		$data['buildings'] = $this->building_model->list_buildings();
 		$data['rooms'] = $this->room_model->list_rooms();
+		$data['roles'] = $this->role_model->list_roles();
 		
 		//Refine by buildings
 		if($this->input->get('building') !== FALSE && is_numeric($this->input->get('building'))){
@@ -708,6 +710,12 @@ class Admin extends CI_Controller {
 			$room_id = null;
 		}
 		
+		if($this->input->get('role') !== FALSE && is_numeric($this->input->get('role'))){
+			$role_id = $this->input->get('role');
+		}
+		else{
+			$role_id = null;
+		}
 		
 		
 		//Refine by start/end times
@@ -720,8 +728,14 @@ class Admin extends CI_Controller {
 			$end_time = mktime(23,59,59,date('n')+1,0);
 		}
 		
-		$data['usage_by_hour'] = $this->log_model->usage_by_hour($start_time, $end_time, $building_id, $room_id);
+		$data['total_bookings'] = $this->log_model->total_bookings($start_time, $end_time, $building_id, $room_id, $role_id);
+		$data['total_checkouts'] = $this->log_model->total_checkouts($start_time, $end_time, $building_id, $room_id, $role_id);
+		$data['usage_by_hour'] = $this->log_model->usage_by_hour($start_time, $end_time, $building_id, $room_id, $role_id);
 		$data['usage_by_type'] = $this->log_model->report_by_device($start_time, $end_time); 
+		$data['days_booked_ahead'] = $this->log_model->days_booked_ahead($start_time, $end_time, $building_id, $room_id, $role_id);
+		$data['usage_by_seats'] = $this->log_model->usage_by_seats($start_time, $end_time, $building_id, $room_id, $role_id);
+		$data['ratio_by_seats'] = $this->log_model->ratio_by_seats($start_time, $end_time, $building_id, $room_id, $role_id);
+		
 	
 	
 		

@@ -52,19 +52,21 @@ class log_Model  extends CI_Model  {
 		return $query;
 	}
 	
-	function usage_by_hour($start, $end, $building_id = null, $room_id = null){
+	function usage_by_hour($start, $end, $building_id = null, $room_id = null, $role_id = null){
 		if(!is_numeric($start) || !is_numeric($end)) return false;
 		
 		$sql = "select hour(b.start) as hour_slot, count(*) as num_bookings from bookings b, (SELECT building_id FROM buildings"; 
 		
 				if($building_id !== null && is_numeric($building_id)) $sql .= " WHERE building_id = ".$building_id;
 				
-				$sql .= ") bldg, rooms r WHERE r.building_id = bldg.building_id AND b.room_id = r.room_id 
+				$sql .= ") bldg, rooms r, room_roles rr WHERE r.room_id = rr.room_id AND r.building_id = bldg.building_id AND b.room_id = r.room_id 
 				AND b.start > '".date('Y-m-d H:i:s', $start)."'
 				and b.start < '".date('Y-m-d H:i:s', $end)."' ";
 				
+				if($role_id !== null && is_numeric($role_id)) $sql .= " AND rr.role_id = ".$role_id;
+				
 				if($room_id !== null && is_numeric($room_id)){
-					$sql .= "and b.room_id = ". $room_id;
+					$sql .= " and b.room_id = ". $room_id;
 				}
 				
 				$sql .= " group by hour(b.start)";
@@ -78,8 +80,161 @@ class log_Model  extends CI_Model  {
 		return $query;
 	}
 	
-	function checkouts_by_day($start, $end, $building_id = null, $room_id = null){
+	function days_booked_ahead($start, $end, $building_id = null, $room_id = null, $role_id = null){
 		if(!is_numeric($start) || !is_numeric($end)) return false;
+		
+		$sql = "
+			SELECT count(*) as bookings, TIMESTAMPDIFF(DAY, l.date,b.start) as days_ahead from log l, bookings b, rooms r, buildings bu, room_roles rr
+			WHERE b.booking_id = l.booking_id 
+			AND b.room_id = r.room_id
+			AND r.building_id = bu.building_id 
+			AND r.room_id = rr.room_id ";
+	
+			if($role_id !== null && is_numeric($role_id)) $sql .= " AND rr.role_id = ".$role_id;
+	
+			if($building_id !== null && is_numeric($building_id)) $sql .= " AND bu.building_id = ".$building_id;
+			
+			$sql .= " AND l.booking_id is not null AND action='Create Booking'
+			
+			AND b.start > '".date('Y-m-d H:i:s', $start)."'
+			and b.start < '".date('Y-m-d H:i:s', $end)."' ";
+			
+			if($room_id !== null && is_numeric($room_id)){
+				$sql .= "and b.room_id = ". $room_id;
+			}
+			
+			$sql .= " group by days_ahead
+					 order by days_ahead asc";
+			
+		$this->db->cache_off();
+		$query = $this->db->query($sql);
+		$this->db->cache_on();
+		
+		return $query;
+	}
+	
+	
+	function usage_by_seats ($start, $end, $building_id = null, $room_id = null, $role_id = null){
+		if(!is_numeric($start) || !is_numeric($end)) return false;
+		
+		$sql = "
+			SELECT count(*) as total, r.seats from bookings b, rooms r, room_roles rr
+			WHERE r.room_id = b.room_id
+			AND rr.room_id = r.room_id";
+			
+			if($role_id !== null && is_numeric($role_id)) $sql .= " AND rr.role_id = ".$role_id;
+			
+			$sql .= "
+			
+			AND b.start > '".date('Y-m-d H:i:s', $start)."'
+			and b.start < '".date('Y-m-d H:i:s', $end)."' ";
+			
+			if($building_id !== null && is_numeric($building_id)) $sql .= "AND r.building_id = ".$building_id;
+			
+			if($room_id !== null && is_numeric($room_id)){
+					$sql .= " and b.room_id = ". $room_id;
+			}
+				
+			$sql.="
+			GROUP BY r.seats
+			ORDER BY seats asc
+			";
+			
+		$this->db->cache_off();
+		$query = $this->db->query($sql);
+		$this->db->cache_on();
+		
+		return $query;
+	}
+	
+	function ratio_by_seats ($start, $end, $building_id = null, $room_id = null, $role_id = null){
+		if(!is_numeric($start) || !is_numeric($end)) return false;
+		
+		$sql = "
+			SELECT count(*)/rc.num_rooms as total, r.seats from bookings b, rooms r, room_roles rr, (SELECT count(*) as num_rooms, seats from rooms group by seats) rc
+			WHERE 
+            rc.seats = r.seats
+            AND r.room_id = b.room_id
+            AND rr.room_id = r.room_id";
+			
+			if($role_id !== null && is_numeric($role_id)) $sql .= " AND rr.role_id = ".$role_id;
+			
+			$sql .= "
+			
+			AND b.start > '".date('Y-m-d H:i:s', $start)."'
+			and b.start < '".date('Y-m-d H:i:s', $end)."' ";
+			
+			if($building_id !== null && is_numeric($building_id)) $sql .= "AND r.building_id = ".$building_id;
+			
+			if($room_id !== null && is_numeric($room_id)){
+					$sql .= " and b.room_id = ". $room_id;
+			}
+				
+			$sql.="
+			GROUP BY r.seats
+			ORDER BY seats asc
+			";
+			
+		$this->db->cache_off();
+		$query = $this->db->query($sql);
+		$this->db->cache_on();
+		
+		return $query;
+	}
+	
+	function total_bookings($start, $end, $building_id = null, $room_id = null, $role_id = null){
+		if(!is_numeric($start) || !is_numeric($end)) return false;
+		
+		$sql = "
+			select count(*) as total from bookings b, rooms r, room_roles rr
+			where b.room_id = r.room_id
+			and r.room_id = rr.room_id
+			
+			AND b.start > '".date('Y-m-d H:i:s', $start)."'
+			and b.start < '".date('Y-m-d H:i:s', $end)."' ";
+			
+			
+			if($role_id !== null && is_numeric($role_id)) $sql .= " AND rr.role_id = ".$role_id;
+			
+			if($room_id !== null && is_numeric($room_id)){
+				$sql .= " and b.room_id = ". $room_id;
+			}
+			
+			if($building_id !== null && is_numeric($building_id)) $sql .= " AND r.building_id = ".$building_id;
+			
+		$this->db->cache_off();
+		$query = $this->db->query($sql);
+		$this->db->cache_on();
+		
+		return $query;
+	}
+	
+	function total_checkouts($start, $end, $building_id = null, $room_id = null, $role_id = null){
+		if(!is_numeric($start) || !is_numeric($end)) return false;
+		
+		$sql = "
+			select count(*) as total from log l, bookings b, rooms r, room_roles rr where l.action='Checkout'
+			and l.booking_id = b.booking_id
+			and b.room_id = r.room_id
+			and r.room_id = rr.room_id
+			
+			AND b.start > '".date('Y-m-d H:i:s', $start)."'
+			and b.start < '".date('Y-m-d H:i:s', $end)."' ";
+			
+			
+			if($role_id !== null && is_numeric($role_id)) $sql .= " AND rr.role_id = ".$role_id;
+			
+			if($room_id !== null && is_numeric($room_id)){
+				$sql .= " and b.room_id = ". $room_id;
+			}
+			
+			if($building_id !== null && is_numeric($building_id)) $sql .= " AND r.building_id = ".$building_id;
+			
+		$this->db->cache_off();
+		$query = $this->db->query($sql);
+		$this->db->cache_on();
+		
+		return $query;
 	}
 
 }
