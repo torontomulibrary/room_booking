@@ -27,5 +27,34 @@ class Api extends CI_Controller {
 		$this->load->view('api/free_rooms', $data);
 	}
 	
+	function room_data(){
+		$this->load->model('room_model');
+		$this->load->model('resource_model');
+		
+		$requested_room = $this->uri->segment(3); 
+		
+		if($requested_room === FALSE){
+			echo '[]';
+			return;
+		}
+		
+		$data['room'] = $this->room_model->load_room_by_name($requested_room);
+		
+		if($data['room'] === FALSE){
+			echo '[]';
+			return;
+		}
+		
+		$data['resources'] = $this->resource_model->load_resources($data['room']['room_resources']);
+		
+		//var_dump($data['resources']);
+		
+		//$this->output->cache(5); //Cache for 5 minutes
+		
+		//$data['free_rooms'] = $this->booking_model->count_free_rooms(4); //$role_id "4" is undergrads
+		$this->load->view('api/room_data', $data);
+	
+	}
+	
 	
 }

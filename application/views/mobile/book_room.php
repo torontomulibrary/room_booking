@@ -29,9 +29,26 @@
 		
 	<?php if($this->input->get('selected_date') !== FALSE): ?>
 			
+		<?php
+			//Make sure the user can book this far in the future
+			$selected_date = strtotime($this->input->get('selected_date'));
+			
+			$window = 0; 
+			
+			foreach($roles->result() as $role){
+				//Find the biggest booking window the user has
+				if($role->booking_window > $window) $window = $role->booking_window;
+			}
 		
+			
+			
+			
 		
-		<?php if($hours['min'] == 2 || $hours['max'] == -1): ?>
+		?>
+		
+		<?php if(($selected_date - time()) > $window * 24 * 60 * 60): ?>
+			<div class="alert alert-warning" role="alert">Bookings can only be made <?php echo $window ?> days in advance</div>		
+		<?php elseif($hours['min'] == 2 || $hours['max'] == -1): ?>
 				<div class="alert alert-warning" role="alert">All rooms are closed!</div>
 		<?php else: ?>
 			<select name="set_time">
