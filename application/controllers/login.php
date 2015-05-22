@@ -55,7 +55,10 @@ class Login extends CI_Controller {
 		if(!is_array($cas_roles) && is_string($cas_roles) && strlen($cas_roles > 0)){
 			$cas_roles[] = $cas_roles; 
 		}
-		else if(!is_array($cas_roles) || !is_string($cas_roles) || strlen($cas_roles == 0)){
+		else if(!is_array($cas_roles) && is_string($cas_roles) && strlen($cas_roles == 0)){
+			$cas_roles = array();
+		}
+		else if(!is_array($cas_roles) && !is_string($cas_roles)){
 			$cas_roles = array();
 		}
 		
