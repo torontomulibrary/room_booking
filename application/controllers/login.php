@@ -51,6 +51,14 @@ class Login extends CI_Controller {
 		//------------Load Users from existing groups--------------------
 		$cas_roles = $this->cas->getAttribute('activeclasses');
 		
+		//Apparently its possible for it to be a string. Thanks CAS library!
+		if(!is_array($cas_roles) && is_string($cas_roles) && strlen($cas_roles > 0)){
+			$cas_roles[] = $cas_roles; 
+		}
+		else if(!is_array($cas_roles) || !is_string($cas_roles) || strlen($cas_roles == 0)){
+			$cas_roles = array();
+		}
+		
 		//Grad Rooms
 		if(is_array($cas_roles) && in_array('graduate', $cas_roles)){
 			$object = new stdClass();
