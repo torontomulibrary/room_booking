@@ -102,7 +102,7 @@ class room_Model  extends CI_Model  {
 		return $data;
 	}
 	
-	function add_room($building_id, $name, $seats, $roles, $active, $max_daily_hours, $resources, $notes){
+	function add_room($building_id, $name, $seats, $roles, $active, $resources, $max_daily_hours, $notes){
 		if($active === 'on'){
 			$active = TRUE;
 		}

@@ -23,7 +23,7 @@ function is_access_center($username){
 	$file = @file_get_contents($url, false, $context);
 	
 	//Make sure the server gave a 200 response, else return the user an error
-	if($http_response_header[0] === "HTTP/1.1 200 OK"){
+	if($file !== FALSE && $http_response_header[0] === "HTTP/1.1 200 OK"){
 		$data = json_decode($file);
 		
 		if($data->hasOwnerResource == true){

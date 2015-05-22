@@ -270,6 +270,8 @@ class Admin extends CI_Controller {
 			$max_daily_hours = $this->input->post('max_daily_hours');
 			$notes = $this->input->post('notes');
 			
+			
+			
 			$id = $this->room_model->add_room($building, $room, $seats, $role, $active, $resources, $max_daily_hours, $notes);
 			
 			if(is_numeric($id)){
