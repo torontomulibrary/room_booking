@@ -745,6 +745,52 @@ class Admin extends CI_Controller {
 		
 		$this->template->load('admin_template', 'admin/reports', $data);
 	}
+	
+	function filter_stats(){
+		$data = $this->db->query('select data, count(*) as c from room_booking.log where action="Filter" group by data order by 2 desc');
+		
+		$arr = array();
+		
+		foreach($data->result() as $row){
+			$json = json_decode($row->data);
+			
+			
+			
+			
+			if(is_object($json)){
+				foreach($json as $key => $value){
+					if(is_array($value)){
+						foreach($value as $sub_key => $sub_value){
+							 if(!isset($arr[$key])){
+								$arr[$key][$sub_value] = $row->c;
+							}
+							else if(isset($arr[$key]) && !isset($arr[$key][$sub_value])){
+								$arr[$key][$sub_value] = $row->c;
+							}
+							else{
+								$arr[$key][$sub_value] += $row->c;
+							}
+						}
+					}
+					
+					else if(!isset($arr[$key])){
+						
+						$arr[$key][$value] = $row->c;
+					}
+					else if(isset($arr[$key]) && !isset($arr[$key][$value])){
+						$arr[$key][$value] = $row->c;
+					}
+					else{
+						$arr[$key][$value] += $row->c;
+					}
+				}
+			}
+			
+			
+		}
+		
+		var_dump($arr);
+	}
 }
 
 /* End of file admin.php */
