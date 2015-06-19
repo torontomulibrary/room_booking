@@ -57,7 +57,7 @@
 					
 					<?php if($count > 0 && $count % $num_rows == 0):?></div><div class="filter_row"><?php endif; ?>
 					<label>
-						<input type="checkbox" class="seat_checkbox filter_checkbox" value="" data-minseats="1" data-maxseats="4">
+						<input type="checkbox" class="seat_checkbox filter_checkbox" name="seats" value="1-4" data-minseats="1" data-maxseats="4">
 						<span></span>2 - 4 Seats
 					</label>
 					<br>
@@ -65,7 +65,7 @@
 					
 					<?php if($count > 0 && $count % $num_rows == 0):?></div><div class="filter_row"><?php endif; ?>
 					<label>
-						<input type="checkbox" class="seat_checkbox filter_checkbox" value="" data-minseats="5" data-maxseats="8">
+						<input type="checkbox" class="seat_checkbox filter_checkbox" name="seats" value="5-8" data-minseats="5" data-maxseats="8">
 						<span></span>5 - 8 Seats
 					</label>
 					<br>
@@ -73,7 +73,7 @@
 					
 					<?php if($count > 0 && $count % $num_rows == 0):?></div><div class="filter_row"><?php endif; ?>
 					<label>
-						<input type="checkbox" class="seat_checkbox filter_checkbox" value="" data-minseats="9" data-maxseats="16">
+						<input type="checkbox" class="seat_checkbox filter_checkbox" name="seats" value="9-16" data-minseats="9" data-maxseats="16">
 						<span></span>9 - 16 Seats
 					</label>
 					<br>
@@ -84,7 +84,7 @@
 						<?php if($count > 0 && $count % $num_rows == 0):?></div><div class="filter_row"><?php endif; ?>
 						
 						<label>
-							<input type="checkbox" class="building_checkbox filter_checkbox" value="<?php echo $building->building_id ?>">
+							<input type="checkbox" class="building_checkbox filter_checkbox" name="building[]" value="<?php echo $building->building_id ?>">
 							<span></span><?php echo $building->name; ?>
 						</label>
 						<br>
@@ -96,7 +96,7 @@
 						<?php if($count > 0 && $count % $num_rows == 0):?></div><div class="filter_row"><?php endif; ?>
 						
 						<label>
-							<input type="checkbox" class="resource_checkbox filter_checkbox" value="<?php echo $resource->resource_id ?>">
+							<input type="checkbox" class="resource_checkbox filter_checkbox" name="resource[]" value="<?php echo $resource->resource_id ?>">
 							<span></span><?php echo $resource->name; ?> 
 						</label>
 						<br>
