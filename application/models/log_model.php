@@ -7,13 +7,14 @@ class log_Model  extends CI_Model  {
 		parent::__construct();
 	}
 
-	function log_event($interface, $username, $action, $booking_id = null){
+	function log_event($interface, $username, $action, $booking_id = null, $data = null){
 		$data = array(
 			'date' => date('Y-m-d H:i:s'),
 			'username' => $username,
 			'interface' => $interface,
 			'action' => $action	,
-			'booking_id' => $booking_id
+			'booking_id' => $booking_id,
+			'data' => $data,
 		);
 		
 		$this->db->insert('log', $data);
