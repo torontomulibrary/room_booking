@@ -115,5 +115,7 @@ $(".filter_checkbox").change(function() {
 			
 			
 		});
+		
+		$.post('filter', $('#herp').serialize());
  
 });

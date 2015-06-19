@@ -342,6 +342,9 @@ class Booking extends CI_Controller {
 		$data['building'] = $this->building_model->load_building($data['room']['room_data']->row()->building_id);
 		$data['hours'] = $this->hours_model->getAllHours(mktime(0,0,0, date('n',strtotime($data['booking']->start)),date('j',strtotime($data['booking']->start)),date('Y',strtotime($data['booking']->start))));
 		
+		//Check if user has already checked out of this booking
+		$data['checked_out'] = $this->booking_model->is_checked_out($this->input->get('booking_id'));
+		
 		$this->template->load('rula_template', 'booking/edit_book_room_form', $data);
 	}
 	
@@ -418,6 +421,15 @@ class Booking extends CI_Controller {
 		$this->session->set_flashdata('success', "Booking Deleted");
 		redirect(base_url().'booking/booking_main');
 		
+	}
+	
+	function filter(){
+		$this->load->model('log_model');
+		
+		//Don't do filtering here, just record the filters the client usedcodeig
+		$filter_data = json_encode($this->input->post());
+		
+		$this->log_model->log_event('desktop', $this->session->userdata('username'), "Filter", null, $filter_data);
 	}
 
 
