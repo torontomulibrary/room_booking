@@ -65,18 +65,24 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 						<?php if($room_data->max_daily_hours - $limits['day_used'] + ((strtotime($booking->end) - strtotime($booking->start)) /60 / 60) <= 0): ?>
 							<div class="alert alert-danger" role="alert">You have already booked the maximum allowable time for today</div>
 						<?php elseif(isset($current_booking) && $current_booking === TRUE): ?>
-							<div class="alert alert-info" role="alert">This booking is currently underway! You are able to checkout early from this booking, reclaiming any unused time (rounded up to the nearest half hour). 
+							<?php if(!$checked_out): ?>
+								<div class="alert alert-info" role="alert">This booking is currently underway! You are able to checkout early from this booking, reclaiming any unused time (rounded up to the nearest half hour). 
+								
+								<br><br>Checking out will make <strong><?php echo $room_data->name;?></strong> available to other eligible users.</div>
 							
-							<br><br>Checking out will make <strong><?php echo $room_data->name;?></strong> available to other eligible users.</div>
-						
-							<div class="form_buttons_container">
-								<form method="post" action="<?php echo base_url()?>booking/checkout">
-									<input id="submit_button" type="submit" value="Checkout" />
-									<input type="button" id="cancel_button" value="Cancel" />
-									<input type="hidden" name="booking_id" value="<?php echo $this->input->get('booking_id'); ?>" />
-								</form>
-							
-							</div>
+								<div class="form_buttons_container">
+									<form method="post" action="<?php echo base_url()?>booking/checkout">
+										<input id="submit_button" type="submit" value="Checkout" />
+										<input type="button" id="cancel_button" value="Cancel" />
+										<input type="hidden" name="booking_id" value="<?php echo $this->input->get('booking_id'); ?>" />
+									</form>
+								
+								</div>
+							<?php else: ?>
+								<div class="alert alert-info" role="alert">
+									You have checked out of this booking!
+								</div>
+							<?php endif; ?>
 
 						<?php else: ?>
 						
