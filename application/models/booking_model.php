@@ -203,7 +203,7 @@ class booking_Model  extends CI_Model  {
 	}
 	
 	function checkout($booking_id){
-		if(date('i') > 30){
+		if(date('i') >= 30){
 			$minute = 0;
 			$hour = date('H') + 1;
 		}
@@ -219,6 +219,21 @@ class booking_Model  extends CI_Model  {
 		
 		$this->db->where('booking_id', $booking_id);
 		$this->db->update('bookings', $data);
+	}
+	
+	function is_checked_out($booking_id){
+		$this->db->cache_off();
+		$this->db->where('booking_id', $booking_id);
+		$this->db->where('action', 'Checkout');
+		$result = $this->db->get('log');
+		$this->db->cache_on();
+		
+		if($result->num_rows() > 0){
+			return TRUE;
+		}
+		else{
+			return FALSE;
+		}		
 	}
 	
 	function get_upcoming_bookings($matrix_id){
