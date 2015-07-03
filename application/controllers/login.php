@@ -63,7 +63,7 @@ class Login extends CI_Controller {
 		}
 		
 		//Grad Rooms
-		if(is_array($cas_roles) && in_array('graduate', $cas_roles)){
+		if(is_array($cas_roles) && (in_array('graduate', $cas_roles)|| in_array('visitingGrad', $cas_roles))){
 			$object = new stdClass();
 			$object->role_id = 5; //Hardcoded ID. Yuck!
 			$object->name = "Graduate";
@@ -72,7 +72,7 @@ class Login extends CI_Controller {
 		
 		
 		//Undergrad/Grad/CE are all allowed to book these rooms
-		if(is_array($cas_roles) && (in_array('undergrad', $cas_roles) || in_array('cned', $cas_roles) || in_array('graduate', $cas_roles))){
+		if(is_array($cas_roles) && (in_array('undergrad', $cas_roles) || in_array('cned', $cas_roles) || in_array('graduate', $cas_roles) || in_array('visitingGrad', $cas_roles))){
 			$object = new stdClass();
 			$object->role_id = 4; //Hardcoded ID. Yuck!
 			$object->name = "Undergraduate";
