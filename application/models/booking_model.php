@@ -380,7 +380,7 @@ class booking_Model  extends CI_Model  {
 			$sql .= " AND (start >= '".date('Y-m-d', $date)."' OR end  > '".date('Y-m-d', $date)."')";
 		}
 		
-		$sql .= " ORDER BY start ASC";
+		$sql .= " ORDER BY start ASC, r.name asc";
 		$result = $this->db->query($sql);
 		
 		
