@@ -251,9 +251,17 @@ class Mobile extends CI_Controller {
 					//Get the ID of the new booking. Returns false if the booking slot was not free
 					$id = $this->booking_model->book_room($room_id, $start_time, $finish_time, $comment); 
 					
+					$log_data = json_encode(array(
+							"booking_id" => $id,
+							"room_id" => $room_id,
+							"matrix_id" => $this->session->userdata('username'),
+							"booker_name" => $this->session->userdata('name'),
+							"start" =>date('Y-m-d H:i:s', $start_time),
+							"end" =>date('Y-m-d H:i:s', $finish_time),
+						));
 					
 					$this->load->model('log_model');
-					$this->log_model->log_event('mobile', $this->session->userdata('username'), "Create Booking", $id);
+					$this->log_model->log_event('mobile', $this->session->userdata('username'), "Create Booking", $id, $log_data);
 				
 					if($id === FALSE){
 						$this->session->set_flashdata('warning', "Another booking already exists for this time. Please choose a different room/time");
@@ -334,8 +342,12 @@ class Mobile extends CI_Controller {
 		
 		$this->booking_model->delete_booking($this->input->get('booking_id')); 
 		
+		//Prepare log string
+		$log_data = json_encode($data['booking']);
+		
+		
 		$this->load->model('log_model');
-		$this->log_model->log_event('mobile', $this->session->userdata('username'), "Delete Booking", $this->input->get('booking_id'));
+		$this->log_model->log_event('mobile', $this->session->userdata('username'), "Delete Booking", $this->input->get('booking_id'), $log_data);
 		
 		$this->session->set_flashdata('success', "Booking Deleted");
 		redirect(base_url().'mobile');

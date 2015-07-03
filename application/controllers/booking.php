@@ -243,8 +243,18 @@ class Booking extends CI_Controller {
 						$id = $this->booking_model->book_room($room_id, $start_time, $finish_time, $comment); 
 						
 						
+						$log_data = json_encode(array(
+							"booking_id" => $id,
+							"room_id" => $room_id,
+							"matrix_id" => $this->session->userdata('username'),
+							"booker_name" => $this->session->userdata('name'),
+							"start" =>date('Y-m-d H:i:s', $start_time),
+							"end" =>date('Y-m-d H:i:s', $finish_time),
+						));
+						
+						
 						$this->load->model('log_model');
-						$this->log_model->log_event('desktop', $this->session->userdata('username'), "Create Booking", $id);
+						$this->log_model->log_event('desktop', $this->session->userdata('username'), "Create Booking", $id, $log_data);
 					}
 					
 					
@@ -413,8 +423,12 @@ class Booking extends CI_Controller {
 		
 		$this->booking_model->delete_booking($this->input->get('booking_id')); 
 		
+		//Prepare log string
+		$log_data = json_encode($data['booking']);
+		
+		
 		$this->load->model('log_model');
-		$this->log_model->log_event('desktop', $this->session->userdata('username'), "Delete Booking", $this->input->get('booking_id'));
+		$this->log_model->log_event('desktop', $this->session->userdata('username'), "Delete Booking", $this->input->get('booking_id'), $log_data);
 		
 		
 		
