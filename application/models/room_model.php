@@ -39,6 +39,29 @@ class room_Model  extends CI_Model  {
 		}
 	}
 	
+	//Only list rooms you can administer
+	function list_admin_rooms($exclude_inactive = false){
+		//Only show roles you are a member of, unless user is a super admin 
+		if( !$this->session->userdata('super_admin')){
+			$query = "select distinct r.room_id, r.max_daily_hours, r.building_id, r.name, r.seats, r.is_active, b.name as building, b.external_id
+				from rooms r, buildings b, room_roles rr, roles ro
+				where r.building_id = b.building_id
+				and rr.room_id = r.room_id  
+				and rr.role_id IN (select ur.role_id from user_roles ur, users u where ur.user_id = u.user_id and u.matrix_id = ".$this->db->escape($this->session->userdata('username')).")
+				order by building asc, r.name asc";
+			
+			return $this->db->query($query);
+		}
+		else{
+			return $this->db->query("
+				SELECT DISTINCT r.room_id, r.max_daily_hours, r.building_id, r.name, r.seats, r.is_active, b.name AS building, b.external_id
+				FROM rooms r, buildings b
+				WHERE r.building_id = b.building_id 
+				order by building asc, r.name asc
+			");
+		}
+	}
+	
 	
 	function list_rooms_by_role($role, $exclude_inactive = false){
 		if(!is_numeric($role)) return false;
@@ -154,6 +177,17 @@ class room_Model  extends CI_Model  {
 		$this->set_roles($room_id, $roles);
 		
 		$this->db->cache_delete_all();
+		
+		return TRUE;
+	}
+	
+	function edit_notes($room_id, $notes){
+		$data = array(
+			'notes' => $notes,	
+		);
+		
+		$this->db->where('room_id', $room_id);
+		$this->db->update('rooms', $data); 
 		
 		return TRUE;
 	}

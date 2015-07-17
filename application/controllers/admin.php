@@ -24,7 +24,7 @@ class Admin extends CI_Controller {
 		
 		
 		//Check to see if the user is an administrator
-		$this->load->model('user_model'); //Should this be done in the login process?
+		$this->load->model('user_model'); 
 		
 		if(!$this->user_model->is_admin($this->session->userdata('username'))){
 		//Dont do this. Use flashdata instead, and redirect to non-admin area
@@ -69,192 +69,261 @@ class Admin extends CI_Controller {
 	}
 	
 	function users(){
-		$this->load->model('role_model');
-		$this->load->model('user_model');
-		
-		if($this->uri->segment(3) === 'add'){
-			$matrix = $this->input->post('matrix');
-			$admin = $this->input->post('admin');
-			$role = $this->input->post('role');
-	
-			$id = $this->user_model->add_user($matrix, $admin, $role);
+		if(!$this->session->userdata('super_admin')){
+			$this->template->load('admin_template', 'admin/denied');
+		}
+		else{
+			$this->load->model('role_model');
+			$this->load->model('user_model');
 			
-			if(is_numeric($id)){
-				$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">User added successfully</div>');
-				$this->db->cache_delete_all();
-				redirect('admin/users');
-			}
-			else{
-				$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. Data may not have been added</div>');
-				$this->db->cache_delete_all();
-				redirect('admin/users');
-			}
-		}
+			if($this->uri->segment(3) === 'add'){
+				$matrix = $this->input->post('matrix');
+				$admin = $this->input->post('admin');
+				$role = $this->input->post('role');
 		
-		//Set variable so the view loads the form, rather then list out existing users
-		else if ($this->uri->segment(3) === 'new'){
-			$data['new'] = true;
-			$data['user_roles'] = $this->role_model->list_roles();
-		}
-		
-		else if ($this->uri->segment(3) === 'delete'){
-			if(!is_numeric($this->uri->segment(4))){
-				$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. The user was not deleted</div>');
+				$id = $this->user_model->add_user($matrix, $admin, $role);
 				
-				redirect('admin/users');
-			}
-			
-			$this->user_model->delete_user($this->uri->segment(4));
-			$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">User deleted successfully</div>');
-			$this->db->cache_delete_all(); //Delete all cache to take care of foreign keys
-			redirect('admin/users');
-		}
-		else if ($this->uri->segment(3) === 'edit'){
-			if(!is_numeric($this->uri->segment(4))){
-				$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. Unable to edit</div>');
-				redirect('admin/users');
-			}
-			else{
-				$data['current_user'] = $this->user_model->get_user($this->uri->segment(4));
-				$data['user_roles'] = $this->role_model->get_user_roles($this->uri->segment(4));
-				
-				if($data['current_user']->num_rows() === 0){
-					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Invalid User ID</div>');
+				if(is_numeric($id)){
+					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">User added successfully</div>');
+					$this->db->cache_delete_all();
+					redirect('admin/users');
+				}
+				else{
+					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. Data may not have been added</div>');
 					$this->db->cache_delete_all();
 					redirect('admin/users');
 				}
 			}
-		}
-		
-		else if ($this->uri->segment(3) === 'update'){
-			$user_id = $this->input->post('user_id');
-			$matrix = $this->input->post('matrix');
-			$admin = $this->input->post('admin');
-			$role = $this->input->post('role');
-	
-			$id = $this->user_model->edit_user($user_id, $matrix, $admin, $role);
 			
-			$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The user has been updated</div>');
-			$this->db->cache_delete_all();
-			redirect('admin/users');
+			//Set variable so the view loads the form, rather then list out existing users
+			else if ($this->uri->segment(3) === 'new'){
+				$data['new'] = true;
+				$data['user_roles'] = $this->role_model->list_roles();
+			}
+			
+			else if ($this->uri->segment(3) === 'delete'){
+				if(!is_numeric($this->uri->segment(4))){
+					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. The user was not deleted</div>');
+					
+					redirect('admin/users');
+				}
+				
+				$this->user_model->delete_user($this->uri->segment(4));
+				$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">User deleted successfully</div>');
+				$this->db->cache_delete_all(); //Delete all cache to take care of foreign keys
+				redirect('admin/users');
+			}
+			else if ($this->uri->segment(3) === 'edit'){
+				if(!is_numeric($this->uri->segment(4))){
+					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. Unable to edit</div>');
+					redirect('admin/users');
+				}
+				else{
+					$data['current_user'] = $this->user_model->get_user($this->uri->segment(4));
+					$data['user_roles'] = $this->role_model->get_user_roles($this->uri->segment(4));
+					
+					if($data['current_user']->num_rows() === 0){
+						$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Invalid User ID</div>');
+						$this->db->cache_delete_all();
+						redirect('admin/users');
+					}
+				}
+			}
+			
+			else if ($this->uri->segment(3) === 'update'){
+				$user_id = $this->input->post('user_id');
+				$matrix = $this->input->post('matrix');
+				$admin = $this->input->post('admin');
+				$role = $this->input->post('role');
+		
+				$id = $this->user_model->edit_user($user_id, $matrix, $admin, $role);
+				
+				$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The user has been updated</div>');
+				$this->db->cache_delete_all();
+				redirect('admin/users');
+			}
+			
+			$data['users'] = $this->user_model->list_users();
+			$data['roles'] = $this->role_model->list_roles();
+			
+			$this->template->load('admin_template', 'admin/users', $data);
 		}
-		
-		$data['users'] = $this->user_model->list_users();
-		$data['roles'] = $this->role_model->list_roles();
-		
-		$this->template->load('admin_template', 'admin/users', $data);
 	}
 	
 	function roles(){
-		$this->load->model('role_model');
-		
-		if($this->uri->segment(3) === 'add'){
-			$role_name = $this->input->post('role_name');
-			$bookings_day = $this->input->post('bookings_day');
-			$hours_week = $this->input->post('hours_week');
-			$booking_window = $this->input->post('booking_window');
-			
-			$id = $this->role_model->add_role($role_name, $bookings_day,  $hours_week, $booking_window);
-			
-			if(is_numeric($id)){
-				$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Building added successfully</div>');
-				$this->db->cache_delete_all();
-				redirect('admin/roles');
-			}
-			else{
-				$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. Data may not have been added</div>');
-				$this->db->cache_delete_all();
-				redirect('admin/roles');
-			}
+		if(!$this->session->userdata('super_admin')){
+			$this->template->load('admin_template', 'admin/denied');
 		}
+		else{
 		
-		//Set variable so the view loads the form, rather then list out existing roles
-		else if ($this->uri->segment(3) === 'new'){
-			$data['new'] = true;
-		}
-		
-		else if ($this->uri->segment(3) === 'delete'){
-			if(!is_numeric($this->uri->segment(4))){
-				$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. The role was not deleted</div>');
+			$this->load->model('role_model');
+			
+			if($this->uri->segment(3) === 'add'){
+				$role_name = $this->input->post('role_name');
+				$bookings_day = $this->input->post('bookings_day');
+				$hours_week = $this->input->post('hours_week');
+				$booking_window = $this->input->post('booking_window');
 				
-				redirect('admin/roles');
-			}
-			
-			$this->role_model->delete_role($this->uri->segment(4));
-			$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Role deleted successfully</div>');
-			$this->db->cache_delete_all();
-			redirect('admin/roles');
-		}
-		else if ($this->uri->segment(3) === 'edit'){
-			if(!is_numeric($this->uri->segment(4))){
-				$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. Unable to edit</div>');
-				redirect('admin/roles');
-			}
-			else{
-				$data['current_role'] = $this->role_model->get_role($this->uri->segment(4));
+				$id = $this->role_model->add_role($role_name, $bookings_day,  $hours_week, $booking_window);
 				
-				if($data['current_role']->num_rows() === 0){
-					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Invalid role ID</div>');
+				if(is_numeric($id)){
+					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Building added successfully</div>');
 					$this->db->cache_delete_all();
 					redirect('admin/roles');
+				}
+				else{
+					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. Data may not have been added</div>');
+					$this->db->cache_delete_all();
+					redirect('admin/roles');
+				}
+			}
+			
+			//Set variable so the view loads the form, rather then list out existing roles
+			else if ($this->uri->segment(3) === 'new'){
+				$data['new'] = true;
+			}
+			
+			else if ($this->uri->segment(3) === 'delete'){
+				if(!is_numeric($this->uri->segment(4))){
+					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. The role was not deleted</div>');
+					
+					redirect('admin/roles');
+				}
+				
+				$this->role_model->delete_role($this->uri->segment(4));
+				$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Role deleted successfully</div>');
+				$this->db->cache_delete_all();
+				redirect('admin/roles');
+			}
+			else if ($this->uri->segment(3) === 'edit'){
+				if(!is_numeric($this->uri->segment(4))){
+					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. Unable to edit</div>');
+					redirect('admin/roles');
+				}
+				else{
+					$data['current_role'] = $this->role_model->get_role($this->uri->segment(4));
+					
+					if($data['current_role']->num_rows() === 0){
+						$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Invalid role ID</div>');
+						$this->db->cache_delete_all();
+						redirect('admin/roles');
+					}
+				}
+			}
+			
+			else if ($this->uri->segment(3) === 'update'){
+				$role_id = $this->input->post('role_id');
+				$role_name = $this->input->post('role_name');
+				$bookings_day = $this->input->post('bookings_day');
+				$hours_day = $this->input->post('hours_day');
+				$hours_week = $this->input->post('hours_week');
+				$booking_window = $this->input->post('booking_window');
+		
+				$id = $this->role_model->edit_role($role_id, $role_name, $bookings_day, $hours_week, $booking_window);
+				
+				$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The role has been updated</div>');
+				$this->db->cache_delete_all();
+				redirect('admin/roles');
+			}
+			
+			$data['roles'] = $this->role_model->list_roles();
+			
+			$this->template->load('admin_template', 'admin/roles', $data);
+		}
+	}
+	
+	function ban_users(){
+		if(!$this->session->userdata('super_admin')){
+			$this->template->load('admin_template', 'admin/denied');
+		}
+		else{
+			$this->load->model('user_model');
+			
+			if($this->uri->segment(3) === 'add'){
+				$matrix_id = $this->input->post('matrix_id');
+				$reason = $this->input->post('reason');
+				$reporter = $this->session->userdata('name');
+				$date = date('Y-m-d H:i:s');
+				
+				$this->user_model->ban_user($matrix_id, $reason, $date, $reporter);
+				$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">User successfully banned</div>');
+				redirect('admin/ban_users');
+			}
+			
+			//Set variable so the view loads the form, rather then list out existing roles
+			else if ($this->uri->segment(3) === 'new'){
+				$data['new'] = true;
+			}
+			
+			else if ($this->uri->segment(3) === 'delete'){
+				
+				$this->user_model->delete_banned_user($this->uri->segment(4));
+				$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">User ban removed</div>');
+				$this->db->cache_delete_all();
+				redirect('admin/ban_users');
+			}
+			
+			$data['banned_users'] = $this->user_model->load_banned_users();
+			
+			$this->template->load('admin_template', 'admin/ban_users', $data);
+		}
+	}
+	
+	//This function is only available to admins. Super admins get a more extensive list of fields
+	function modify_rooms(){
+		$this->load->model('room_model');
+		$this->load->model('resource_model');
+		$this->load->model('building_model');
+		$this->load->model('role_model');
+		
+
+		if ($this->uri->segment(3) === 'edit'){
+			if(!is_numeric($this->uri->segment(4))){
+				$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. Unable to edit</div>');
+				redirect('admin/modify_rooms');
+			}
+			else{
+				$data['current_room'] = $this->room_model->load_room($this->uri->segment(4));
+				$data['room_roles'] = $this->role_model->get_room_roles($this->uri->segment(4));
+				
+				if($data['current_room']['room_data']->num_rows() === 0){
+					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Invalid Room ID</div>');
+					$this->db->cache_delete_all();
+					redirect('admin/modify_rooms');
 				}
 			}
 		}
 		
 		else if ($this->uri->segment(3) === 'update'){
-			$role_id = $this->input->post('role_id');
-			$role_name = $this->input->post('role_name');
-			$bookings_day = $this->input->post('bookings_day');
-			$hours_day = $this->input->post('hours_day');
-			$hours_week = $this->input->post('hours_week');
-			$booking_window = $this->input->post('booking_window');
-	
-			$id = $this->role_model->edit_role($role_id, $role_name, $bookings_day, $hours_week, $booking_window);
+			$room_id = $this->input->post('room_id');
+			$notes = $this->input->post('notes');
 			
-			$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The role has been updated</div>');
+			
+			
+			$id = $this->room_model->edit_notes($room_id, $notes);
+
+			$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The room has been updated</div>');
 			$this->db->cache_delete_all();
-			redirect('admin/roles');
+			redirect('admin/modify_rooms');
 		}
 		
+		
+		$data['rooms'] = $this->room_model->list_admin_rooms();
 		$data['roles'] = $this->role_model->list_roles();
 		
-		$this->template->load('admin_template', 'admin/roles', $data);
-	}
-	
-	function ban_users(){
-		$this->load->model('user_model');
+		$data['resources'] = $this->resource_model->list_resources();
+		$data['buildings'] = $this->building_model->list_buildings();
 		
-		if($this->uri->segment(3) === 'add'){
-			$matrix_id = $this->input->post('matrix_id');
-			$reason = $this->input->post('reason');
-			$reporter = $this->session->userdata('name');
-			$date = date('Y-m-d H:i:s');
-			
-			$this->user_model->ban_user($matrix_id, $reason, $date, $reporter);
-			$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">User successfully banned</div>');
-			redirect('admin/ban_users');
-		}
-		
-		//Set variable so the view loads the form, rather then list out existing roles
-		else if ($this->uri->segment(3) === 'new'){
-			$data['new'] = true;
-		}
-		
-		else if ($this->uri->segment(3) === 'delete'){
-			
-			$this->user_model->delete_banned_user($this->uri->segment(4));
-			$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">User ban removed</div>');
-			$this->db->cache_delete_all();
-			redirect('admin/ban_users');
-		}
-		
-		$data['banned_users'] = $this->user_model->load_banned_users();
-		
-		$this->template->load('admin_template', 'admin/ban_users', $data);
+		$this->template->load('admin_template', 'admin/modify_rooms', $data);
 	}
 	
 	
 	function rooms(){
+		//Make sure non-super admins cannot access these methods
+		if(!$this->session->userdata('super_admin')){
+			redirect('admin/modify_rooms');
+		}
+		
 		$this->load->model('room_model');
 		$this->load->model('resource_model');
 		$this->load->model('building_model');
@@ -341,7 +410,7 @@ class Admin extends CI_Controller {
 		}
 		
 		
-		$data['rooms'] = $this->room_model->list_rooms();
+		$data['rooms'] = $this->room_model->list_admin_rooms();
 		$data['roles'] = $this->role_model->list_roles();
 		
 		$data['resources'] = $this->resource_model->list_resources();
