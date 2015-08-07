@@ -400,6 +400,8 @@ class Admin extends CI_Controller {
 			$max_daily_hours = $this->input->post('max_daily_hours');
 			$notes = $this->input->post('notes');
 			
+			//If no resources are selected, create an empty array
+			if($resources === false) $resources = array();
 			
 			
 			$id = $this->room_model->edit_room($room_id, $building, $room, $seats, $roles, $active, $resources, $max_daily_hours, $notes);
