@@ -223,7 +223,7 @@ class Booking extends CI_Controller {
 							 redirect(base_url().'booking/booking_main');
 						}
 						
-						if(!$this->session->userdata('super_admin') || !$this->session->userdata('admin')){
+						if(!$this->session->userdata('super_admin') && !$this->session->userdata('admin')){
 							//See if user made this booking, if not, redirect them to to the homepage
 							if($this->session->userdata('username') !== $data['booking']->row()->matrix_id){
 								redirect(base_url().'booking/booking_main');
@@ -331,7 +331,7 @@ class Booking extends CI_Controller {
 		}
 		
 		//Check for admin status
-		if(!$this->session->userdata('super_admin') || !$this->session->userdata('admin')){
+		if(!$this->session->userdata('super_admin') && !$this->session->userdata('admin')){
 			//See if user made this booking
 			if($this->session->userdata('username') !== $data['booking']->matrix_id){
 				redirect(base_url().'booking/booking_main');
@@ -367,7 +367,7 @@ class Booking extends CI_Controller {
 		$booking = $data['booking']->row();
 		
 		if(time() > strtotime($booking->start) && time() < strtotime($booking->end)){
-			if(!$this->session->userdata('super_admin') || !$this->session->userdata('admin')){
+			if(!$this->session->userdata('super_admin') && !$this->session->userdata('admin')){
 				//See if user made this booking, if not, redirect them to to the homepage
 				if($this->session->userdata('username') !== $booking->matrix_id){
 					$this->session->set_flashdata('warning', "You do not have permissions to edit this booking");
@@ -403,7 +403,7 @@ class Booking extends CI_Controller {
 		$booking_data = $this->booking_model->get_booking($this->input->get('booking_id'));
 		$data['booking'] = $booking_data->row();
 		
-		if(!$this->session->userdata('super_admin') || !$this->session->userdata('admin')){
+		if(!$this->session->userdata('super_admin') && !$this->session->userdata('admin')){
 			if($this->session->userdata('username') !== $data['booking']->matrix_id){
 				$this->session->set_flashdata('warning', "An error has occured. The booking has not been deleted");
 				redirect(base_url().'booking/booking_main');

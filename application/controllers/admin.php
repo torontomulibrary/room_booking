@@ -659,11 +659,7 @@ class Admin extends CI_Controller {
 	
 	
 	function block_booking(){
-		//Deny access if user is not super admin
-		if(!$this->session->userdata('super_admin')){
-			$this->template->load('admin_template', 'admin/denied');
-		}
-		else{
+
 			$this->load->model('booking_model');
 			$this->load->model('room_model');
 			
@@ -753,7 +749,7 @@ class Admin extends CI_Controller {
 			$data['block_bookings'] = $this->booking_model->list_block_bookings();
 			
 			$this->template->load('admin_template', 'admin/block_booking', $data);
-		}
+		
 	}
 	
 	function reports(){

@@ -178,11 +178,13 @@
 						<?php endif; ?>				
 				</ul>
 				
-				<?php if($super_admin):?>
+				<?php if($super_admin || true):?>
 				<ul class="nav nav-sidebar">
 					<li class="<?php echo ($method === "block_booking" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/block_booking">Create Block Booking</a></li>
 				</ul>
+				<?php endif; ?>
 			
+				<?php if($super_admin):?>
 				<ul class="nav nav-sidebar">
 					<li class="<?php echo ($method === "users" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/users">Manage Users</a></li>         
 					<li class="<?php echo ($method === "super_admin" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/super_admin">Manage Super Users</a></li>         

@@ -36,6 +36,8 @@ class Login extends CI_Controller {
 		$this->load->library('cas');
 		$this->load->model('user_model');
 		$this->load->model('role_model');
+		$this->load->model('log_model');
+		
 		$roles = array();
 		
 		//Force the user to log in
@@ -118,6 +120,7 @@ class Login extends CI_Controller {
 		
 		//Does the user have any roles in the system? No roles = no access
 		if(count($roles) === 0){
+			$this->log_model->log_event('login', $this->session->userdata('username'), "Login Denied", null, implode(',', $cas_roles));
 			$this->template->load('rula_template', 'denied');
 			$this->session->sess_destroy();	
 			
@@ -128,7 +131,7 @@ class Login extends CI_Controller {
 		}
 		//Successful login
 		else{
-			$this->load->model('log_model');
+
 			$this->load->library('user_agent');
 			
 			if($this->agent->is_mobile()){
