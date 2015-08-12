@@ -28,6 +28,7 @@
 			<tr>
 				<th>Room(s)</th>
 				<th>Reason</th>
+				<th>Booked By</th>
 				<th>Start</th>
 				<th>End</th>
 				<th>Options</th>
@@ -43,6 +44,7 @@
 				</td>
 				
 				<td><?= $block_booking['reason'] ?></td>
+				<td><?= $block_booking['booked_by'] ?></td>
 				<td><?= $block_booking['start'] ?></td>
 				<td><?= $block_booking['end'] ?></td>
 				
@@ -102,6 +104,20 @@
 		<select multiple id="rooms" class="form-control" name="rooms[]" size="10" style="height: 200px">
 		<?php foreach($rooms->result() as $room): ?>
 		<option value="<?= $room->room_id ?>" <?php if(isset($current) && array_key_exists($room->room_id, $current_bb['room'])):?>selected="selected"<?php endif; ?>><?= $room->name ?></option>
+		<?php endforeach; ?>
+		</select>
+	</div>
+	
+	<?php //var_dump($permissions); ?>
+	
+	<div class="form-group">
+		<label for="rooms">Permissions - Who can view / edit / delete this block booking</label>
+		
+
+
+		<select multiple id="permissions" class="form-control" name="permissions[]" size="10" style="height: 200px">
+		<?php foreach($roles->result() as $role): ?>
+		<option value="<?= $role->role_id ?>" <?php if(isset($current) && in_array($role->role_id, $permissions)): ?>selected="selected"<?php endif; ?>><?= $role->name ?></option>
 		<?php endforeach; ?>
 		</select>
 	</div>

@@ -25,6 +25,7 @@ class Admin extends CI_Controller {
 		
 		//Check to see if the user is an administrator
 		$this->load->model('user_model'); 
+		$this->load->model('role_model'); 
 		
 		if(!$this->user_model->is_admin($this->session->userdata('username'))){
 		//Dont do this. Use flashdata instead, and redirect to non-admin area
@@ -80,8 +81,9 @@ class Admin extends CI_Controller {
 				$matrix = $this->input->post('matrix');
 				$admin = $this->input->post('admin');
 				$role = $this->input->post('role');
+				$name = $this->input->post('name');
 		
-				$id = $this->user_model->add_user($matrix, $admin, $role);
+				$id = $this->user_model->add_user($matrix, $name, $admin, $role);
 				
 				if(is_numeric($id)){
 					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">User added successfully</div>');
@@ -135,8 +137,9 @@ class Admin extends CI_Controller {
 				$matrix = $this->input->post('matrix');
 				$admin = $this->input->post('admin');
 				$role = $this->input->post('role');
+				$name = $this->input->post('name');
 		
-				$id = $this->user_model->edit_user($user_id, $matrix, $admin, $role);
+				$id = $this->user_model->edit_user($user_id, $matrix, $name, $admin, $role);
 				
 				$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The user has been updated</div>');
 				$this->db->cache_delete_all();
@@ -664,95 +667,136 @@ class Admin extends CI_Controller {
 
 			$this->load->model('booking_model');
 			$this->load->model('room_model');
+			$this->load->model('role_model');
 			
-			if($this->uri->segment(3) === 'add'){
-				$reason = $this->input->post('reason');
-				$start = $this->input->post('start');
-				$end = $this->input->post('end');
-				$rooms = $this->input->post('rooms');
-				
-				$status = $this->booking_model->add_block_booking($reason,$start,$end, $rooms);
-				
-				
-				if($status){
-					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Booking added successfully</div>');
-					redirect('admin/block_booking');
-				}
-				else{
-					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. Data may not have been added</div>');
-					redirect('admin/block_booking');
-				}
+			$permissions = $this->role_model->load_permissions($this->session->userdata('username'));
+			if($permissions['can_block_book'] == false){
+				$this->template->load('admin_template', 'admin/denied');
 			}
-			
-			//Set variable so the view loads the form, rather then list out existing 
-			else if ($this->uri->segment(3) === 'new'){
-				$data['new'] = true;
-				$data['rooms'] = $this->room_model->list_rooms();
-			}
-			
-			else if ($this->uri->segment(3) === 'delete'){
-				if(!is_numeric($this->uri->segment(4))){
-					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. The block booking was not deleted</div>');
+			else{
+				if($this->uri->segment(3) === 'add'){
+					$reason = $this->input->post('reason');
+					$start = $this->input->post('start');
+					$end = $this->input->post('end');
+					$rooms = $this->input->post('rooms');
+					$permissions = $this->input->post('permissions'); 
 					
-					redirect('admin/block_booking');
-				}
-				
-				$result = $this->booking_model->delete_block_booking($this->uri->segment(4));
-				if($result !== FALSE){
-					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Block Booking deleted successfully</div>');
-				}
-				else{
-					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error has occured. The block booking may not have been deleted</div>');
-				}
-				$this->db->cache_delete_all(); //Delete all cache to take care of foreign keys
-				redirect('admin/block_booking');
-			}
-			else if ($this->uri->segment(3) === 'edit'){
-				if(!is_numeric($this->uri->segment(4))){
-					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. Unable to edit</div>');
-					redirect('admin/block_booking');
-				}
-				else{
-					$data['rooms'] = $this->room_model->list_rooms();
-				
-					$data['current_bb'] = $this->booking_model->get_block_booking($this->uri->segment(4));
+					if($permissions === false) $permissions = array();
+					
+					$status = $this->booking_model->add_block_booking($reason,$start,$end, $rooms, $permissions);
 					
 					
-					
-					if(count($data) == 0){
-						$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Invalid resource ID</div>');
-						$this->db->cache_delete_all(); //Delete all cache to take care of foreign keys
+					if($status){
+						$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Booking added successfully</div>');
+						redirect('admin/block_booking');
+					}
+					else{
+						$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. Data may not have been added</div>');
 						redirect('admin/block_booking');
 					}
 				}
-			}
-			
-			else if ($this->uri->segment(3) === 'update'){
-				$reason = $this->input->post('reason');
-				$start = $this->input->post('start');
-				$end = $this->input->post('end');
-				$rooms = $this->input->post('rooms');
-				$id = $this->input->post('block_booking_id');
 				
-				$status = $this->booking_model->edit_block_booking($reason,$start,$end, $rooms, $id);
-				
-				if($status !== FALSE){
-					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The block booking has been updated</div>');
-				}
-				else{
-					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Errors</div>');
+				//Set variable so the view loads the form, rather then list out existing 
+				else if ($this->uri->segment(3) === 'new'){
+					$data['new'] = true;
+					$data['rooms'] = $this->room_model->list_admin_rooms();
+					$data['roles'] = $this->role_model->list_admin_roles();
 				}
 				
-				$this->db->cache_delete_all();
-				redirect('admin/block_booking');
+				else if ($this->uri->segment(3) === 'delete'){
+					if(!is_numeric($this->uri->segment(4))){
+						$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. The block booking was not deleted</div>');
+						
+						redirect('admin/block_booking');
+					}
+					
+					$result = $this->booking_model->delete_block_booking($this->uri->segment(4));
+					if($result !== FALSE){
+						$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Block Booking deleted successfully</div>');
+					}
+					else{
+						$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error has occured. The block booking may not have been deleted</div>');
+					}
+					$this->db->cache_delete_all(); //Delete all cache to take care of foreign keys
+					redirect('admin/block_booking');
+				}
+				else if ($this->uri->segment(3) === 'edit'){
+					if(!is_numeric($this->uri->segment(4))){
+						$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. Unable to edit</div>');
+						redirect('admin/block_booking');
+					}
+					else{
+						$data['rooms'] = $this->room_model->list_admin_rooms();
+						$data['roles'] = $this->role_model->list_admin_roles();
+						$data['permissions'] = $this->booking_model->get_block_booking_permissions($this->uri->segment(4));
+						$data['current_bb'] = $this->booking_model->get_block_booking($this->uri->segment(4));
+					}
+				}
+				
+				else if ($this->uri->segment(3) === 'update'){
+					$reason = $this->input->post('reason');
+					$start = $this->input->post('start');
+					$end = $this->input->post('end');
+					$rooms = $this->input->post('rooms');
+					$id = $this->input->post('block_booking_id');
+					$permissions = $this->input->post('permissions'); 
+					
+					if($permissions === false) $permissions = array();
+					
+					$status = $this->booking_model->edit_block_booking($reason,$start,$end, $rooms, $permissions, $id);
+					
+					if($status !== FALSE){
+						$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The block booking has been updated</div>');
+					}
+					else{
+						$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Errors</div>');
+					}
+					
+					$this->db->cache_delete_all();
+					redirect('admin/block_booking');
+				}
+				
+				//Load all UPCOMING block bookings. We don't care about past ones
+				$data['block_bookings'] = $this->booking_model->list_block_bookings();
+				
+				$this->template->load('admin_template', 'admin/block_booking', $data);
 			}
-			
-			//Load all UPCOMING block bookings. We don't care about past ones
-			$data['block_bookings'] = $this->booking_model->list_block_bookings();
-			
-			$this->template->load('admin_template', 'admin/block_booking', $data);
 		
 	}
+	
+	function permissions(){
+		if(!$this->session->userdata('super_admin')){
+			$this->template->load('admin_template', 'admin/denied');
+		}
+		else{
+		
+			$this->load->model('role_model');
+			
+			$data = array();
+			$data['roles'] = $this->role_model->list_roles();
+			$data['permissions'] = $this->role_model->get_permissions();
+			
+			if ($this->uri->segment(3) === 'edit'){
+				$data['role'] = $this->role_model->get_role($this->uri->segment(4));
+				$data['current_permission'] = $this->role_model->get_permission($this->uri->segment(4));
+			}
+			else if ($this->uri->segment(3) === 'update'){
+				$role_id = $this->input->post('role_id');
+				$can_block_book = $this->input->post('can_bb');
+				
+				$this->role_model->set_permissions($role_id, $can_block_book);
+				
+				$this->db->cache_delete_all();
+				redirect('admin/permissions');
+				
+			}
+			
+			$this->template->load('admin_template', 'admin/permissions', $data);
+		}
+		
+		
+	}
+	
 	
 	function reports(){
 		$this->load->model('log_model');
@@ -812,6 +856,8 @@ class Admin extends CI_Controller {
 		
 		$this->template->load('admin_template', 'admin/reports', $data);
 	}
+	
+
 	
 	function filter_stats(){
 		$data = $this->db->query('select data, count(*) as c from room_booking.log where action="Filter" group by data order by 2 desc');

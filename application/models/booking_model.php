@@ -374,7 +374,28 @@ class booking_Model  extends CI_Model  {
 	function list_block_bookings($date = 0, $include_past = false){
 		if($date == 0) $date = time();
 		
-		$sql = "SELECT bb.*, bbr.room_id, r.name FROM block_booking bb, block_booking_room bbr, rooms r WHERE bb.block_booking_id = bbr.block_booking_id AND bbr.room_id = r.room_id ";
+		$sql = "SELECT DISTINCT bb.*, bbr.room_id, r.name FROM block_booking bb, block_booking_room bbr, rooms r ";
+		
+		if($this->session->userdata('super_admin') !== true){
+			$sql.= ", block_booking_permissions bbp WHERE
+					bbp.block_booking_id = bb.block_booking_id "; //Add permissions table to query if not a super admin
+			
+			$sql .= "AND (bbp.role_id IN ";
+				
+			//Gather roles from session rather then database (since students etc.. are not whitelisted)
+			$roles = array();
+		
+			foreach($this->session->userdata('roles') as $role){
+				if(is_numeric($role->role_id)) $roles[] = $role->role_id;
+			}
+			
+			$sql .= "(".implode(",", $roles).") OR bb.matrix_id=".$this->db->escape($this->session->userdata('username')).")";
+		}
+		else{
+			$sql.= " WHERE 1=1 "; //Added the dreaded 1=1 to deal with avoid extra code related to placing the "AND" in the query
+		}
+		
+		$sql.= "AND bb.block_booking_id = bbr.block_booking_id AND bbr.room_id = r.room_id ";
 		
 		if(!$include_past){
 			$sql .= " AND (start >= '".date('Y-m-d', $date)."' OR end  > '".date('Y-m-d', $date)."')";
@@ -389,6 +410,7 @@ class booking_Model  extends CI_Model  {
 		
 		foreach($result->result() as $row){
 			$data[$row->block_booking_id]['block_booking_id'] = $row->block_booking_id;
+			$data[$row->block_booking_id]['booked_by'] = $row->booked_by;
 			$data[$row->block_booking_id]['start'] = $row->start;
 			$data[$row->block_booking_id]['end'] = $row->end;
 			$data[$row->block_booking_id]['reason'] = $row->reason;
@@ -427,7 +449,7 @@ class booking_Model  extends CI_Model  {
 		return $data;
 	}
 	
-	function add_block_booking($reason, $start, $end, $rooms){
+	function add_block_booking($reason, $start, $end, $rooms, $permissions){
 		$this->load->library('calendar');
 		
 		//CHeck for valid input formats
@@ -445,6 +467,8 @@ class booking_Model  extends CI_Model  {
 						'reason' => $reason,
 						'start' => $start,
 						'end' => $end,
+						'booked_by' => $this->session->userdata('name'),
+						'matrix_id' => $this->session->userdata('username'),
 					);
 			
 		$this->db->insert('block_booking', $data);
@@ -452,12 +476,13 @@ class booking_Model  extends CI_Model  {
 		$id = $this->db->insert_id();
 		
 		$this->set_block_booking_rooms($rooms, $id);
+		$this->set_block_booking_permissions($permissions, $id);
 
 		$this->db->cache_delete_all();
 		return TRUE;
 	}
 	
-	function edit_block_booking($reason, $start, $end, $rooms, $id){
+	function edit_block_booking($reason, $start, $end, $rooms, $permissions, $id){
 		$this->load->library('calendar');
 		
 	
@@ -475,11 +500,16 @@ class booking_Model  extends CI_Model  {
 						'reason' => $reason,
 						'start' => $start,
 						'end' => $end,
+						'booked_by' => $this->session->userdata('name'),
+						'matrix_id' => $this->session->userdata('username'),
 					);
 		
 		
 		$this->db->where('block_booking_id', $id);
 		$this->db->update('block_booking', $data);
+		
+		$this->set_block_booking_permissions($permissions, $id);
+		
 		$this->db->cache_delete_all();
 		
 		
@@ -487,6 +517,36 @@ class booking_Model  extends CI_Model  {
 
 		$this->db->cache_delete_all();
 		return TRUE;
+	}
+	
+	function get_block_booking_permissions($id){
+		$this->db->select('role_id');
+		$this->db->where('block_booking_id', $id);
+		$result = $this->db->get('block_booking_permissions');
+		
+		$ret_val = array();
+		
+		foreach($result->result() as $row){
+			$ret_val[] = $row->role_id;
+		}
+		
+		return $ret_val;
+	}
+	
+	function set_block_booking_permissions($permissions, $id){
+		if(!is_array($permissions)) return false;
+		
+		$this->db->where('block_booking_id', $id);
+		$this->db->delete('block_booking_permissions');
+		
+		foreach($permissions as $perm){
+			$data = array(
+						'block_booking_id' => $id,
+						'role_id' => $perm
+					);
+			
+			$this->db->insert('block_booking_permissions', $data);
+		}
 	}
 	
 	function delete_block_booking($id){

@@ -27,6 +27,7 @@
 			<tr>
 				<th>User ID</th>
 				<th>Matrix ID</th>
+				<th>Name</th>
 				<th>Roles</th>
 				<th>Is Admin</th>
 				<th>Options</th>
@@ -37,6 +38,7 @@
 			<tr>
 				<td><?= $user->user_id ?></td>
 				<td><?= $user->matrix_id ?></td>
+				<td><?= $user->name ?></td>
 				
 				
 				<td>
@@ -83,6 +85,10 @@
     <input type="text" class="form-control" id="matrix" placeholder="Enter matrix username" name="matrix" <?php if(isset($current)): ?>value="<?= $current->matrix_id ?>" <?php endif; ?>>
   </div>
   
+    <div class="form-group">
+    <label for="matrix">Name</label>
+    <input type="text" class="form-control" id="name" placeholder="Enter name" name="name" <?php if(isset($current)): ?>value="<?= $current->name ?>" <?php endif; ?>>
+  </div>
 
   <div class="form-group">
     <label for="role">Roles:</label>

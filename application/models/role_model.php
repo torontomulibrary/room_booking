@@ -29,6 +29,27 @@ class role_Model  extends CI_Model  {
 		}
 	}
 	
+	function list_admin_roles(){
+		if(!$this->session->userdata('super_admin')){
+			$sql = "SELECT * FROM
+					roles
+				WHERE
+					role_id IN (
+						SELECT role_id FROM user_roles ur, users u
+						WHERE
+							ur.user_id = u.user_id
+							AND u.matrix_id = 'scott.cole'
+							AND is_admin = 1
+					)";
+			
+			return $this->db->query($sql);
+		}
+		else{
+			$this->db->order_by('name');
+			return $this->db->get('roles');
+		}
+	}
+	
 	function get_role($role_id){
 		$this->db->where('role_id',$role_id);
 		return $this->db->get('roles');
@@ -69,7 +90,16 @@ class role_Model  extends CI_Model  {
 		
 		$this->db->insert('roles', $data);
 		
-		return $this->db->insert_id();
+		$insert_id = $this->db->insert_id();
+		
+		$data = array(
+					'role_id' => $insert_id,
+					'can_block_book' => 0
+				);
+				
+		$this->db->insert('permissions', $data);
+		
+		return $insert_id;
 	}
 	
 	function delete_role($role_id){
@@ -93,6 +123,57 @@ class role_Model  extends CI_Model  {
 		$this->db->update('roles', $data); 
 		
 		return TRUE;
+	}
+	
+	function get_permissions(){
+		return $this->db->get('permissions');
+	}
+	
+	function get_permission($role_id){
+		$this->db->where('role_id', $role_id);
+		return $this->db->get('permissions');
+	}
+	
+	function set_permissions($role_id, $can_block_book){
+		
+		if($can_block_book == 'on') $can_block_book = 1;
+		else $can_block_book = 0;
+		
+		$data = array('can_block_book' => $can_block_book);
+		
+		$this->db->where('role_id', $role_id);
+		
+		$this->db->update('permissions', $data);
+	}
+	
+	function load_permissions($matrix_id){
+		$data = array();
+		
+		if($this->session->userdata('super_admin')){
+			$data['can_block_book'] = true;
+		}
+		else{
+		
+			$sql = "SELECT u.matrix_id, u.user_id, u.is_admin, u.name, ur.role_id FROM users u, user_roles ur WHERE u.user_id = ur.user_id AND u.matrix_id = ". $this->db->escape($this->session->userdata('username'));
+		
+			$admin_roles = $this->db->query($sql);
+			
+			$data['can_block_book'] = false;
+			
+			foreach($admin_roles->result() as $role){
+				$this->db->where('role_id', $role->role_id);
+				$permissions = $this->db->get('permissions');
+				
+				foreach($permissions->result() as $perm){
+					if($perm->can_block_book == 1){
+						$data['can_block_book'] = true;
+						break;
+					}
+				}
+			}
+		}
+		
+		return $data;
 	}
 
 

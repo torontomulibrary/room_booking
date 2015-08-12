@@ -1,6 +1,7 @@
 <?php $controller = $this->router->fetch_class() ?>
 <?php $method = $this->router->fetch_method() ?>
 <?php $super_admin = $this->user_model->is_super_admin($this->session->userdata('username')); ?>
+<?php $permissions = $this->role_model->load_permissions($this->session->userdata('username')); ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -178,7 +179,7 @@
 						<?php endif; ?>				
 				</ul>
 				
-				<?php if($super_admin || true):?>
+				<?php if($super_admin || $permissions['can_block_book']):?>
 				<ul class="nav nav-sidebar">
 					<li class="<?php echo ($method === "block_booking" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/block_booking">Create Block Booking</a></li>
 				</ul>
@@ -188,6 +189,7 @@
 				<ul class="nav nav-sidebar">
 					<li class="<?php echo ($method === "users" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/users">Manage Users</a></li>         
 					<li class="<?php echo ($method === "super_admin" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/super_admin">Manage Super Users</a></li>         
+					<li class="<?php echo ($method === "permissions" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/permissions">Admin Permissions</a></li>         
 					<li class="<?php echo ($method === "ban_users" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/ban_users">Ban Users</a></li>
 				</ul>
 				<?php endif; ?>

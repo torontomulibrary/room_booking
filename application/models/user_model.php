@@ -64,7 +64,7 @@ class user_Model  extends CI_Model  {
 		return $this->db->get('users');
 	}
 	
-	function add_user($matrix, $admin, $roles){
+	function add_user($matrix, $name, $admin, $roles){
 		if($admin === 'on'){
 			$admin = TRUE;
 		}
@@ -74,6 +74,7 @@ class user_Model  extends CI_Model  {
 		
 		$data = array(
 			'matrix_id' => $matrix,
+			'name' => $name,
 			'is_admin' => $admin	
 		);
 		
@@ -108,7 +109,7 @@ class user_Model  extends CI_Model  {
 		}
 	}
 	
-	function edit_user($user_id, $matrix, $admin, $roles){
+	function edit_user($user_id, $matrix, $name, $admin, $roles){
 		if($admin === 'on'){
 			$admin = TRUE;
 		}
@@ -119,6 +120,7 @@ class user_Model  extends CI_Model  {
 		$data = array(
 			'user_id' => $user_id,
 			'matrix_id' => $matrix,
+			'name' => $name,
 			'is_admin' => $admin	
 		);
 		
