@@ -33,6 +33,7 @@ class Login extends CI_Controller {
 	//Login the current user. Redirect back to $url if set
 	function login_user(){
 		$this->load->helper('rms_helper');
+		$this->load->helper('libstaff_helper');
 		$this->load->library('cas');
 		$this->load->model('user_model');
 		$this->load->model('role_model');
@@ -86,6 +87,14 @@ class Login extends CI_Controller {
 			$object = new stdClass();
 			$object->role_id = 6; //Hardcoded ID. Yuck!
 			$object->name = "Adaptive";
+			$roles[] = $object;
+		}
+		
+		//Library Staff rooms
+		if(  is_libstaff($user_data->userlogin)){ 
+			$object = new stdClass();
+			$object->role_id = 8; //Hardcoded ID. Yuck!
+			$object->name = "LibraryStaff";
 			$roles[] = $object;
 		}
 		
