@@ -245,7 +245,7 @@ class user_Model  extends CI_Model  {
 		$opts = array(
 		  'http'=>array(
 			'method'=>	"GET",
-			'User-agent' => "LibraryBooking/1.0",
+			'User-agent' => USER_AGENT,
 			'header'=> 	"Authorization: Basic ".base64_encode(RMS_USERNAME.":".RMS_PASSWORD)."\r\n",
 			'content'=>	'',
 			'timeout'=>	60
