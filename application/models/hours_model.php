@@ -19,7 +19,7 @@ class hours_Model  extends CI_Model  {
 			$opts = array(
 			  'http'=>array(
 				'method'=>"GET",
-				'header'=>"User-Agent: Library Room Booking\r\n" 
+				'header'=>"User-Agent: " . USER_AGENT . "\r\n" 
 			  ),
 			);
 

@@ -36,9 +36,12 @@ define('FOPEN_READ_WRITE_CREATE',				'a+b');
 define('FOPEN_WRITE_CREATE_STRICT',				'xb');
 define('FOPEN_READ_WRITE_CREATE_STRICT',		'x+b');
 
+define('USER_AGENT',							'LibraryBooking/1.0');
+
 define('DEBUG_MODE',							TRUE);
 define('SITE_ADMIN',							'steven.marsden@ryerson.ca');
 define('HOURS_URL',								'https://library.cf.ryerson.ca/webapps/hours/view/hours_external.cfm');
+define('LIBSTAFF_URL',							'https://library.cf.ryerson.ca/utils/staff_list.cfm?access_code=rhu$PT967Jb');
 define('EMAIL_SUFFIX',							'@spi.ryerson.ca');
 
 define('RMS_USERNAME',							'libsysadmin');

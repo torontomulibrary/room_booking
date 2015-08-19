@@ -201,5 +201,99 @@ class user_Model  extends CI_Model  {
 		$this->db->where('matrix_id', $matrix_id);
 		$this->db->delete('banned_users');
 	}
+	
+	function is_libstaff($username){
+		//Download staff list from remote source, and cache file for the day. 
+		
+		
+		//Check to see if a cache file already exists
+		if(file_exists('temp/'. date('Ymd').'.libstaff')){
+			$jsonData = @file_get_contents('temp/'. date('Ymd').'.libstaff');
+		}
+		else{
+			// Create a stream
+			$opts = array(
+			  'http'=>array(
+				'method'=>	"GET",
+				'User-agent' => USER_AGENT,
+				'content'=>	'',
+				'timeout'=>	60
+			  )
+			);
+
+			$context = stream_context_create($opts);
+			$url = LIBSTAFF_URL;
+			
+			$file = @file_get_contents($url, false, $context);
+			
+			//Make sure the server gave a 200 response, else return the user an error
+			if($file !== FALSE && $http_response_header[0] === "HTTP/1.1 200 OK"){
+				//Delete older versions of the cache file
+				foreach(glob("temp/*.libstaff") as $f) {
+					unlink($f);
+				}
+				
+				//Write new cache file
+				file_put_contents('temp/'. date('Ymd').'.libstaff', $file);
+				
+				$jsonData = $file;
+			}
+			else{
+				return FALSE;
+			}
+			
+		}
+		
+		$jsonData = json_decode($jsonData);
+		
+		$found = false;
+		
+		//Check for match
+		foreach ($jsonData as $matrix){
+			if($username == $matrix) return TRUE;
+		}
+		
+		if($found == false) return FALSE;
+	
+		
+	}
+	
+	function is_access_center($username){
+		$response = array();
+		
+		
+		// Create a stream
+		$opts = array(
+		  'http'=>array(
+			'method'=>	"GET",
+			'User-agent' => USER_AGENT,
+			'header'=> 	"Authorization: Basic ".base64_encode(RMS_USERNAME.":".RMS_PASSWORD)."\r\n",
+			'content'=>	'',
+			'timeout'=>	60
+		  )
+		);
+
+		$context = stream_context_create($opts);
+
+		// Block the user using the HTTP headers set above
+		$url = str_replace('{username}', urlencode($username), RMS_SERVICE);
+		
+		$file = @file_get_contents($url, false, $context);
+		
+		//Make sure the server gave a 200 response, else return the user an error
+		if($file !== FALSE && $http_response_header[0] === "HTTP/1.1 200 OK"){
+			$data = json_decode($file);
+			
+			if($data->hasOwnerResource == true){
+				return true;
+			}
+			else{
+				return false;
+			}
+		}
+		else{
+			return FALSE;
+		}
+	}
 
 }
