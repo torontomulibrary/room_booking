@@ -32,8 +32,6 @@ class Login extends CI_Controller {
 	
 	//Login the current user. Redirect back to $url if set
 	function login_user(){
-		$this->load->helper('rms_helper');
-		$this->load->helper('libstaff_helper');
 		$this->load->library('cas');
 		$this->load->model('user_model');
 		$this->load->model('role_model');
@@ -83,7 +81,7 @@ class Login extends CI_Controller {
 		}
 		
 		//Access centre rooms
-		if( !strstr($_SERVER['HTTP_HOST'], 'localhost') && is_access_center($user_data->userlogin)){ //Disable on localhost
+		if( !strstr($_SERVER['HTTP_HOST'], 'localhost') && $this->user_model->is_access_center($user_data->userlogin)){ //Disable on localhost
 			$object = new stdClass();
 			$object->role_id = 6; //Hardcoded ID. Yuck!
 			$object->name = "Adaptive";
@@ -91,7 +89,7 @@ class Login extends CI_Controller {
 		}
 		
 		//Library Staff rooms
-		if(  is_libstaff($user_data->userlogin)){ 
+		if(  $this->user_model->is_libstaff($user_data->userlogin)){ 
 			$object = new stdClass();
 			$object->role_id = 8; //Hardcoded ID. Yuck!
 			$object->name = "LibraryStaff";
