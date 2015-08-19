@@ -207,7 +207,7 @@ class user_Model  extends CI_Model  {
 		$opts = array(
 		  'http'=>array(
 			'method'=>	"GET",
-			'User-agent' => "LibraryBooking/1.0",
+			'User-agent' => USER_AGENT,
 			'content'=>	'',
 			'timeout'=>	60
 		  )
