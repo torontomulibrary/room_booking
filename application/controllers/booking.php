@@ -107,7 +107,7 @@ class Booking extends CI_Controller {
 				//Load the hours for the selected date
 				$data['hours'] = $this->hours_model->getAllHours(mktime(0,0,0, $current_month['month'],$current_month['day'],$current_month['year']));
 				
-				$data['block_bookings'] = $this->booking_model->list_block_bookings(mktime(0,0,0, $current_month['month'],$current_month['day'],$current_month['year']));
+				$data['block_bookings'] = $this->booking_model->list_block_bookings(mktime(0,0,0, $current_month['month'],$current_month['day'],$current_month['year']), false, true);
 				
 				$data['limits'] = $this->booking_model->remaining_hours($this->session->userdata('username'), strtotime($this->input->get('date')));
 			}

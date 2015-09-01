@@ -371,12 +371,12 @@ class booking_Model  extends CI_Model  {
 	}
 	
 	//Lists upcoming block bookings (unless optional parameter is true, where past block bookings are shown)
-	function list_block_bookings($date = 0, $include_past = false){
+	function list_block_bookings($date = 0, $include_past = false, $skip_permissions = false){
 		if($date == 0) $date = time();
 		
 		$sql = "SELECT DISTINCT bb.*, bbr.room_id, r.name FROM block_booking bb, block_booking_room bbr, rooms r ";
 		
-		if($this->session->userdata('super_admin') !== true){
+		if($this->session->userdata('super_admin') !== true && !$skip_permissions){
 			$sql.= ", block_booking_permissions bbp WHERE
 					bbp.block_booking_id = bb.block_booking_id "; //Add permissions table to query if not a super admin
 			
