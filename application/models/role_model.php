@@ -38,7 +38,7 @@ class role_Model  extends CI_Model  {
 						SELECT role_id FROM user_roles ur, users u
 						WHERE
 							ur.user_id = u.user_id
-							AND u.matrix_id = 'scott.cole'
+							AND u.matrix_id = ".$this->db->escape($this->session->userdata('username'))." 
 							AND is_admin = 1
 					)";
 			
