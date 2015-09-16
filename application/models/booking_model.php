@@ -597,12 +597,15 @@ class booking_Model  extends CI_Model  {
 					COUNT(*) - (SELECT 
 							COUNT(*)
 						FROM
-							bookings
+							bookings b, room_roles rr
 						WHERE
+							b.room_id = rr.room_id
+							and rr.role_id = ".$role_id." 
+							and
 							(start = '".date('Y-m-d H:i:s', $time)."'
 								OR (start < '".date('Y-m-d H:i:s', $time)."'
 								AND end > '".date('Y-m-d H:i:s', $time)."'))
-								AND room_id NOT IN (SELECT 
+								AND b.room_id NOT IN (SELECT 
 									bbr.room_id
 								FROM
 									block_booking_room bbr,

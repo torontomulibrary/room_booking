@@ -15,6 +15,8 @@ class Api extends CI_Controller {
 	
 	function Api(){
 		parent::__construct();
+		
+		if($this->input->get('debug') !== false) $this->output->enable_profiler(DEBUG_MODE);
 	}
 
 	
