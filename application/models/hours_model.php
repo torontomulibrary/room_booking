@@ -62,11 +62,12 @@ class hours_Model  extends CI_Model  {
 
 		//Match the external ID's with those in the JSON result
 		foreach($hours_json as $location){
+			
 			$output[$location->LOCATION_ID] = $location->DATA;
 			
 			if(in_array($location->LOCATION_ID, $buildings)){
 				//Is the building closed?
-				if($location->DATA->STARTTIME == $location->DATA->ENDTIME || $location->DATA->ISOPEN == false || $location->DATA->HASCLOSURE == true){
+				if($location->DATA->STARTTIME == $location->DATA->ENDTIME || $location->DATA->ISOPEN == false || $location->DATA->HASCLOSURE == true || $location->DATA->ISOPEN == false){
 					//Delete the cache file, as the user may be looking too far into the future where the hours have not yet been entered
 					@unlink('temp/'. date('Ymd', $date).'.hours');					
 					continue;
@@ -76,10 +77,12 @@ class hours_Model  extends CI_Model  {
 				if($location->DATA->STARTTIME < $min) $min = $location->DATA->STARTTIME;
 				if($location->DATA->ENDTIME > $max) $max = $location->DATA->ENDTIME;
 			}
+			
 		}
 		
 		$output['min'] = $min;
 		$output['max'] = $max;
+		
 		
 		return $output;
 

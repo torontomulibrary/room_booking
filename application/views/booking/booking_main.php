@@ -235,7 +235,7 @@
 								
 								$tStart = mktime(0,0,0, $date_raw['month'], $date_raw['day'], $date_raw['year']) + (($hours['min'] * 24) * 60 * 60); //Start the "closed" slot at the earliest time
 							}
-							else if($hours[$room->external_id]->STARTTIME > $hours['min']){
+							else if($hours[$room->external_id]->STARTTIME > $hours['min'] || $hours[$room->external_id]->ISOPEN == false){
 								//How big is the placeholder
 								$numSlots = ceil(((($hours[$room->external_id]->STARTTIME - $hours['min']) * 24) * 60) / 30);
 								
@@ -255,7 +255,10 @@
 							$tEnd =  mktime(0,0,0,$date_raw['month'], $date_raw['day'], $date_raw['year']) + (($hours[$room->external_id]->ENDTIME * 24) * 60 * 60) - 1800; 
 							$tNow = $tStart;
 
-							while($tNow <= $tEnd){
+						
+							
+							
+							while($tNow <= $tEnd && $hours[$room->external_id]->ISOPEN == true && $hours[$room->external_id]->HASCLOSURE == false){
 								$end_row = false;
 								
 								//Check for block bookings! (Nested loops, YUCK!)
