@@ -1,5 +1,6 @@
-/application/cache/*
-/application/logs/*
+application/cache/*
+application/logs/*
+application/config/*
 /cache/*
 /temp/*
 !/temp/README.txt
