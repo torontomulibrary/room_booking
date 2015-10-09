@@ -40,7 +40,13 @@ class Login extends CI_Controller {
 		$roles = array();
 		
 		//Force the user to log in
-		$this->cas->force_auth();
+		try{
+			$this->cas->force_auth();
+		}
+		catch (Exception $e) {
+			log_message('error', $e->getMessage().' : '. $e->getFile(). '('.$e->getLine().')');
+		}
+		
 		$user_data = $this->cas->user();
 		
 		
