@@ -60,7 +60,8 @@ class log_Model  extends CI_Model  {
 		
 				if($building_id !== null && is_numeric($building_id)) $sql .= " WHERE building_id = ".$building_id;
 				
-				$sql .= ") bldg, rooms r, room_roles rr WHERE r.room_id = rr.room_id AND r.building_id = bldg.building_id AND b.room_id = r.room_id 
+				$sql .= ") bldg, rooms r "; if($role_id !== null) $sql.= ", room_roles rr ";
+				$sql .= "WHERE "; if($role_id !== null) $sql .= "r.room_id = rr.room_id AND"; $sql .= " r.building_id = bldg.building_id AND b.room_id = r.room_id 
 				AND b.start > '".date('Y-m-d H:i:s', $start)."'
 				and b.start < '".date('Y-m-d H:i:s', $end)."' ";
 				
@@ -85,11 +86,11 @@ class log_Model  extends CI_Model  {
 		if(!is_numeric($start) || !is_numeric($end)) return false;
 		
 		$sql = "
-			SELECT count(*) as bookings, TIMESTAMPDIFF(DAY, l.date,b.start) as days_ahead from log l, bookings b, rooms r, buildings bu, room_roles rr
-			WHERE b.booking_id = l.booking_id 
+			SELECT count(*) as bookings, TIMESTAMPDIFF(DAY, l.date,b.start) as days_ahead from log l, bookings b, rooms r, buildings bu "; if($role_id !== null) $sql.= ", room_roles rr ";
+			$sql .= "WHERE b.booking_id = l.booking_id 
 			AND b.room_id = r.room_id
-			AND r.building_id = bu.building_id 
-			AND r.room_id = rr.room_id ";
+			AND r.building_id = bu.building_id ";
+			if($role_id !== null && is_numeric($role_id)) $sql .= " AND r.room_id = rr.room_id ";
 	
 			if($role_id !== null && is_numeric($role_id)) $sql .= " AND rr.role_id = ".$role_id;
 	
@@ -119,9 +120,9 @@ class log_Model  extends CI_Model  {
 		if(!is_numeric($start) || !is_numeric($end)) return false;
 		
 		$sql = "
-			SELECT count(*) as total, r.seats from bookings b, rooms r, room_roles rr
-			WHERE r.room_id = b.room_id
-			AND rr.room_id = r.room_id";
+			SELECT count(*) as total, r.seats from bookings b, rooms r"; if($role_id !== null) $sql.= ", room_roles rr ";
+			$sql .= " WHERE r.room_id = b.room_id ";
+			if($role_id !== null && is_numeric($role_id)) $sql .= " AND r.room_id = rr.room_id ";
 			
 			if($role_id !== null && is_numeric($role_id)) $sql .= " AND rr.role_id = ".$role_id;
 			
@@ -152,11 +153,12 @@ class log_Model  extends CI_Model  {
 		if(!is_numeric($start) || !is_numeric($end)) return false;
 		
 		$sql = "
-			SELECT count(*)/rc.num_rooms as total, r.seats from bookings b, rooms r, room_roles rr, (SELECT count(*) as num_rooms, seats from rooms group by seats) rc
+			SELECT count(*)/rc.num_rooms as total, r.seats from bookings b, rooms r "; if($role_id !== null) $sql.= ", room_roles rr "; $sql .= ", (SELECT count(*) as num_rooms, seats from rooms group by seats) rc
 			WHERE 
             rc.seats = r.seats
-            AND r.room_id = b.room_id
-            AND rr.room_id = r.room_id";
+            AND r.room_id = b.room_id ";
+            
+			if($role_id !== null && is_numeric($role_id)) $sql .= " AND r.room_id = rr.room_id ";
 			
 			if($role_id !== null && is_numeric($role_id)) $sql .= " AND rr.role_id = ".$role_id;
 			
@@ -187,21 +189,27 @@ class log_Model  extends CI_Model  {
 		if(!is_numeric($start) || !is_numeric($end)) return false;
 		
 		$sql = "
-			select count(*) as total from bookings b, rooms r, room_roles rr
-			where b.room_id = r.room_id
-			and r.room_id = rr.room_id
+			select count(*) as total from (
+				select distinct booking_id from bookings b, rooms r, room_roles rr
+				where b.room_id = r.room_id
+				and r.room_id = rr.room_id
+				
+				AND b.start > '".date('Y-m-d H:i:s', $start)."'
+				and b.start < '".date('Y-m-d H:i:s', $end)."' ";
+				
+				
+				if($role_id !== null && is_numeric($role_id)) $sql .= " AND rr.role_id = ".$role_id;
+				
+				if($room_id !== null && is_numeric($room_id)){
+					$sql .= " and b.room_id = ". $room_id;
+				}
 			
-			AND b.start > '".date('Y-m-d H:i:s', $start)."'
-			and b.start < '".date('Y-m-d H:i:s', $end)."' ";
 			
 			
-			if($role_id !== null && is_numeric($role_id)) $sql .= " AND rr.role_id = ".$role_id;
+				if($building_id !== null && is_numeric($building_id)) $sql .= " AND r.building_id = ".$building_id;
 			
-			if($room_id !== null && is_numeric($room_id)){
-				$sql .= " and b.room_id = ". $room_id;
-			}
 			
-			if($building_id !== null && is_numeric($building_id)) $sql .= " AND r.building_id = ".$building_id;
+			$sql .= ") summary ";
 			
 		$this->db->cache_off();
 		$query = $this->db->query($sql);
