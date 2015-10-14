@@ -857,6 +857,36 @@ class Admin extends CI_Controller {
 		$this->template->load('admin_template', 'admin/reports', $data);
 	}
 	
+	function auth_denied(){
+		$this->load->model('log_model');
+		
+		$data = array();
+		
+		
+		if(is_numeric($this->input->get('start')) && $this->input->get('start') >= 0){
+			$data['start'] = $this->input->get('start');
+			
+			if(is_numeric($this->input->get('end')) && $this->input->get('end') > $data['start']){
+				$data['end'] = $this->input->get('end');
+			}
+			else{
+				$data['end'] = $data['start'] + 50;
+			}
+		}
+		else{
+			$data['start'] = 0;
+			$data['end'] = 50;
+		}
+		
+		
+		
+		
+		
+		$data['events'] = $this->log_model->login_denied_events($data['start'], $data['end']);
+		
+		$this->template->load('admin_template', 'admin/auth_denied', $data);
+	}
+	
 
 	
 	function filter_stats(){

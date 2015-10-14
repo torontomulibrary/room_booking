@@ -245,5 +245,21 @@ class log_Model  extends CI_Model  {
 		
 		return $query;
 	}
+	
+	function login_denied_events($start = 0, $end = 50){
+		if (!is_numeric($end)) return FALSE;
+		
+		$sql = "
+			SELECT * FROM log
+			WHERE action = 'Login Denied'
+			ORDER BY date DESC
+			LIMIT " . $start . ", ". $end;
+			
+		$this->db->cache_off();
+		$query = $this->db->query($sql);
+		$this->db->cache_on();
+		
+		return $query;
+	}
 
 }
