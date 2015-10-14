@@ -4,3 +4,5 @@ application/config/*
 /cache/*
 /temp/*
 !/temp/README.txt
+application/config/cas.php
+application/config/cas.php
