@@ -133,13 +133,13 @@ class booking_Model  extends CI_Model  {
 		$this->db->cache_off();
 		
 		$sql = "SELECT * FROM bookings WHERE 
-				(start <= '". date('Y-m-d H:i:s', $start)."'
+				((start <= '". date('Y-m-d H:i:s', $start)."'
 				and end > '". date('Y-m-d H:i:s', $start)."')
 				
 				OR
 				
 				(start >= '". date('Y-m-d H:i:s', $start)."'
-				and end <= '". date('Y-m-d H:i:s', $end)."')
+				and end <= '". date('Y-m-d H:i:s', $end)."'))
 				
 				and room_id = $room_id";
 		
@@ -173,11 +173,11 @@ class booking_Model  extends CI_Model  {
 		$this->db->cache_off();
 		
 		$sql = "SELECT * FROM bookings WHERE 
-				(start <= '". date('Y-m-d H:i:s', $start)."'
+				((start <= '". date('Y-m-d H:i:s', $start)."'
 				and end > '". date('Y-m-d H:i:s', $start)."')
 				OR
 				(start >= '". date('Y-m-d H:i:s', $start)."'
-				and end <= '". date('Y-m-d H:i:s', $end)."')
+				and end <= '". date('Y-m-d H:i:s', $end)."'))
 				
 				and room_id = $room_id
 				and booking_id <> " . $booking_id;
