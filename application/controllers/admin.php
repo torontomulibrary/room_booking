@@ -857,7 +857,51 @@ class Admin extends CI_Controller {
 		$this->template->load('admin_template', 'admin/reports', $data);
 	}
 	
-
+	function auth_denied(){
+		$this->load->model('log_model');
+		
+		$data = array();
+		
+		
+		if(is_numeric($this->input->get('start')) && $this->input->get('start') >= 0){
+			$data['start'] = $this->input->get('start');
+			
+			if(is_numeric($this->input->get('end')) && $this->input->get('end') > $data['start']){
+				$data['end'] = $this->input->get('end');
+			}
+			else{
+				$data['end'] = $data['start'] + 50;
+			}
+		}
+		else{
+			$data['start'] = 0;
+			$data['end'] = 50;
+		}
+		
+		
+		
+		
+		
+		$data['events'] = $this->log_model->login_denied_events($data['start'], $data['end']);
+		
+		$this->template->load('admin_template', 'admin/auth_denied', $data);
+	}
+	
+	function error_logs(){
+		$this->load->model('log_model');
+		
+		if($this->uri->segment(3) !== false){
+			$data['log_data'] = $this->log_model->get_log($this->uri->segment(3));
+		}
+		else{
+			$data = array();
+			$data['error_files'] = $this->log_model->get_error_files();
+		
+			
+		}
+		
+		$this->template->load('admin_template', 'admin/error_logs', $data);
+	}
 	
 	function filter_stats(){
 		$data = $this->db->query('select data, count(*) as c from room_booking.log where action="Filter" group by data order by 2 desc');

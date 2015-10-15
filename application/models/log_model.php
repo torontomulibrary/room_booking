@@ -245,5 +245,51 @@ class log_Model  extends CI_Model  {
 		
 		return $query;
 	}
+	
+	function login_denied_events($start = 0, $end = 50){
+		if (!is_numeric($end)) return FALSE;
+		
+		$sql = "
+			SELECT * FROM log
+			WHERE action = 'Login Denied'
+			ORDER BY date DESC
+			LIMIT " . $start . ", ". $end;
+			
+		$this->db->cache_off();
+		$query = $this->db->query($sql);
+		$this->db->cache_on();
+		
+		return $query;
+	}
+	
+	function get_error_files(){
+		$files = array();
+		
+		if ($handle = opendir(getcwd() . DIRECTORY_SEPARATOR .'application'. DIRECTORY_SEPARATOR . 'logs')) {
+			
+
+			/* This is the correct way to loop over the directory. */
+			while (false !== ($entry = readdir($handle))) {
+				if(strstr($entry, '.php')){
+					$files[] = $entry;
+				}
+			}
+
+		
+
+			closedir($handle);
+		}
+		
+		sort($files);
+		
+		return $files;
+	}
+	
+	function get_log($file){
+		$input = file_get_contents(getcwd() . DIRECTORY_SEPARATOR .'application'. DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . $file);
+		
+		if($input === false) return '';
+		else return $input;
+	}
 
 }
