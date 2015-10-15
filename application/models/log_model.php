@@ -261,5 +261,35 @@ class log_Model  extends CI_Model  {
 		
 		return $query;
 	}
+	
+	function get_error_files(){
+		$files = array();
+		
+		if ($handle = opendir(getcwd() . DIRECTORY_SEPARATOR .'application'. DIRECTORY_SEPARATOR . 'logs')) {
+			
+
+			/* This is the correct way to loop over the directory. */
+			while (false !== ($entry = readdir($handle))) {
+				if(strstr($entry, '.php')){
+					$files[] = $entry;
+				}
+			}
+
+		
+
+			closedir($handle);
+		}
+		
+		sort($files);
+		
+		return $files;
+	}
+	
+	function get_log($file){
+		$input = file_get_contents(getcwd() . DIRECTORY_SEPARATOR .'application'. DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . $file);
+		
+		if($input === false) return '';
+		else return $input;
+	}
 
 }

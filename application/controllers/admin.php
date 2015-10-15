@@ -887,7 +887,21 @@ class Admin extends CI_Controller {
 		$this->template->load('admin_template', 'admin/auth_denied', $data);
 	}
 	
-
+	function error_logs(){
+		$this->load->model('log_model');
+		
+		if($this->uri->segment(3) !== false){
+			$data['log_data'] = $this->log_model->get_log($this->uri->segment(3));
+		}
+		else{
+			$data = array();
+			$data['error_files'] = $this->log_model->get_error_files();
+		
+			
+		}
+		
+		$this->template->load('admin_template', 'admin/error_logs', $data);
+	}
 	
 	function filter_stats(){
 		$data = $this->db->query('select data, count(*) as c from room_booking.log where action="Filter" group by data order by 2 desc');
