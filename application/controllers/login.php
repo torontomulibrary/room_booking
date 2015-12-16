@@ -41,9 +41,11 @@ class Login extends CI_Controller {
 		
 		//Force the user to log in
 		try{
-			$this->cas->force_auth();
+			@$this->cas->force_auth();
 		}
 		catch (Exception $e) {
+			$this->session->sess_destroy();
+			$this->cas->logout();
 			log_message('error', $e->getMessage().' : '. $e->getFile(). '('.$e->getLine().')');
 		}
 		

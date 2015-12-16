@@ -45,6 +45,11 @@ class Cas {
 		if ($CI->config->item('cas_debug')) {
 			phpCAS::setDebug();
 		}
+		
+		if ($CI->config->item('verbose')) {
+			phpCAS::setVerbose($CI->config->item('verbose'));
+		}
+		
 
 		// init CAS client
 		$defaults = array('path' => '', 'port' => 443);
@@ -72,6 +77,10 @@ class Cas {
     {
     	phpCAS::forceAuthentication();
     }
+	
+	public function renewAuthentication(){
+		phpCAS::renewAuthentication();
+	}
 
     /**
      *  Return 
