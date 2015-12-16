@@ -178,7 +178,7 @@ class booking_Model  extends CI_Model  {
 				and end > '". date('Y-m-d H:i:s', $start)."')
 				OR
 				(start >= '". date('Y-m-d H:i:s', $start)."'
-				and end <= '". date('Y-m-d H:i:s', $end)."'))
+				and start < '". date('Y-m-d H:i:s', $end)."'))
 				
 				and room_id = $room_id
 				and booking_id <> " . $booking_id;
