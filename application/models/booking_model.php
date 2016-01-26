@@ -83,7 +83,7 @@ class booking_Model  extends CI_Model  {
 		
 		//Pull down their existing bookings for that week (don't cache this)
 		$this->db->cache_off();
-		$weekly_bookings_query = $this->db->query("SELECT IFNULL(sum(TIMESTAMPDIFF(minute,start,end)),0) as weekly_minutes FROM bookings where matrix_id = ". $this->db->escape($this->session->userdata('username')). " AND  yearweek(start,6) = yearweek('" . date('Y-m-d',$date)."',6)";
+		$weekly_bookings_query = $this->db->query("SELECT IFNULL(sum(TIMESTAMPDIFF(minute,start,end)),0) as weekly_minutes FROM bookings where matrix_id = ". $this->db->escape($this->session->userdata('username')). " AND  yearweek(start,6) = yearweek('" . date('Y-m-d',$date) ."',6)");
 		$this->db->cache_on();
 		$weekly_bookings = $weekly_bookings_query->row();
 		
