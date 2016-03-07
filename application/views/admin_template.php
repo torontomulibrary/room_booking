@@ -174,9 +174,8 @@
 			<div class="col-sm-3 col-md-2 sidebar">
 				<ul class="nav nav-sidebar">
 					<li class="<?php echo ($method === "index" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin">Overview</a></li>
-						<?php if($super_admin):?><li class="<?php echo ($method === "reports" ? 'active' : ''); ?>">
-							<a href="<?= base_url() ?>admin/reports">Reports</a></li>	
-						<?php endif; ?>				
+					<li class="<?php echo ($method === "reports" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/reports">Reports</a></li>	
+						
 				</ul>
 				
 				<?php if($super_admin || $permissions['can_block_book']):?>
