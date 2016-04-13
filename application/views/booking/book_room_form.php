@@ -37,7 +37,7 @@ if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot'))
 						<span id="month_left"><?php echo date('F', $this->input->get('slot')) ?></span>
 						<span id="date_left"><?php echo date('d', $this->input->get('slot')) ?></span>
 					</div>
-					<div class="col-xs-9" style="border: 2px solid #c3c3c3;  height:720px">
+					<div class="col-xs-9" style="border: 2px solid #c3c3c3;  min-height:720px">
 						
 						
 						<h3 id="page_title">Make a Reservation</h3>
@@ -139,7 +139,7 @@ if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot'))
 								<div style="clear:both"></div>
 								<br><br>
 								<div class="form_left">Additional Info</div><div style="clear:both"></div>
-								<div><textarea name="comment" rows="6" cols="75"></textarea></div>
+								<div><textarea name="comment" rows="6" cols="75" style="max-width: 490px"></textarea></div>
 								
 								<div class="form_buttons_container">
 									<input id="submit_button" type="submit" value="Book Room" /><input type="button" id="cancel_button" value="Cancel" />

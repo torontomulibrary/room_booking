@@ -55,7 +55,7 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 						<span id="month_left"><?php echo date('F',strtotime($booking->start)) ?></span>
 						<span id="date_left"><?php echo date('d', strtotime($booking->start)) ?></span>
 					</div>
-					<div class="col-xs-9" style="border: 2px solid #c3c3c3;  height:720px">
+					<div class="col-xs-9" style="border: 2px solid #c3c3c3;  min-height:720px">
 						
 						
 						<h3 id="page_title">Edit Reservation</h3>
@@ -187,7 +187,7 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 								<br><br>
 								
 								<div class="form_left">Additional Info</div><div style="clear:both"></div>
-								<div><textarea name="comment" rows="6" cols="75"><?php echo $booking->comment; ?></textarea></div>
+								<div><textarea name="comment" style="max-width: 490px" rows="6" cols="75"><?php echo $booking->comment; ?></textarea></div>
 								
 								<div class="form_buttons_container">
 									<input id="delete_button" type="button" value="Delete Booking" data-toggle="modal" data-target="#confirm-delete" /><input id="submit_button" type="submit" value="Edit Booking" /><input type="button" id="cancel_button" value="Cancel" />
