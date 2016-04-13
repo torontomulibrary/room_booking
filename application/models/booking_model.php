@@ -293,7 +293,6 @@ class booking_Model  extends CI_Model  {
 	
 	//Return a random-generated list of free rooms for a given time
 	function get_random_free_bookings($datetime, $min_seats, $max_seats, $limit, $data){
-		
 		$hours = $data['hours'];
 		$roles = $data['roles'];
 		$limits = $data['limits'];
@@ -342,7 +341,7 @@ class booking_Model  extends CI_Model  {
 					//Is this time slot "block booked"? (also if we are already skipping the room, no need to check)
 					if(!$skip){
 						foreach($block_bookings as $block_booking){
-							if(array_key_exists($room->room_id, $block_booking['room']) && strtotime($block_booking['start']) <= $this->input->get('set_time') && strtotime($block_booking['end']) > $this->input->get('set_time')){
+							if(array_key_exists($room->room_id, $block_booking['room']) && strtotime($block_booking['start']) <= $datetime && strtotime($block_booking['end']) > $datetime){
 								$skip = true;
 								break;
 							}
@@ -351,6 +350,7 @@ class booking_Model  extends CI_Model  {
 					
 					if(!$skip){
 						$good_rooms[] = $room;
+						
 					}	
 				}
 			}
@@ -359,8 +359,12 @@ class booking_Model  extends CI_Model  {
 		//Now that we have a list of rooms, pick $limit amount randomly
 		$results = array();
 		
+		$room_pool = count($good_rooms);
+		if($limit > $room_pool) $limit = $room_pool;
+				
 		for($i=0; $i < $limit; $i++){
-			if(count($good_rooms) == 0) break; //Limit is higher then avail rooms
+			
+			if(count($good_rooms) == 0) break; //If pool of good rooms is used up
 			
 			$random_number = rand(0,count($good_rooms)-1);
 			
@@ -371,8 +375,10 @@ class booking_Model  extends CI_Model  {
 			
 			$results[] = $good_rooms[$random_number];
 			
+			//Remove the 'good room' from the pool
 			unset($good_rooms[$random_number]);
 			$good_rooms = array_values($good_rooms);
+			
 		}
 		
 		return $results;

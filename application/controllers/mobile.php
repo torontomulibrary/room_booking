@@ -67,6 +67,15 @@ class Mobile extends CI_Controller {
 
 		$num_slots = 6; //6 half hours for 3 hours in future
 		
+		//Get all the room data for each role
+		foreach ($data['roles']->result() as $role){
+				$raw_rooms = $this->room_model->list_rooms_by_role($role->role_id, true);
+				
+				foreach ($raw_rooms->result() as $room){
+					$data['r'][$role->role_id][] = $room;
+				}
+		}
+		
 		for($i=$num_slots; $i > 0; $i--){
 			//Prepare the data here, rather then call these functions in triplicate
 			$data['hours'] = $this->hours_model->getAllHours($time);
@@ -80,18 +89,9 @@ class Mobile extends CI_Controller {
 			
 			$data['bookings'] = $booking_data; 
 			
-			foreach ($data['roles']->result() as $role){
-				$raw_rooms = $this->room_model->list_rooms_by_role($role->role_id, true);
-				
-				foreach ($raw_rooms->result() as $room){
-					$data['r'][$role->role_id][] = $room;
-				}
-			}
-			
-			
-			$data['rooms'][$time] = $this->booking_model->get_random_free_bookings($time, 1, 4, 2, $data);
-			$data['rooms'][$time] = array_merge($data['rooms'][$time], $this->booking_model->get_random_free_bookings($time, 5, 8, 2, $data));
-			$data['rooms'][$time] = array_merge($data['rooms'][$time], $this->booking_model->get_random_free_bookings($time, 9, 16, 2, $data));
+			$data['rooms'][$time] = $this->booking_model->get_random_free_bookings($time, 1, 4, 2, $data); //1-4 seats
+			$data['rooms'][$time] = array_merge($data['rooms'][$time], $this->booking_model->get_random_free_bookings($time, 5, 8, 2, $data)); //5-8 seats
+			$data['rooms'][$time] = array_merge($data['rooms'][$time], $this->booking_model->get_random_free_bookings($time, 9, 16, 2, $data));//9-16 seats
 			
 			$time += 1800; //Add 30mins to the time;
 		}
