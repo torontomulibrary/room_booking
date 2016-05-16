@@ -89,7 +89,7 @@ class booking_Model  extends CI_Model  {
 		
 		//Pull down existing bookings for that day
 		$this->db->cache_off();
-		$daily_bookings_query = $this->db->query("SELECT IFNULL(sum(TIMESTAMPDIFF(minute,start,end)),0) as daily_minutes FROM bookings where matrix_id = ". $this->db->escape($this->session->userdata('username')). " AND  dayofyear(start) = " . (date('z', $date) + 1));
+		$daily_bookings_query = $this->db->query("SELECT IFNULL(sum(TIMESTAMPDIFF(minute,start,end)),0) as daily_minutes FROM bookings where matrix_id = ". $this->db->escape($this->session->userdata('username')). " AND  year(start) = '".date('Y',$date)."' AND dayofyear(start) = " . (date('z', $date) + 1));
 		$this->db->cache_on();
 		$daily_bookings = $daily_bookings_query->row();
 		
