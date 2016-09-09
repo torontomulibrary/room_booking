@@ -30,6 +30,7 @@
 				<th>Seats</th>
 				<th>Bookable by</th>
 				<th>User limit per day</th>
+				<th>Requires Moderation</th>
 				<th>Active</th>
 				<th>Options</th>
 			</tr>
@@ -53,6 +54,8 @@
 				</td>
 				
 				<td><?= $room->max_daily_hours ?></td>
+				
+				<td><?= ($room->requires_moderation)? '<span class="glyphicon glyphicon glyphicon-ok"></span>' : '<span class="glyphicon glyphicon-remove"></span>' ?></td>
 				
 				<td><?= ($room->is_active)? '<span class="glyphicon glyphicon glyphicon-ok"></span>' : '<span class="glyphicon glyphicon-remove"></span>' ?></td>
 				<td><a href="<?= base_url() ?>admin/rooms/edit/<?= $room->room_id ?>"><span title="Edit" class="glyphicon glyphicon-edit"></span></a> &nbsp; <a data-toggle="modal" data-target="#confirm-delete" data-href="<?= base_url() ?>admin/rooms/delete/<?= $room->room_id ?>" href="#"><span title="Remove" class="glyphicon glyphicon-remove"></span></a></td>
@@ -123,6 +126,14 @@
 		<label for="notes">Notes</label>
 		<textarea class="form-control" name="notes" id="notes" rows="3"><?php if(isset($current)) echo $current->notes ?></textarea>
 	</div>
+  
+  
+    <div class="checkbox">
+    <label>
+      <input type="checkbox" name="requires_moderation" <?php if(isset($current) && $current->requires_moderation != 0) echo 'checked' ?>> Needs Moderation
+    </label>
+  </div>
+  
   
   <div class="checkbox">
     <label>

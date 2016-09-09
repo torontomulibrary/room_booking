@@ -125,7 +125,10 @@ class booking_Model  extends CI_Model  {
 		}
 	}
 	
-	function book_room($room_id, $start, $end, $comment){
+	function book_room($room_id, $start, $end, $comment, $booker_name = '', $matrix_id = ''){
+		if($booker_name === '') $booker_name = $this->session->userdata('name');
+		if($matrix_id === '') $matrix_id = $this->session->userdata('username');
+		
 		//Make sure the slot is not already booked!
 		$this->db->cache_off();
 		
@@ -151,8 +154,8 @@ class booking_Model  extends CI_Model  {
 						'start' => date('Y-m-d H:i:s', $start),
 						'end' => date('Y-m-d H:i:s', $end),
 						'comment' => $comment,
-						'booker_name' => $this->session->userdata('name'),
-						'matrix_id' => $this->session->userdata('username')
+						'booker_name' => $booker_name,
+						'matrix_id' => $matrix_id
 					);
 			
 			$this->db->insert('bookings', $data);
@@ -644,6 +647,181 @@ class booking_Model  extends CI_Model  {
 		return $query;
 		
 	}
+	
+	function get_moderation_queue(){
+		
+		
+		$sql = "SELECT mq.moderation_id, mq.start, mq.end, r.name, mq.booker_name FROM moderation_queue mq, rooms r
+				WHERE mq.room_id = r.room_id";
+				
+		if($this->session->userdata('super_admin') !== true){
+			$sql.= " AND r.room_id IN (SELECT room_id FROM room_roles rr WHERE rr.role_id IN ";
+			
+			//Gather roles from session rather then database 
+			$roles = array();
+		
+			foreach($this->session->userdata('roles') as $role){
+				if(is_numeric($role->role_id)) $roles[] = $role->role_id;
+			}
+			
+			$sql .= "(".implode(",", $roles)."))";
+		}
+		
+		$this->db->cache_off();
+		$query = $this->db->query($sql);
+		$this->db->cache_on();
+		
+		return $query;
+	}
+	
+	function add_to_moderation_queue($room_id, $start, $end, $comment){
+		$data = array(
+			'room_id' => $room_id,
+			'start' => date('Y-m-d H:i:s', $start),
+			'end' => date('Y-m-d H:i:s', $end),
+			'reason' => $comment,
+			'booker_name' => $this->session->userdata('name'),
+			'matrix_id' => $this->session->userdata('username')
+		);
+
+		$this->db->insert('moderation_queue', $data);
+
+		return $this->db->insert_id();
+		
+	}
+	
+	function moderator_approve($moderation_id){
+		//see if the slot is free, then "book"
+		//function book_room($room_id, $start, $end, $comment){
+			
+		$this->db->where('moderation_id', $moderation_id);
+		$data = $this->db->get('moderation_queue')->row();
+		
+		//Make sure the admin is allowed to moderate this entry!
+		if($this->session->userdata('super_admin') !== true){
+			$sql = "SELECT room_id FROM room_roles WHERE role_id IN ";
+			
+			//Gather roles from session rather then database 
+			$roles = array();
+		
+			foreach($this->session->userdata('roles') as $role){
+				if(is_numeric($role->role_id)) $roles[] = $role->role_id;
+			}
+			
+			$sql .= "(".implode(",", $roles).")";
+			
+			$this->db->cache_off();
+			$query = $this->db->query($sql);
+			$this->db->cache_on();
+			
+			$is_allowed = false;
+			
+			foreach($query->result() as $row){
+				if($data->room_id == $row->room_id){
+					$is_allowed = true;
+					break;
+				}
+				
+			}
+			
+			//User was not allowed to moderate this room. Return false without taking action
+			if(!$is_allowed){
+				return FALSE;
+			}
+		}
+		
+		
+		
+		//Book the room, making it appear as booked to all users
+		$ret_val = $this->book_room($data->room_id, strtotime($data->start), strtotime($data->end), '', $data->booker_name, $data->matrix_id);
+		
+		
+		if($ret_val !== FALSE){
+			//Remove it from the moderator queue
+			$this->db->where('moderation_id', $moderation_id);
+			$this->db->delete('moderation_queue');
+			
+			$log_data = json_encode(array(
+				"room_id" => $data->room_id,
+				"matrix_id" => $data->matrix_id,
+				"booker_name" => $data->booker_name,
+				"start" => $data->start,
+				"end" => $data->end
+			));
+		
+			$this->load->model('log_model');
+			$this->log_model->log_event('desktop', $this->session->userdata('username'), "Moderator Approve", null, $log_data);
+				
+			return TRUE;
+		}
+		//Approval failed, likely because of an overlapping booking
+		else{
+			return FALSE;
+		}
+		
+		
+	}
+	
+	function moderator_deny($moderation_id){
+		$this->load->model('log_model');
+		//delete from moderation table
+		
+		$this->db->where('moderation_id', $moderation_id);
+		$data = $this->db->get('moderation_queue')->row();
+		
+		//Make sure the admin is allowed to moderate this entry!
+		if($this->session->userdata('super_admin') !== true){
+			$sql = "SELECT room_id FROM room_roles WHERE role_id IN ";
+			
+			//Gather roles from session rather then database 
+			$roles = array();
+		
+			foreach($this->session->userdata('roles') as $role){
+				if(is_numeric($role->role_id)) $roles[] = $role->role_id;
+			}
+			
+			$sql .= "(".implode(",", $roles).")";
+			
+			$this->db->cache_off();
+			$query = $this->db->query($sql);
+			$this->db->cache_on();
+			
+			$is_allowed = false;
+			
+			foreach($query->result() as $row){
+				if($data->room_id == $row->room_id){
+					$is_allowed = true;
+					break;
+				}
+				
+			}
+			
+			//User was not allowed to moderate this room. Return false without taking action
+			if(!$is_allowed){
+				return FALSE;
+			}
+
+		}
+		
+		$log_data = json_encode(array(
+			"room_id" => $data->room_id,
+			"matrix_id" => $data->matrix_id,
+			"booker_name" => $data->booker_name,
+			"start" => $data->start,
+			"end" => $data->end
+		));
+		
+		
+		$this->load->model('log_model');
+		$this->log_model->log_event('desktop', $this->session->userdata('username'), "Moderator Deny", null, $log_data);
+		
+		$this->db->where('moderation_id', $moderation_id);
+		$this->db->delete('moderation_queue');
+		
+		
+		
+	}
+	
 	
 	function generate_ics($booking_id){
 		$this->load->model('room_model');
