@@ -812,6 +812,34 @@ class Admin extends CI_Controller {
 					redirect('admin/moderate');
 				}
 				else{
+					if(SEND_MODERATION_ACTION_EMAIL){
+						$this->load->library('email');
+						$this->load->model('room_model');
+						
+						$booking = $this->booking_model->get_booking($ret_val)->row();
+						
+						$room_data = $this->room_model->load_room($booking->room_id);
+						
+
+						
+						//Send an email
+						$data['name'] = $booking->booker_name;
+						$data['start'] = $booking->start;
+						$data['end'] = $booking->end;
+						$data['room'] = $room_data;
+						
+						$email_content = $this->load->view('email/moderation_approved', $data, TRUE);
+						$this->email->clear();
+						$this->email->set_mailtype('html');
+						$this->email->to($this->session->userdata('username').EMAIL_SUFFIX);
+						$this->email->from(CONTACT_EMAIL);
+						$this->email->subject('Your request is awaiting moderation');
+						$this->email->message($email_content);
+						$this->email->send();
+					}
+					
+					
+					
 					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">This booking has been approved!</div>');					
 					redirect('admin/moderate');
 				}
@@ -820,7 +848,45 @@ class Admin extends CI_Controller {
 		}
 		else if($this->uri->segment(3) === 'deny'){
 			if($this->uri->segment(4) !== FALSE && is_numeric($this->uri->segment(4))){
-				$this->booking_model->moderator_deny($this->uri->segment(4));
+				//Save the data first, in order to be able to populate the email
+				$mod_data = $this->booking_model->load_moderation_entry($this->uri->segment(4))->row();
+				
+				
+				
+				$result = $this->booking_model->moderator_deny($this->uri->segment(4));
+				
+				if($result !== FALSE){
+					
+					if(SEND_MODERATION_ACTION_EMAIL){
+						$this->load->library('email');
+						$this->load->model('room_model');
+						
+						$booking = $this->booking_model->get_booking($ret_val)->row();
+						
+						$room_data = $this->room_model->load_room($mod_data->room_id);
+						
+
+						
+						//Send an email
+						$data['name'] = $mod_data->booker_name;
+						$data['start'] = $mod_data->start;
+						$data['end'] = $mod_data->end;
+						$data['room'] = $room_data;
+						
+						$email_content = $this->load->view('email/moderation_denied', $data, TRUE);
+						$this->email->clear();
+						$this->email->set_mailtype('html');
+						$this->email->to($this->session->userdata('username').EMAIL_SUFFIX);
+						$this->email->from(CONTACT_EMAIL);
+						$this->email->subject('Your request is awaiting moderation');
+						$this->email->message($email_content);
+						$this->email->send();
+					}
+				}
+				else{
+					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">This booking could not be denied.</div>');
+				}
+				
 				
 				redirect('admin/moderate');
 			}

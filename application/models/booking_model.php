@@ -752,7 +752,7 @@ class booking_Model  extends CI_Model  {
 			$this->load->model('log_model');
 			$this->log_model->log_event('desktop', $this->session->userdata('username'), "Moderator Approve", null, $log_data);
 				
-			return TRUE;
+			return $ret_val;
 		}
 		//Approval failed, likely because of an overlapping booking
 		else{
@@ -820,6 +820,11 @@ class booking_Model  extends CI_Model  {
 		
 		
 		
+	}
+	
+	function load_moderation_entry($moderation_id){
+		$this->db->where('moderation_id', $moderation_id);
+		return $this->db->get('moderation_queue');
 	}
 	
 	

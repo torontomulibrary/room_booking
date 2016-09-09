@@ -250,6 +250,28 @@ class Booking extends CI_Controller {
 							$this->booking_model->add_to_moderation_queue($room_id, $start_time, $finish_time, $comment);
 							
 							$this->session->set_flashdata('success', "Your request is awaiting approval!");
+							
+							if(SEND_MODERATION_REQUEST_CONFIRMATION_EMAIL){
+								$this->load->library('email');
+								$this->load->model('room_model');
+								$room = $this->room_model->load_room($room_id);
+								
+								//Send an email
+								$data['name'] = $this->session->userdata('name');
+								$data['start'] = $start_time;
+								$data['end'] = $finish_time;
+								$data['room'] = $room;
+								
+								$email_content = $this->load->view('email/awaiting_moderation', $data, TRUE);
+								$this->email->clear();
+								$this->email->set_mailtype('html');
+								$this->email->to($this->session->userdata('username').EMAIL_SUFFIX);
+								$this->email->from(CONTACT_EMAIL);
+								$this->email->subject('Your request is awaiting moderation');
+								$this->email->message($email_content);
+								$this->email->send();
+							}
+							
 							redirect(base_url() . 'booking/booking_main?month='.date('Ym', $start_time).'&date='.date('Ymd',$start_time));
 						}
 						else{
