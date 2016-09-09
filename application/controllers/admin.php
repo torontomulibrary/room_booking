@@ -882,6 +882,8 @@ class Admin extends CI_Controller {
 						$this->email->message($email_content);
 						$this->email->send();
 					}
+					
+					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">This booking has been declined!</div>');	
 				}
 				else{
 					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">This booking could not be denied.</div>');
