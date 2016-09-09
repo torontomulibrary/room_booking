@@ -24,6 +24,7 @@
 				<th>Booking Start</th>
 				<th>Booking End</th>
 				<th>Booker Name</th>
+				<th>Reason</th>
 				<th>Options</th>
 			</tr>
 		</thead>
@@ -34,6 +35,7 @@
 				<td><?= $row->start ?></td>
 				<td><?= $row->end ?></td>
 				<td><?= $row->booker_name ?></td>
+				<td><?= $row->reason ?></td>
 
 				<td>
 					<a href="<?= base_url(); ?>admin/moderate/approve/<?= $row->moderation_id ?>">

@@ -651,7 +651,7 @@ class booking_Model  extends CI_Model  {
 	function get_moderation_queue(){
 		
 		
-		$sql = "SELECT mq.moderation_id, mq.start, mq.end, r.name, mq.booker_name FROM moderation_queue mq, rooms r
+		$sql = "SELECT mq.moderation_id, mq.start, mq.end, r.name, mq.booker_name, mq.reason FROM moderation_queue mq, rooms r
 				WHERE mq.room_id = r.room_id";
 				
 		if($this->session->userdata('super_admin') !== true){
