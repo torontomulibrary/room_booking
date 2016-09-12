@@ -1,3 +1,5 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+$config['cas_server_url'] = 'cas.domain.com';
+$config['phpcas_path'] = '/path/to/phpCas';
 $config['cas_disable_server_validation'] = TRUE;
 $config['cas_debug'] = FALSE;
