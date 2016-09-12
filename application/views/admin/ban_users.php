@@ -41,7 +41,7 @@
 				
 				<td>
 					<a data-toggle="modal" data-target="#confirm-delete" data-href="<?= base_url() ?>admin/ban_users/delete/<?= $user->matrix_id ?>" href="#">
-						<span title="Remove" class="glyphicon glyphicon-remove"></span>
+						<button class="btn btn-default btn-sm" type="button"><span aria-hidden="true" class="glyphicon glyphicon-remove"></span> Remove</button>
 					</a>
 				</td>
 				

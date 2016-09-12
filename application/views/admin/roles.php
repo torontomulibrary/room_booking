@@ -45,10 +45,10 @@
 				
 				<td>
 					<a href="<?= base_url() ?>admin/roles/edit/<?= $role->role_id ?>">
-						<span title="Edit" class="glyphicon glyphicon-edit"></span>
-					</a> &nbsp; 
+						<button class="btn btn-default btn-sm" type="button"><span aria-hidden="true" class="glyphicon glyphicon-edit"></span> Edit </button>
+					</a> 
 					<a data-toggle="modal" data-target="#confirm-delete" data-href="<?= base_url() ?>admin/roles/delete/<?= $role->role_id ?>" href="#">
-						<span title="Remove" class="glyphicon glyphicon-remove"></span>
+					<button class="btn btn-default btn-sm" type="button"><span aria-hidden="true" class="glyphicon glyphicon-remove"></span> Remove</button>
 					</a>
 				</td>
 				

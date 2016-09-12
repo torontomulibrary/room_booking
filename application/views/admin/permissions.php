@@ -47,7 +47,11 @@
 					?>
 				</td>
 				
-				<td><a href="<?= base_url() ?>admin/permissions/edit/<?= $role->role_id ?>"><span title="Edit" class="glyphicon glyphicon-edit"></span></a> </td>
+				<td>
+					<a href="<?= base_url() ?>admin/permissions/edit/<?= $role->role_id ?>">
+						<button class="btn btn-default btn-sm" type="button"><span aria-hidden="true" class="glyphicon glyphicon-edit"></span> Edit</button>
+					</a> 
+				</td>
 				
 			</tr>
 			<?php endforeach; ?>

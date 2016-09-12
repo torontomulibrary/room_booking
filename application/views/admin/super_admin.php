@@ -40,10 +40,10 @@
 				<td><?= $admin->matrix_id ?></td>
 				<td>
 					<a href="<?= base_url() ?>admin/super_admin/edit/<?= $admin->admin_id ?>">
-						<span title="Edit" class="glyphicon glyphicon-edit"></span>
-					</a> &nbsp; 
+						<button class="btn btn-default btn-sm" type="button"><span aria-hidden="true" class="glyphicon glyphicon-edit"></span> Edit</button>
+					</a> 
 					<a data-toggle="modal" data-target="#confirm-delete" data-href="<?= base_url() ?>admin/super_admin/delete/<?= $admin->admin_id ?>" href="#">
-						<span title="Remove" class="glyphicon glyphicon-remove"></span>
+						<button class="btn btn-default btn-sm" type="button"><span aria-hidden="true" class="glyphicon glyphicon-remove"></span> Remove</button>
 					</a>
 				</td>
 				

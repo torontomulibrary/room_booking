@@ -51,10 +51,10 @@
 				
 				<td>
 					<a href="<?= base_url() ?>admin/block_booking/edit/<?= $block_booking['block_booking_id']; ?>">
-						<span title="Edit" class="glyphicon glyphicon-edit"></span>
-					</a> &nbsp; 
+						<button class="btn btn-default btn-sm" type="button"><span aria-hidden="true" class="glyphicon glyphicon-edit"></span> Edit </button>
+					</a>
 					<a data-toggle="modal" data-target="#confirm-delete" data-href="<?= base_url() ?>admin/block_booking/delete/<?= $block_booking['block_booking_id']; ?>" href="#">
-						<span title="Remove" class="glyphicon glyphicon-remove"></span>
+						<button class="btn btn-default btn-sm" type="button"><span aria-hidden="true" class="glyphicon glyphicon-remove"></span> Remove</button>
 					</a>
 				</td>
 				

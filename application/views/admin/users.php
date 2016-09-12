@@ -53,7 +53,15 @@
 				</td>
 				
 				<td><?= ($user->is_admin)? '<span class="glyphicon glyphicon glyphicon-ok"></span>' : '<span class="glyphicon glyphicon-remove"></span>' ?></td>
-				<td><a href="<?= base_url() ?>admin/users/edit/<?= $user->user_id ?>"><span title="Edit" class="glyphicon glyphicon-edit"></span></a> &nbsp; <a data-toggle="modal" data-target="#confirm-delete" data-href="<?= base_url() ?>admin/users/delete/<?= $user->user_id ?>" href="#"><span title="Remove" class="glyphicon glyphicon-remove"></span></a></td>
+				<td>
+					<a href="<?= base_url() ?>admin/users/edit/<?= $user->user_id ?>">
+						<button class="btn btn-default btn-sm" type="button"><span aria-hidden="true" class="glyphicon glyphicon-edit"></span> Edit</button>
+					</a>
+					
+					<a data-toggle="modal" data-target="#confirm-delete" data-href="<?= base_url() ?>admin/users/delete/<?= $user->user_id ?>" href="#">
+						<button class="btn btn-default btn-sm" type="button"><span aria-hidden="true" class="glyphicon glyphicon-remove"></span> Remove</button>
+					</a>
+				</td>
 				
 			</tr>
 			<?php endforeach; ?>
