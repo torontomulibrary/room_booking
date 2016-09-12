@@ -188,17 +188,23 @@ class Booking extends CI_Controller {
 		$room_id = $this->input->post('room_id');
 		$comment = $this->input->post('comment');
 		
-		
-		
-		//TODO: make sure time isnt past midnight, or before opening hours
+		//Correct for the offset of times
+		if(is_numeric($room_id)){
+			$room = $this->room_model->load_room($room_id);
+			$room = $room['room_data']->row(); 
+			
+			if($room->requires_moderation){
+				$time = time() + MODERATION_TIME_DELAY;
+			}
+			else{
+				$time = time() + TIME_DELAY;
+			}
+		}
 		
 		//Validate all the date/times submitted 
-		if(is_numeric($start_time) && ($start_time % 1800) == 0 && is_numeric($finish_time) && ($finish_time % 1800) == 0 && is_numeric($room_id) && $start_time > time()){
+		if(is_numeric($start_time) && ($start_time % 1800) == 0 && is_numeric($finish_time) && ($finish_time % 1800) == 0 && is_numeric($room_id) && $start_time > $time){
 			//Was this user allowed to book this room?
 			if($this->booking_model->is_allowed($room_id)){
-				$room = $this->room_model->load_room($room_id);
-				$room = $room['room_data']->row(); 
-				
 				//Check the users remaining bookable hours
 				$limits = $this->booking_model->remaining_hours($this->session->userdata('username'), $start_time);
 				$requested_time = (($finish_time - $start_time) / 60 / 60);
@@ -210,7 +216,7 @@ class Booking extends CI_Controller {
 				else{
 					//Try to make the booking
 					
-					//Was this a new booking, or an edit?
+					//Is this booking an edit?
 					if($this->input->post('booking_id') !== FALSE && is_numeric($this->input->post('booking_id'))){
 						
 						//Check if user was allowed to make this booking
@@ -237,61 +243,93 @@ class Booking extends CI_Controller {
 							$this->log_model->log_event('desktop', $this->session->userdata('username'), "Edit Booking", $id);
 					}
 						
-					
+					//This is a new booking
 					else{
-						//Get the ID of the new booking. Returns false if the booking slot was not free
-						$id = $this->booking_model->book_room($room_id, $start_time, $finish_time, $comment); 
-						
-						
-						$log_data = json_encode(array(
-							"booking_id" => $id,
-							"room_id" => $room_id,
-							"matrix_id" => $this->session->userdata('username'),
-							"booker_name" => $this->session->userdata('name'),
-							"start" =>date('Y-m-d H:i:s', $start_time),
-							"end" =>date('Y-m-d H:i:s', $finish_time),
-						));
-						
-						
-						$this->load->model('log_model');
-						$this->log_model->log_event('desktop', $this->session->userdata('username'), "Create Booking", $id, $log_data);
-					}
+						//Does this room reqire moderation? If so, add it to the moderation queue rather than create a new active booking
+						if($room->requires_moderation == TRUE){
+							$this->booking_model->add_to_moderation_queue($room_id, $start_time, $finish_time, $comment);
+							
+							$this->session->set_flashdata('success', "Your request is awaiting approval!");
+							
+							if(SEND_MODERATION_REQUEST_CONFIRMATION_EMAIL){
+								$this->load->library('email');
+								$this->load->model('room_model');
+								$room = $this->room_model->load_room($room_id);
+								
+								//Send an email
+								$data['name'] = $this->session->userdata('name');
+								$data['start'] = $start_time;
+								$data['end'] = $finish_time;
+								$data['room'] = $room;
+								
+								$email_content = $this->load->view('email/awaiting_moderation', $data, TRUE);
+								$this->email->clear();
+								$this->email->set_mailtype('html');
+								$this->email->to($this->session->userdata('username').EMAIL_SUFFIX);
+								$this->email->from(CONTACT_EMAIL);
+								$this->email->subject('Your request is awaiting moderation');
+								$this->email->message($email_content);
+								$this->email->send();
+							}
+							
+							redirect(base_url() . 'booking/booking_main?month='.date('Ym', $start_time).'&date='.date('Ymd',$start_time));
+						}
+						else{
+							//Get the ID of the new booking. Returns false if the booking slot was not free
+							$id = $this->booking_model->book_room($room_id, $start_time, $finish_time, $comment); 
+							
+							
+							$log_data = json_encode(array(
+								"booking_id" => $id,
+								"room_id" => $room_id,
+								"matrix_id" => $this->session->userdata('username'),
+								"booker_name" => $this->session->userdata('name'),
+								"start" =>date('Y-m-d H:i:s', $start_time),
+								"end" =>date('Y-m-d H:i:s', $finish_time),
+							));
+							
+							
+							$this->load->model('log_model');
+							$this->log_model->log_event('desktop', $this->session->userdata('username'), "Create Booking", $id, $log_data);
+						}
 					
 					
-					if($id === FALSE){
-						$this->session->set_flashdata('warning', "Another booking already exists for this time. Please choose a different room/time");
-						redirect(base_url() . 'booking/booking_main?month='.date('Ym', $start_time).'&date='.date('Ymd',$start_time));
-					}
-					else{
-						
-						$this->load->library('email');
-						$this->load->model('room_model');
-						$room = $this->room_model->load_room($room_id);
-						
-						//Send an email
-						$data['name'] = $this->session->userdata('name');
-						$data['start'] = $start_time;
-						$data['end'] = $finish_time;
-						$data['room'] = $room;
-						$data['booking_id'] = $id;
-						
-						$this->booking_model->generate_ics($id);
-						
-						$email_content = $this->load->view('email/booking_confirmation', $data, TRUE);
-						$this->email->clear();
-						$this->email->set_mailtype('html');
-						$this->email->to($this->session->userdata('username').EMAIL_SUFFIX);
-						$this->email->from('noreply'.EMAIL_SUFFIX);
-						$this->email->subject('Booking Confirmation');
-						$this->email->message($email_content);
-						$this->email->attach('temp/'.$id.'.ics');
-						$this->email->send();
-						$this->booking_model->delete_ics($id);
-						
-						
-						
-						$this->session->set_flashdata('success', "Booking Successfully Made");
-						redirect(base_url() . 'booking/booking_main?month='.date('Ym', $start_time).'&date='.date('Ymd',$start_time));
+					
+						if($id === FALSE){
+							$this->session->set_flashdata('warning', "Another booking already exists for this time. Please choose a different room/time");
+							redirect(base_url() . 'booking/booking_main?month='.date('Ym', $start_time).'&date='.date('Ymd',$start_time));
+						}
+						else{
+							
+							$this->load->library('email');
+							$this->load->model('room_model');
+							$room = $this->room_model->load_room($room_id);
+							
+							//Send an email
+							$data['name'] = $this->session->userdata('name');
+							$data['start'] = $start_time;
+							$data['end'] = $finish_time;
+							$data['room'] = $room;
+							$data['booking_id'] = $id;
+							
+							$this->booking_model->generate_ics($id);
+							
+							$email_content = $this->load->view('email/booking_confirmation', $data, TRUE);
+							$this->email->clear();
+							$this->email->set_mailtype('html');
+							$this->email->to($this->session->userdata('username').EMAIL_SUFFIX);
+							$this->email->from('noreply'.EMAIL_SUFFIX);
+							$this->email->subject('Booking Confirmation');
+							$this->email->message($email_content);
+							$this->email->attach('temp/'.$id.'.ics');
+							$this->email->send();
+							$this->booking_model->delete_ics($id);
+							
+							
+							
+							$this->session->set_flashdata('success', "Booking Successfully Made");
+							redirect(base_url() . 'booking/booking_main?month='.date('Ym', $start_time).'&date='.date('Ymd',$start_time));
+						}
 					}
 				}
 			}
@@ -440,7 +478,7 @@ class Booking extends CI_Controller {
 	function filter(){
 		$this->load->model('log_model');
 		
-		//Don't do filtering here, just record the filters the client usedcodeig
+		//Don't do filtering here, just record the filters the client used
 		$filter_data = json_encode($this->input->post());
 		
 		$this->log_model->log_event('desktop', $this->session->userdata('username'), "Filter", null, $filter_data);

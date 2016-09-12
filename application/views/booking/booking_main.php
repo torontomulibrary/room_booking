@@ -331,9 +331,13 @@
 									$uri = implode($uri, '&amp;');
 								
 									//Check to see if the date is in the past
-									if(time() > $tNow){
+									if($room->requires_moderation && (time()+ MODERATION_TIME_DELAY > $tNow)){ 
 										echo '<td class="not_avail booking_cell"><div class="table_cell_height">'.date("g:iA",$tNow).'</div></td>';
 									}
+									else if(!$room->requires_moderation && (time()+ TIME_DELAY > $tNow)){ 
+										echo '<td class="not_avail booking_cell"><div class="table_cell_height">'.date("g:iA",$tNow).'</div></td>';
+									}
+									
 									//If too far in the future (past the roles booking window)
 									else if($tNow > (mktime(0,0,0, date("n"), date("j")+1)+($role->booking_window*24*60*60)) ){
 										echo '<td class="not_avail booking_cell"><div class="table_cell_height">'.date("g:iA",$tNow).'</div></td>';

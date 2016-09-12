@@ -341,10 +341,11 @@ class Admin extends CI_Controller {
 			$active = $this->input->post('active');
 			$max_daily_hours = $this->input->post('max_daily_hours');
 			$notes = $this->input->post('notes');
+			$requires_moderation = $this->input->post('requires_moderation');
 			
 			
 			
-			$id = $this->room_model->add_room($building, $room, $seats, $role, $active, $resources, $max_daily_hours, $notes);
+			$id = $this->room_model->add_room($building, $room, $seats, $role, $active, $resources, $max_daily_hours, $notes, $requires_moderation);
 			
 			if(is_numeric($id)){
 				$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Room added successfully</div>');
@@ -402,12 +403,13 @@ class Admin extends CI_Controller {
 			$room_id = $this->input->post('room_id');
 			$max_daily_hours = $this->input->post('max_daily_hours');
 			$notes = $this->input->post('notes');
+			$requires_moderation = $this->input->post('requires_moderation');
 			
 			//If no resources are selected, create an empty array
 			if($resources === false) $resources = array();
 			
 			
-			$id = $this->room_model->edit_room($room_id, $building, $room, $seats, $roles, $active, $resources, $max_daily_hours, $notes);
+			$id = $this->room_model->edit_room($room_id, $building, $room, $seats, $roles, $active, $resources, $max_daily_hours, $notes, $requires_moderation);
 
 			$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The room has been updated</div>');
 			$this->db->cache_delete_all();
@@ -797,6 +799,109 @@ class Admin extends CI_Controller {
 		
 	}
 	
+	function moderate(){
+		$this->load->model('booking_model');
+		
+		if($this->uri->segment(3) === 'approve'){
+			if($this->uri->segment(4) !== FALSE && is_numeric($this->uri->segment(4))){
+				$ret_val = $this->booking_model->moderator_approve($this->uri->segment(4));
+				
+				if($ret_val === FALSE){
+					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">This booking could not be approved. Another booking may exist at this time</div>');
+					
+					redirect('admin/moderate');
+				}
+				else{
+					if(SEND_MODERATION_ACTION_EMAIL){
+						$this->load->library('email');
+						$this->load->model('room_model');
+						
+						$booking = $this->booking_model->get_booking($ret_val)->row();
+						
+						$room_data = $this->room_model->load_room($booking->room_id);
+						
+
+						
+						//Send an email
+						$data['name'] = $booking->booker_name;
+						$data['start'] = $booking->start;
+						$data['end'] = $booking->end;
+						$data['room'] = $room_data;
+						
+						$email_content = $this->load->view('email/moderation_approved', $data, TRUE);
+						$this->email->clear();
+						$this->email->set_mailtype('html');
+						$this->email->to($this->session->userdata('username').EMAIL_SUFFIX);
+						$this->email->from(CONTACT_EMAIL);
+						$this->email->subject('Your request is awaiting moderation');
+						$this->email->message($email_content);
+						$this->email->send();
+					}
+					
+					
+					
+					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">This booking has been approved!</div>');					
+					redirect('admin/moderate');
+				}
+			}
+			
+		}
+		else if($this->uri->segment(3) === 'deny'){
+			if($this->uri->segment(4) !== FALSE && is_numeric($this->uri->segment(4))){
+				//Save the data first, in order to be able to populate the email
+				$mod_data = $this->booking_model->load_moderation_entry($this->uri->segment(4))->row();
+				
+				
+				
+				$result = $this->booking_model->moderator_deny($this->uri->segment(4));
+				
+				if($result !== FALSE){
+					
+					if(SEND_MODERATION_ACTION_EMAIL){
+						$this->load->library('email');
+						$this->load->model('room_model');
+						
+						$booking = $this->booking_model->get_booking($ret_val)->row();
+						
+						$room_data = $this->room_model->load_room($mod_data->room_id);
+						
+
+						
+						//Send an email
+						$data['name'] = $mod_data->booker_name;
+						$data['start'] = $mod_data->start;
+						$data['end'] = $mod_data->end;
+						$data['room'] = $room_data;
+						
+						$email_content = $this->load->view('email/moderation_denied', $data, TRUE);
+						$this->email->clear();
+						$this->email->set_mailtype('html');
+						$this->email->to($this->session->userdata('username').EMAIL_SUFFIX);
+						$this->email->from(CONTACT_EMAIL);
+						$this->email->subject('Your request is awaiting moderation');
+						$this->email->message($email_content);
+						$this->email->send();
+					}
+					
+					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">This booking has been declined!</div>');	
+				}
+				else{
+					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">This booking could not be denied.</div>');
+				}
+				
+				
+				redirect('admin/moderate');
+			}
+		}
+		else{
+			$data = array();
+			$data['queue'] = $this->booking_model->get_moderation_queue(false);
+		
+			$this->template->load('admin_template', 'admin/moderation', $data);
+		
+		}
+
+	}	
 	
 	function reports(){
 		$this->load->model('log_model');
