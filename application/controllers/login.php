@@ -20,9 +20,7 @@ class Login extends CI_Controller {
 		//$this->output->enable_profiler(DEBUG_MODE);
 		
 		$this->session->keep_flashdata('origin'); //No idea why this is neccessary, but it does its job
-		
-		//TEMP CODE - TO BE DELETED ONCE LOGIN SYSTEM IS BUILT
-		//$this->session->set_userdata('username', 'swilson');
+
 	}
 
 	
@@ -81,7 +79,7 @@ class Login extends CI_Controller {
 		
 		
 		//Undergrad/Grad/CE are all allowed to book these rooms
-		if(is_array($cas_roles) && (in_array('undergrad', $cas_roles) || in_array('cned', $cas_roles) || in_array('graduate', $cas_roles) || in_array('visitingGrad', $cas_roles))){
+		if(is_array($cas_roles) && (in_array('undergrad', $cas_roles) || in_array('cned', $cas_roles) || in_array('graduate', $cas_roles) || in_array('lppStudent', $cas_roles) || in_array('visitingGrad', $cas_roles))){
 			$object = new stdClass();
 			$object->role_id = 4; //Hardcoded ID. Yuck!
 			$object->name = "Undergraduate";
