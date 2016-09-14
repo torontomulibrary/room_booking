@@ -87,4 +87,46 @@ class hours_Model  extends CI_Model  {
 		return $output;
 
 	}
+	
+	function get_closures($building_id, $include_past = false){
+		if(!is_numeric($building_id)) return false;
+		
+		$sql = "SELECT * FROM building_closures WHERE building_id = ". $building_id;
+		
+		if($include_past === false){
+			$sql.= " AND closure_date >= '". date('Y-m-d'). "'";
+		}
+		
+		$sql.= " ORDER BY closure_date ASC";
+		
+		return $this->db->query($sql);
+	}
+	
+	function add_closure($building_id, $date){
+		$this->load->library('calendar');
+		
+		//Validate the date string
+		if(!$this->calendar->isValidDateTimeString($date, 'Y-m-d')) return FALSE;		
+		
+		$data = array(
+			'building_id' => $building_id,
+			'closure_date' => $date,
+		);
+		
+		$this->db->insert('building_closures', $data); 
+		$id = $this->db->insert_id();
+
+		$this->db->cache_delete_all();
+		
+		return $id;
+		
+	}
+	
+	function delete_closure($closure_id){
+		$this->db->where('closure_id', $closure_id);
+		$this->db->delete('building_closures');
+		
+		$this->db->cache_delete_all();
+	}
+	
 }

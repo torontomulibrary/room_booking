@@ -505,6 +505,61 @@ class Admin extends CI_Controller {
 		}
 	}
 	
+	function building_hours(){
+		//Deny access if user is not super admin
+		if(!$this->session->userdata('super_admin')){
+			$this->template->load('admin_template', 'admin/denied');
+		}
+		else{
+			$this->load->model('building_model');
+			$this->load->model('role_model');
+			
+			
+			if($this->uri->segment(3) === 'edit'){
+				$this->load->model('hours_model');
+				
+				if(!is_numeric($this->uri->segment(4))) return false;
+				
+				$data['current_building'] = $this->building_model->load_building($this->uri->segment(4));
+				
+				//Catch the case of an invalid building id
+				if($data['current_building'] === false) return;
+				
+				if($this->uri->segment(5) === 'remove_closure' && is_numeric($this->uri->segment(6))){
+					$this->hours_model->delete_closure($this->uri->segment(6));
+					
+					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Closure deleted successfully</div>');
+					redirect('admin/building_hours/edit/'.$this->uri->segment(4));
+				}
+				
+				
+				if($this->uri->segment(6) === 'submit'){
+					
+					
+					$result = $this->hours_model->add_closure($this->uri->segment(4), $this->input->post('closure_date'));
+					
+					if(is_numeric($result)){
+						$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Closure added successfully</div>');
+						redirect('admin/building_hours/edit/'.$this->uri->segment(4));
+					}
+					else{
+						$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. Closure may not have been added</div>');
+						redirect('admin/building_hours/edit/'.$this->uri->segment(4));
+					}
+				}
+				
+				$data['closures'] = $this->hours_model->get_closures($this->uri->segment(4));
+			}
+			else{
+				$data['buildings'] = $this->building_model->list_buildings();
+			}
+			
+		
+			$this->template->load('admin_template', 'admin/building_hours', $data);
+					
+		}
+	}
+
 	function super_admin(){
 		//Deny access if user is not super admin
 		if(!$this->session->userdata('super_admin')){
