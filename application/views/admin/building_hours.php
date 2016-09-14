@@ -3,6 +3,23 @@
 <script src="<?php echo base_url(); ?>assets/js/jquery.datetimepicker.js"></script>
 <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/css/jquery.datetimepicker.css"/>
 
+<style>
+#building_time_table td, #building_time_table th{
+	padding: 0.8em;
+	border: 1px solid black;
+	background-color: #ddd;
+}
+
+#building_time_table td{
+	background-color: #f5f5f5;
+}
+
+#building_time_table{
+	margin-bottom: 2em;
+}
+
+</style>
+
 <?php $head = ob_get_contents();ob_end_clean();$this->template->set('headers', $head);?>
 
 <?php ob_start();?>
@@ -63,7 +80,94 @@
 
 <?php if($this->uri->segment(5) === 'new_hours'): ?>
 
-you want to add some hours
+<form role="form" method="post" action="<?= base_url() ?>admin/building_hours/edit/<?php echo $building->building_id; ?>/new_hours/submit ">
+	<div class="form-group">
+		<table id="building_time_table">
+			<tr>
+				<th></th>
+				<th><label for="sunday">Sunday</label></th>
+				<th><label for="Monday">Monday</label></th>
+				<th><label for="Monday">Tuesday</label></th>
+				<th><label for="Monday">Wednesday</label></th>
+				<th><label for="Monday">Thursday</label></th>
+				<th><label for="Monday">Friday</label></th>
+				<th><label for="Monday">Saturday</label></th>
+			</tr>
+			
+			<tr>
+				<th style="min-width: 120px;">Opening Time</th>
+				
+				<?php for($i=0; $i < 7; $i++): ?>
+				<td style="min-width: 120px;">
+					 
+					<?php $day_of_week = strtolower(date('D', strtotime("Sunday +{$i} days"))); ?>
+					<select name="<?php echo $day_of_week; ?>_start">
+						<?php 
+							$start = mktime(0,0,0); 
+							$end = $start + 24*60*60;
+							
+							$default_start = $start + 8*60*60; //8AM
+							$default_end = $start + 22*60*60; //10PM
+						?>
+						
+						<?php while($start <= $end): ?>
+							<?php if($start == $end): ?><option value="24:00">12:00AM</option>
+							<?php else: ?><option value="<?php echo date('H:i', $start); ?>" <?php if($start == $default_start) echo 'selected="selected"';?>><?php echo date('g:iA', $start); ?></option>
+							<?php endif; ?>
+						<?php $start += 60*30; ?>
+						<?php endwhile; ?>
+					</select> 
+				
+				</td>
+				<?php endfor; ?>
+			</tr>
+			
+			<tr>
+				<th style="min-width: 120px;">Closing Time</th>
+				<?php for($i=0; $i < 7; $i++): ?>
+				<td style="min-width: 120px;">
+					 
+					<?php $day_of_week = strtolower(date('D', strtotime("Sunday +{$i} days"))); ?>
+					<select name="<?php echo $day_of_week; ?>_end">
+						<?php 
+							$start = mktime(0,0,0); 
+							$end = $start + 24*60*60;
+						?>
+						
+						<?php while($start <= $end): ?>
+							<?php if($start == $end): ?><option value="24:00">12:00AM</option>
+							<?php else: ?><option value="<?php echo date('H:i', $start); ?>" <?php if($start == $default_end) echo 'selected="selected"';?>><?php echo date('g:iA', $start); ?></option>
+							<?php endif; ?>
+						<?php $start += 60*30; ?>
+						<?php endwhile; ?>
+					</select> 
+				
+				</td>
+				<?php endfor; ?>
+				
+			</tr>
+		</table>
+		
+		<table >
+			<tr>
+				<th><label for="start_date">Start Date</label></th>
+				<th><label for="end_date">End Date</label></th>
+			</tr>
+			
+			<tr>
+				<td style="min-width: 300px;"><input  class="form-control date_time" type="text" id="start_date" name="start_date" value="" /></td>
+				<td style="min-width: 300px;"><input class="form-control date_time" type="text" id="end_date" name="end_date" value="" /></td>
+			</tr>
+		</table>
+		
+		<br /><br />
+		
+		<input type="hidden" id="building_id" name="building_id" value="<?php echo $building->building_id; ?>" />
+	</div>
+
+	<button type="submit" class="btn btn-default">Submit</button>
+	<a href="<?= base_url() ?>admin/building_hours/edit/<?php echo $building->building_id; ?>/"><button type="button" class="btn btn-default">Cancel</button></a>
+</form>
 
 <?php endif; ?>
 
@@ -124,20 +228,26 @@ you want to add some hours
 			</tr>
 		</thead>
 		<tbody>
-			<?php foreach(array() as $room): ?>
+			<?php foreach($hours->result() as $hour): ?>
 			<tr>
-				<td><?= $room->name ?></td>
-				<td><?= $room->building ?></td>
+				<td><?= date('l F d, Y', strtotime($hour->start_date)); ?></td>
+				<td><?= date('l F d, Y', strtotime($hour->end_date)); ?></td>
 				
 				<td>
-					<a href="<?= base_url() ?>admin/rooms/edit/<?= $room->room_id ?>">
-						<button class="btn btn-default btn-sm" type="button"><span aria-hidden="true" class="glyphicon glyphicon-edit"></span> Edit </button>
-					</a>
+					<?php $daily_hours = json_decode($hour->hours_data);  ?>
 					
-					<a data-toggle="modal" data-target="#confirm-delete" data-href="<?= base_url() ?>admin/rooms/delete/<?= $room->room_id ?>" href="#">
-						<button class="btn btn-default btn-sm" type="button"><span aria-hidden="true" class="glyphicon glyphicon-remove"></span> Remove</button>
-					</a>
+					<strong style="display:inline-block; min-width: 100px;">Sunday:</strong> <?php echo $daily_hours->sun_start . " - " . $daily_hours->sun_end ?><br />
+					<strong style="display:inline-block; min-width: 100px;">Monday:</strong> <?php echo $daily_hours->mon_start . " - " . $daily_hours->mon_end ?><br />
+					<strong style="display:inline-block; min-width: 100px;">Tuesday:</strong> <?php echo $daily_hours->tue_start . " - " . $daily_hours->tue_end ?><br />
+					<strong style="display:inline-block; min-width: 100px;">Wednesday:</strong> <?php echo $daily_hours->wed_start . " - " . $daily_hours->wed_end ?><br />
+					<strong style="display:inline-block; min-width: 100px;">Thursday:</strong> <?php echo $daily_hours->thu_start . " - " . $daily_hours->thu_end ?><br />
+					<strong style="display:inline-block; min-width: 100px;">Friday:</strong> <?php echo $daily_hours->fri_start . " - " . $daily_hours->fri_end ?><br />
+					<strong style="display:inline-block; min-width: 100px;">Saturday:</strong> <?php echo $daily_hours->sat_start . " - " . $daily_hours->sat_end ?><br />
+					
+					
 				</td>
+				
+				<td>options.....</td>
 				
 			</tr>
 			<?php endforeach; ?>

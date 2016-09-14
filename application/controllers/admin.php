@@ -514,10 +514,11 @@ class Admin extends CI_Controller {
 			$this->load->model('building_model');
 			$this->load->model('role_model');
 			
-			
+			//If a building has been selected
 			if($this->uri->segment(3) === 'edit'){
 				$this->load->model('hours_model');
 				
+				//Basic validation on the building ID
 				if(!is_numeric($this->uri->segment(4))) return false;
 				
 				$data['current_building'] = $this->building_model->load_building($this->uri->segment(4));
@@ -525,6 +526,8 @@ class Admin extends CI_Controller {
 				//Catch the case of an invalid building id
 				if($data['current_building'] === false) return;
 				
+				
+				//Deleting a closure
 				if($this->uri->segment(5) === 'remove_closure' && is_numeric($this->uri->segment(6))){
 					$this->hours_model->delete_closure($this->uri->segment(6));
 					
@@ -532,10 +535,8 @@ class Admin extends CI_Controller {
 					redirect('admin/building_hours/edit/'.$this->uri->segment(4));
 				}
 				
-				
-				if($this->uri->segment(6) === 'submit'){
-					
-					
+				//Creating a new closure
+				if($this->uri->segment(5) === 'new_closure' && $this->uri->segment(6) === 'submit'){
 					$result = $this->hours_model->add_closure($this->uri->segment(4), $this->input->post('closure_date'));
 					
 					if(is_numeric($result)){
@@ -548,7 +549,40 @@ class Admin extends CI_Controller {
 					}
 				}
 				
+				//Creating new hours
+				if($this->uri->segment(5) === 'new_hours' && $this->uri->segment(6) === 'submit'){
+					$hours_data = array(
+						'sun_start' 	=>		$this->input->post('sun_start'),
+						'sun_end' 		=>		$this->input->post('sun_end'),
+						'mon_start' 	=>		$this->input->post('mon_start'),
+						'mon_end' 		=>		$this->input->post('mon_end'),
+						'tue_start' 	=>		$this->input->post('tue_start'),
+						'tue_end' 		=>		$this->input->post('tue_end'),
+						'wed_start' 	=>		$this->input->post('wed_start'),
+						'wed_end' 		=>		$this->input->post('wed_end'),
+						'thu_start' 	=>		$this->input->post('thu_start'),
+						'thu_end' 		=>		$this->input->post('thu_end'),
+						'fri_start' 	=>		$this->input->post('fri_start'),
+						'fri_end' 		=>		$this->input->post('fri_end'),
+						'sat_start' 	=>		$this->input->post('sat_start'),
+						'sat_end'		=>		$this->input->post('sat_end'),
+					);
+
+					$result = $this->hours_model->add_hours($this->uri->segment(4), $this->input->post('start_date'), $this->input->post('end_date'), $hours_data);
+					
+					if(!is_numeric($result)){
+						$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. '.$result.'. Hours may not have been added</div>');
+						redirect('admin/building_hours/edit/'.$this->uri->segment(4));
+					}
+					else{
+						$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Hours added successfully</div>');
+						redirect('admin/building_hours/edit/'.$this->uri->segment(4));
+					}
+				}
+				
+				
 				$data['closures'] = $this->hours_model->get_closures($this->uri->segment(4));
+				$data['hours'] = $this->hours_model->get_hours($this->uri->segment(4));
 			}
 			else{
 				$data['buildings'] = $this->building_model->list_buildings();
