@@ -77,6 +77,7 @@ you want to add some hours
 	</div>
 
 	<button type="submit" class="btn btn-default">Submit</button>
+	<a href="<?= base_url() ?>admin/building_hours/edit/<?php echo $building->building_id; ?>/"><button type="button" class="btn btn-default">Cancel</button></a>
 </form>
 
 <br><br>
