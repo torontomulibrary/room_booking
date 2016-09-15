@@ -29,7 +29,6 @@ class hours_Model  extends CI_Model  {
 
 				$url = EXTERNAL_HOURS_URL . '?dt='.urlencode($timestamp).'&l=all';
 
-				
 				$jsonData = @file_get_contents($url, false, $context);
 				
 				if($jsonData === FALSE){ 
@@ -42,23 +41,7 @@ class hours_Model  extends CI_Model  {
 				$hours_json = json_decode($jsonData); 
 			}
 			else{
-				
-				//Generate a json file
-				/*
-				{
-					"LOCATION_ID": 2,
-					"DATA": {
-						"HASCLOSURE": false,
-						"LOCATION_ID": 2,
-						"REASONFORCLOSURE": "",
-						"ENDTIME": 0,
-						"STARTTIME": 0,
-						"ISOPEN": false
-					}
-				}
-				*/
-				
-			
+				//Generate a json file from the local db
 				$buildings = $this->building_model->list_buildings();
 				
 				//Iterate all the buildings
@@ -148,7 +131,7 @@ class hours_Model  extends CI_Model  {
 			if(!USE_EXTERNAL_HOURS){
 				$building_id = $location->LOCATION_ID;
 			}
-			//Conver the external ID into the building id
+			//Convert the external ID into the building id
 			else{
 				$building = $this->building_model->get_by_external_id($location->LOCATION_ID);
 				if($building->num_rows === 0) continue;
@@ -174,10 +157,7 @@ class hours_Model  extends CI_Model  {
 		
 		$output['min'] = $min;
 		$output['max'] = $max;
-		
-	//	var_dump($output); die;
-		
-		
+
 		return $output;
 
 	}
@@ -219,7 +199,8 @@ class hours_Model  extends CI_Model  {
 		$this->db->insert('building_closures', $data); 
 		$id = $this->db->insert_id();
 
-		$this->db->cache_delete_all();
+		$this->load->helper('cache_helper');
+		empty_cache();
 		
 		return $id;
 		
@@ -229,7 +210,8 @@ class hours_Model  extends CI_Model  {
 		$this->db->where('closure_id', $closure_id);
 		$this->db->delete('building_closures');
 		
-		$this->db->cache_delete_all();
+		$this->load->helper('cache_helper');
+		empty_cache();
 	}
 	
 	function get_hours($building_id, $include_past = false){

@@ -50,16 +50,10 @@ class Admin extends CI_Controller {
 	}
 	
 	public function clear_cache(){
-		  $this->load->library('user_agent');
+		$this->load->helper('cache_helper');
+		$this->load->library('user_agent');
 		
-		
-		foreach (glob(FCPATH.'temp'.DIRECTORY_SEPARATOR.'*') as $filename) {
-			if (is_file($filename)) {
-				if(!strstr($filename, 'README.txt')) unlink($filename);
-			}
-		}
-		
-		$this->db->cache_delete_all();
+		empty_cache();
 		
 		if ($this->agent->is_referral()){
 			redirect($this->agent->referrer());
