@@ -8,6 +8,7 @@
 	padding: 0.8em;
 	border: 1px solid black;
 	background-color: #ddd;
+	text-align: center;
 }
 
 #building_time_table td{
@@ -101,7 +102,7 @@
 				<td style="min-width: 120px;">
 					 
 					<?php $day_of_week = strtolower(date('D', strtotime("Sunday +{$i} days"))); ?>
-					<select name="<?php echo $day_of_week; ?>_start">
+					<select name="<?php echo $day_of_week; ?>_start" id="<?php echo $day_of_week; ?>_start">
 						<?php 
 							$start = mktime(0,0,0); 
 							$end = $start + 24*60*60;
@@ -128,7 +129,7 @@
 				<td style="min-width: 120px;">
 					 
 					<?php $day_of_week = strtolower(date('D', strtotime("Sunday +{$i} days"))); ?>
-					<select name="<?php echo $day_of_week; ?>_end">
+					<select name="<?php echo $day_of_week; ?>_end" id="<?php echo $day_of_week; ?>_end">
 						<?php 
 							$start = mktime(0,0,0); 
 							$end = $start + 24*60*60;
@@ -145,6 +146,19 @@
 				</td>
 				<?php endfor; ?>
 				
+			</tr>
+			
+			<tr>
+				<th>Closed?</th>
+				<?php for($i=0; $i < 7; $i++): ?>
+				<td style="min-width: 120px;">
+					 
+					<?php $day_of_week = strtolower(date('D', strtotime("Sunday +{$i} days"))); ?>
+					<span style="text-align: center"><input class="closed_checkbox" type="checkbox" data-start="<?php echo $day_of_week; ?>_start" data-end="<?php echo $day_of_week; ?>_end" name="<?php echo $day_of_week; ?>_closed"></span>
+					
+				</td>
+				<?php endfor; ?>
+			
 			</tr>
 		</table>
 		
@@ -247,7 +261,11 @@
 					
 				</td>
 				
-				<td>options.....</td>
+				<td>
+					<a href="<?= base_url() ?>admin/building_hours/edit/<?php echo $building->building_id; ?>/remove_hours/<?php echo $hour->hours_id; ?>" >
+						<button class="btn btn-default btn-sm" type="button"><span aria-hidden="true" class="glyphicon glyphicon-remove"></span> Remove Hours </button>
+					</a>
+				</td>
 				
 			</tr>
 			<?php endforeach; ?>
@@ -265,6 +283,22 @@
 		step: 30,
 		format: 'Y-m-d'
 	});
+	
+	//Grey/Ungrey out the fields relating to this box
+	$('.closed_checkbox').on('click', function(){
+		if ($(this).is(":checked")) { 
+
+			$('#'+$(this).data("start")).prop("disabled", true);
+			$('#'+$(this).data("end")).prop("disabled", true);
+		} 
+		else {
+			$('#'+$(this).data("start")).prop("disabled", false);
+			$('#'+$(this).data("end")).prop("disabled", false);
+		}
+	});
+
+	
+	
 </script>
 
 

@@ -147,8 +147,6 @@ class hours_Model  extends CI_Model  {
 		//Validate all the inputs
 		if(!is_numeric($building_id)) return 'Invalid Building ID';
 		
-		
-		
 		//Start/End dates are formatted correctly
 		if(!$this->calendar->isValidDateTimeString($start_date, 'Y-m-d')) return 'Invalid Start Date';		
 		if(!$this->calendar->isValidDateTimeString($end_date, 'Y-m-d')) return 'Invalid End Date';
@@ -172,7 +170,7 @@ class hours_Model  extends CI_Model  {
 		
 		//All times are formatted correctly
 		foreach($hours_data as $entry){
-			if(!$this->calendar->isValidDateTimeString($entry, 'H:i')) return 'Time format of '.$entry.' is not valid';		
+			if($entry !== "24:00" && !$this->calendar->isValidDateTimeString($entry, 'H:i')) return 'Time format of '.$entry.' is not valid';		
 		}
 		
 		//Make sure the start time is not later then the end time
@@ -197,6 +195,13 @@ class hours_Model  extends CI_Model  {
 		$this->db->cache_delete_all();
 
 		return $this->db->insert_id();
+	}
+	
+	function delete_hours($hours_id){
+		$this->db->where('hours_id', $hours_id);
+		$this->db->delete('building_hours');
+		
+		$this->db->cache_delete_all();
 	}
 	
 }

@@ -549,24 +549,27 @@ class Admin extends CI_Controller {
 					}
 				}
 				
+				
+				
+				
+				
 				//Creating new hours
 				if($this->uri->segment(5) === 'new_hours' && $this->uri->segment(6) === 'submit'){
-					$hours_data = array(
-						'sun_start' 	=>		$this->input->post('sun_start'),
-						'sun_end' 		=>		$this->input->post('sun_end'),
-						'mon_start' 	=>		$this->input->post('mon_start'),
-						'mon_end' 		=>		$this->input->post('mon_end'),
-						'tue_start' 	=>		$this->input->post('tue_start'),
-						'tue_end' 		=>		$this->input->post('tue_end'),
-						'wed_start' 	=>		$this->input->post('wed_start'),
-						'wed_end' 		=>		$this->input->post('wed_end'),
-						'thu_start' 	=>		$this->input->post('thu_start'),
-						'thu_end' 		=>		$this->input->post('thu_end'),
-						'fri_start' 	=>		$this->input->post('fri_start'),
-						'fri_end' 		=>		$this->input->post('fri_end'),
-						'sat_start' 	=>		$this->input->post('sat_start'),
-						'sat_end'		=>		$this->input->post('sat_end'),
-					);
+					//Check to see if any days are "closed"
+					for($i=0; $i < 7; $i++){
+						$dow = strtolower(date('D', strtotime("Sunday +{$i} days")));
+						
+						//Day is closed, set both start/end to midnight
+						if($this->input->post($dow . "_closed") === 'on'){
+							$hours_data[$dow.'_start'] = "00:00";
+							$hours_data[$dow.'_end'] = "00:00";
+						}
+						//Day is not closed, add the selected times to the array
+						else{
+							$hours_data[$dow.'_start'] = $this->input->post($dow.'_start');
+							$hours_data[$dow.'_end'] = $this->input->post($dow.'_end');
+						}
+					}
 
 					$result = $this->hours_model->add_hours($this->uri->segment(4), $this->input->post('start_date'), $this->input->post('end_date'), $hours_data);
 					
@@ -578,6 +581,14 @@ class Admin extends CI_Controller {
 						$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Hours added successfully</div>');
 						redirect('admin/building_hours/edit/'.$this->uri->segment(4));
 					}
+				}
+				
+				//Deleting a closure
+				if($this->uri->segment(5) === 'remove_hours' && is_numeric($this->uri->segment(6))){
+					$this->hours_model->delete_hours($this->uri->segment(6));
+					
+					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Hours deleted successfully</div>');
+					redirect('admin/building_hours/edit/'.$this->uri->segment(4));
 				}
 				
 				
