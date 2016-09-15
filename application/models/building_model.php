@@ -11,6 +11,11 @@ class building_Model  extends CI_Model  {
 		return $this->db->get('buildings');
 	}
 	
+	function get_by_external_id($external_id){
+		$this->db->where('external_id', $external_id);
+		return $this->db->get('buildings');
+	}
+	
 	function load_building($building_id){
 		if(!is_numeric($building_id)) return false;
 		

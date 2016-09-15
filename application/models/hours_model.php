@@ -5,42 +5,134 @@ class hours_Model  extends CI_Model  {
 	
 	
 	function getAllHours($date){
+		$this->load->model('building_model');
+		
 		//Check to see if a cache file already exists
 		if(file_exists('temp/'. date('Ymd', $date).'.hours')){
 			$jsonData = @file_get_contents('temp/'. date('Ymd', $date).'.hours');
+			$hours_json = json_decode($jsonData);
 		}
 		else{
-			
-			//Prepare the date into Coldfusion's horrible timestamp
-			$timestamp = "{ts '". date('Y-m-d', $date) . " 00:00:00'}";
-			
-			$opts = array(
-			  'http'=>array(
-				'method'=>"GET",
-				'header'=>"User-Agent: " . USER_AGENT . "\r\n" 
-			  ),
-			);
+			if(USE_EXTERNAL_HOURS){
+				
+				//Prepare the date into Coldfusion's horrible timestamp
+				$timestamp = "{ts '". date('Y-m-d', $date) . " 00:00:00'}";
+				
+				$opts = array(
+				  'http'=>array(
+					'method'=>"GET",
+					'header'=>"User-Agent: " . USER_AGENT . "\r\n" 
+				  ),
+				);
 
-			$context = stream_context_create($opts);
+				$context = stream_context_create($opts);
 
-			$url = HOURS_URL . '?dt='.urlencode($timestamp).'&l=all';
-			
-			
-			
-			$jsonData = @file_get_contents($url, false, $context);
-			
-			if($jsonData === FALSE){ 
-				return FALSE; 
+				$url = EXTERNAL_HOURS_URL . '?dt='.urlencode($timestamp).'&l=all';
+
+				
+				$jsonData = @file_get_contents($url, false, $context);
+				
+				if($jsonData === FALSE){ 
+					return FALSE; 
+				}
+				
+				//Write it to a file
+				file_put_contents('temp/'. date('Ymd', $date).'.hours', $jsonData);
+				
+				$hours_json = json_decode($jsonData); 
 			}
+			else{
+				
+				//Generate a json file
+				/*
+				{
+					"LOCATION_ID": 2,
+					"DATA": {
+						"HASCLOSURE": false,
+						"LOCATION_ID": 2,
+						"REASONFORCLOSURE": "",
+						"ENDTIME": 0,
+						"STARTTIME": 0,
+						"ISOPEN": false
+					}
+				}
+				*/
+				
 			
-			//Write it to a file
-			file_put_contents('temp/'. date('Ymd', $date).'.hours', $jsonData);
+				$buildings = $this->building_model->list_buildings();
+				
+				//Iterate all the buildings
+				foreach($buildings->result() as $building){
+					$hours_json['LOCATION_ID'] = intval($building->building_id);
+					
+					$hours = $this->get_hours($building->building_id);
+					
+					//Check for closures
+					$closures = $this->get_closure($building->building_id, $date);
+					if($closures->num_rows() > 0) $closure = true;
+					else $closure = false;
+					
+					
+					$has_hours = false;
+					
+					//Find which hours apply to the selected date
+					foreach($hours->result() as $hour){
+						if(strtotime($hour->start_date) <= $date && strtotime($hour->end_date) >= $date){
+							//Get the start & end times
+							$weekly_hours = json_decode($hour->hours_data, true);
+							
+							$open = $weekly_hours[strtolower(date('D',$date)).'_start'];
+							$open_value = date('G',strtotime($open))/24 + date('i', strtotime($open))/60/24;
+							
+							$closed = $weekly_hours[strtolower(date('D',$date)).'_end'];
+							$closed_value = date('G',strtotime($closed))/24 + date('i', strtotime($closed))/60/24;
+							
+							if($open_value === $closed_value || $closed === true) $isopen = false;
+							else $isopen = true;
+							
+							$hours_json['DATA'] = array(
+								"HASCLOSURE"		=>	$closure,
+								"LOCATION_ID"		=>	intval($building->building_id),
+								"REASONFORCLOSURE"	=>	'',
+								"ENDTIME"			=>	$closed_value,
+								"STARTTIME"			=>	$open_value,
+								"ISOPEN"			=>	$isopen
+							);
+							
+							$encoded_string = '['.json_encode($hours_json).']';
+							
+							//Write it to a file
+							file_put_contents('temp/'. date('Ymd', $date).'.hours', $encoded_string);
+							
+							$hours_json = json_decode($encoded_string);
+							
+							$has_hours = true;
+							break;					
+						}
+					}
+					
+					//No hours exist in the database. Set it to being closed
+					if(!$has_hours){
+						$hours_json['DATA'] = array(
+							"HASCLOSURE"		=>	true,
+							"LOCATION_ID"		=>	intval($building->building_id),
+							"REASONFORCLOSURE"	=>	'',
+							"ENDTIME"			=>	0,
+							"STARTTIME"			=>	0,
+							"ISOPEN"			=>	false
+						);
+						
+						$encoded_string = '['.json_encode($hours_json).']';
+						$hours_json = json_decode($encoded_string);
+					}
+				}
+			}
 		}
-		
-		$hours_json = json_decode($jsonData);
 		
 		//Make sure it is valid JSON
 		if($hours_json === null) return FALSE;
+		
+		
 		
 		$output = array();
 		
@@ -51,35 +143,39 @@ class hours_Model  extends CI_Model  {
 		$this->load->model('room_model');
 		$rooms = $this->room_model->list_rooms(true);
 		
-		$buildings = array();
-		foreach($rooms->result() as $room){
-			if(!in_array($room->external_id, $buildings)){
-				$buildings[] = $room->external_id;
-			}
-		}
-
 		//Match the external ID's with those in the JSON result
 		foreach($hours_json as $location){
-			
-			$output[$location->LOCATION_ID] = $location->DATA;
-			
-			if(in_array($location->LOCATION_ID, $buildings)){
-				//Is the building closed?
-				if($location->DATA->STARTTIME == $location->DATA->ENDTIME || $location->DATA->ISOPEN == false || $location->DATA->HASCLOSURE == true || $location->DATA->ISOPEN == false){
-					//Delete the cache file, as the user may be looking too far into the future where the hours have not yet been entered
-					@unlink('temp/'. date('Ymd', $date).'.hours');					
-					continue;
-				}
-				
-				//Should we factor in the "ISOPEN" property here?
-				if($location->DATA->STARTTIME < $min) $min = $location->DATA->STARTTIME;
-				if($location->DATA->ENDTIME > $max) $max = $location->DATA->ENDTIME;
+			if(!USE_EXTERNAL_HOURS){
+				$building_id = $location->LOCATION_ID;
 			}
+			//Conver the external ID into the building id
+			else{
+				$building = $this->building_model->get_by_external_id($location->LOCATION_ID);
+				if($building->num_rows === 0) continue;
+				else $building_id = $building->row()->building_id;
+			}
+			
+			$output[$building_id] = $location->DATA; //location_id can be the external id. yuck!
+			
+			
+			//Is the building closed?
+			if($location->DATA->STARTTIME == $location->DATA->ENDTIME || $location->DATA->ISOPEN == false || $location->DATA->HASCLOSURE == true || $location->DATA->ISOPEN == false){
+				//Delete the cache file, as the user may be looking too far into the future where the hours have not yet been entered
+				@unlink('temp/'. date('Ymd', $date).'.hours');					
+				continue;
+			}
+			
+			//Should we factor in the "ISOPEN" property here?
+			if($location->DATA->STARTTIME < $min) $min = $location->DATA->STARTTIME;
+			if($location->DATA->ENDTIME > $max) $max = $location->DATA->ENDTIME;
+			
 			
 		}
 		
 		$output['min'] = $min;
 		$output['max'] = $max;
+		
+	//	var_dump($output); die;
 		
 		
 		return $output;
@@ -98,6 +194,15 @@ class hours_Model  extends CI_Model  {
 		$sql.= " ORDER BY closure_date ASC";
 		
 		return $this->db->query($sql);
+	}
+	
+	function get_closure($building_id, $date){
+		if(!is_numeric($building_id)) return false;
+		
+		$sql = "SELECT * FROM building_closures WHERE building_id = ". $building_id ." AND closure_date = '". date('Y-m-d', $date)."'";
+		
+		return $this->db->query($sql);
+		
 	}
 	
 	function add_closure($building_id, $date){

@@ -506,6 +506,7 @@ class Admin extends CI_Controller {
 	}
 	
 	function building_hours(){
+		
 		//Deny access if user is not super admin
 		if(!$this->session->userdata('super_admin')){
 			$this->template->load('admin_template', 'admin/denied');
@@ -548,10 +549,6 @@ class Admin extends CI_Controller {
 						redirect('admin/building_hours/edit/'.$this->uri->segment(4));
 					}
 				}
-				
-				
-				
-				
 				
 				//Creating new hours
 				if($this->uri->segment(5) === 'new_hours' && $this->uri->segment(6) === 'submit'){
