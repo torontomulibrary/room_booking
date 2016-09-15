@@ -153,6 +153,20 @@ class hours_Model  extends CI_Model  {
 		if(!$this->calendar->isValidDateTimeString($start_date, 'Y-m-d')) return 'Invalid Start Date';		
 		if(!$this->calendar->isValidDateTimeString($end_date, 'Y-m-d')) return 'Invalid End Date';
 		
+		//Make sure an entry doesn't already exist with conflicting dates
+		$other_hours = $this->get_hours($building_id, true);
+		foreach($other_hours->result() as $other){
+			//Starts before your booking, but ends after your's starts
+			if(strtotime($other->start_date) <= strtotime($start_date) && strtotime($other->end_date) >= strtotime($start_date)){
+				return "Conflicting booking exists";
+			}
+			//Starts after your booking, but not before your end
+			elseif(strtotime($other->start_date) >= strtotime($start_date) && strtotime($other->start_date) <= strtotime($end_date)){
+				return "Conflicting booking exists";
+			}
+		}
+		
+		
 		//Start date must be before End date
 		if(strtotime($start_date) > strtotime($end_date)) return 'End Date is before Start Date';
 		
