@@ -138,7 +138,7 @@ class hours_Model  extends CI_Model  {
 				else $building_id = $building->row()->building_id;
 			}
 			
-			$output[$building_id] = $location->DATA; //location_id can be the external id. yuck!
+			$output[$building_id] = $location->DATA; 
 			
 			
 			//Is the building closed?
@@ -288,7 +288,8 @@ class hours_Model  extends CI_Model  {
 		$this->db->where('hours_id', $hours_id);
 		$this->db->delete('building_hours');
 		
-		$this->db->cache_delete_all();
+		$this->load->helper('cache_helper');
+		empty_cache();
 	}
 	
 }
