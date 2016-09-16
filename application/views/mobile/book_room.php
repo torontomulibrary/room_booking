@@ -138,7 +138,7 @@
 									
 									//Is this time during the building hours?
 									$current_time = round(date('G', $this->input->get('set_time')) + (date('i', $this->input->get('set_time'))/60),1);
-									if($current_time < round(($hours[$room->external_id]->STARTTIME) * 24,1) || $current_time > round(($hours[$room->external_id]->ENDTIME) * 24,1)){
+									if($current_time < round(($hours[$room->building_id]->STARTTIME) * 24,1) || $current_time > round(($hours[$room->building_id]->ENDTIME) * 24,1)){
 										$skip = true;
 									}
 									

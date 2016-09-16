@@ -226,7 +226,7 @@
 							echo 	'</div></th>';
 							
 							//Check to see if opening hours are the same as min for the day. Placeholders may be needed otherwise.
-							if($hours[$room->external_id]->STARTTIME == $hours[$room->external_id]->ENDTIME || $hours[$room->external_id]->HASCLOSURE == true || $hours[$room->external_id]->ISOPEN == false){
+							if($hours[$room->building_id]->STARTTIME == $hours[$room->building_id]->ENDTIME || $hours[$room->building_id]->HASCLOSURE == true || $hours[$room->building_id]->ISOPEN == false){
 								//Room is closed for the day
 								$numSlots = ceil(((($hours['max'] - $hours['min']) * 24) * 60) / 30) + 1;
 								
@@ -235,30 +235,30 @@
 								
 								$tStart = mktime(0,0,0, $date_raw['month'], $date_raw['day'], $date_raw['year']) + (($hours['min'] * 24) * 60 * 60); //Start the "closed" slot at the earliest time
 							}
-							else if($hours[$room->external_id]->STARTTIME > $hours['min'] || $hours[$room->external_id]->ISOPEN == false){
+							else if($hours[$room->building_id]->STARTTIME > $hours['min'] || $hours[$room->building_id]->ISOPEN == false){
 								//How big is the placeholder
-								$numSlots = ceil(((($hours[$room->external_id]->STARTTIME - $hours['min']) * 24) * 60) / 30);
+								$numSlots = ceil(((($hours[$room->building_id]->STARTTIME - $hours['min']) * 24) * 60) / 30);
 								
 								//Output the placeholder
 								echo '<td colspan="'. $numSlots .'" class="closed booking_cell"><div class="table_cell_height">Closed</div></td>';
 								
 								//Adjust the starting time to be offset
-								$tStart = mktime(0,0,0,$date_raw['month'], $date_raw['day'], $date_raw['year']) + (($hours[$room->external_id]->STARTTIME * 24) * 60 * 60); 
+								$tStart = mktime(0,0,0,$date_raw['month'], $date_raw['day'], $date_raw['year']) + (($hours[$room->building_id]->STARTTIME * 24) * 60 * 60); 
 							}
 							else {
-								$tStart = mktime(0,0,0,$date_raw['month'], $date_raw['day'], $date_raw['year']) + (($hours[$room->external_id]->STARTTIME * 24) * 60 * 60); 
+								$tStart = mktime(0,0,0,$date_raw['month'], $date_raw['day'], $date_raw['year']) + (($hours[$room->building_id]->STARTTIME * 24) * 60 * 60); 
 							}
 							
-							if($hours[$room->external_id]->ENDTIME > 1){
-								$hours[$room->external_id]->ENDTIME = 1;
+							if($hours[$room->building_id]->ENDTIME > 1){
+								$hours[$room->building_id]->ENDTIME = 1;
 							}
-							$tEnd =  mktime(0,0,0,$date_raw['month'], $date_raw['day'], $date_raw['year']) + (($hours[$room->external_id]->ENDTIME * 24) * 60 * 60) - 1800; 
+							$tEnd =  mktime(0,0,0,$date_raw['month'], $date_raw['day'], $date_raw['year']) + (($hours[$room->building_id]->ENDTIME * 24) * 60 * 60) - 1800; 
 							$tNow = $tStart;
 
 						
 							
 							
-							while($tNow <= $tEnd && $hours[$room->external_id]->ISOPEN == true && $hours[$room->external_id]->HASCLOSURE == false){
+							while($tNow <= $tEnd && $hours[$room->building_id]->ISOPEN == true && $hours[$room->building_id]->HASCLOSURE == false){
 								$end_row = false;
 								
 								//Check for block bookings! (Nested loops, YUCK!)
@@ -356,9 +356,9 @@
 							}
 							
 							//Add placeholders to the end if it closes earlier then other rooms (ignore doing this if the room has a closure)
-							if($hours[$room->external_id]->ENDTIME < $hours['max'] && !$hours[$room->external_id]->ISOPEN == false && $hours[$room->external_id]->HASCLOSURE == false && ($hours[$room->external_id]->STARTTIME != $hours[$room->external_id]->ENDTIME)){
+							if($hours[$room->building_id]->ENDTIME < $hours['max'] && !$hours[$room->building_id]->ISOPEN == false && $hours[$room->building_id]->HASCLOSURE == false && ($hours[$room->building_id]->STARTTIME != $hours[$room->building_id]->ENDTIME)){
 								//How big is the placeholder
-								$numSlots = round(((($hours['max'] - $hours[$room->external_id]->ENDTIME) * 24) * 60) / 30);
+								$numSlots = round(((($hours['max'] - $hours[$room->building_id]->ENDTIME) * 24) * 60) / 30);
 								
 								//Output the placeholder
 								echo '<td colspan="'. $numSlots .'" class="closed booking_cell"><div class="table_cell_height">Closed</div></td>';

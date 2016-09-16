@@ -50,16 +50,10 @@ class Admin extends CI_Controller {
 	}
 	
 	public function clear_cache(){
-		  $this->load->library('user_agent');
+		$this->load->helper('cache_helper');
+		$this->load->library('user_agent');
 		
-		
-		foreach (glob(FCPATH.'temp'.DIRECTORY_SEPARATOR.'*') as $filename) {
-			if (is_file($filename)) {
-				if(!strstr($filename, 'README.txt')) unlink($filename);
-			}
-		}
-		
-		$this->db->cache_delete_all();
+		empty_cache();
 		
 		if ($this->agent->is_referral()){
 			redirect($this->agent->referrer());
@@ -505,6 +499,103 @@ class Admin extends CI_Controller {
 		}
 	}
 	
+	function building_hours(){
+		
+		//Deny access if user is not super admin
+		if(!$this->session->userdata('super_admin')){
+			$this->template->load('admin_template', 'admin/denied');
+		}
+		else{
+			$this->load->model('building_model');
+			$this->load->model('role_model');
+			
+			//If a building has been selected
+			if($this->uri->segment(3) === 'edit'){
+				$this->load->model('hours_model');
+				
+				//Basic validation on the building ID
+				if(!is_numeric($this->uri->segment(4))) return false;
+				
+				$data['current_building'] = $this->building_model->load_building($this->uri->segment(4));
+				
+				//Catch the case of an invalid building id
+				if($data['current_building'] === false) return;
+				
+				
+				//Deleting a closure
+				if($this->uri->segment(5) === 'remove_closure' && is_numeric($this->uri->segment(6))){
+					$this->hours_model->delete_closure($this->uri->segment(6));
+					
+					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Closure deleted successfully</div>');
+					redirect('admin/building_hours/edit/'.$this->uri->segment(4));
+				}
+				
+				//Creating a new closure
+				if($this->uri->segment(5) === 'new_closure' && $this->uri->segment(6) === 'submit'){
+					$result = $this->hours_model->add_closure($this->uri->segment(4), $this->input->post('closure_date'));
+					
+					if(is_numeric($result)){
+						$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Closure added successfully</div>');
+						redirect('admin/building_hours/edit/'.$this->uri->segment(4));
+					}
+					else{
+						$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. Closure may not have been added</div>');
+						redirect('admin/building_hours/edit/'.$this->uri->segment(4));
+					}
+				}
+				
+				//Creating new hours
+				if($this->uri->segment(5) === 'new_hours' && $this->uri->segment(6) === 'submit'){
+					//Check to see if any days are "closed"
+					for($i=0; $i < 7; $i++){
+						$dow = strtolower(date('D', strtotime("Sunday +{$i} days")));
+						
+						//Day is closed, set both start/end to midnight
+						if($this->input->post($dow . "_closed") === 'on'){
+							$hours_data[$dow.'_start'] = "00:00";
+							$hours_data[$dow.'_end'] = "00:00";
+						}
+						//Day is not closed, add the selected times to the array
+						else{
+							$hours_data[$dow.'_start'] = $this->input->post($dow.'_start');
+							$hours_data[$dow.'_end'] = $this->input->post($dow.'_end');
+						}
+					}
+
+					$result = $this->hours_model->add_hours($this->uri->segment(4), $this->input->post('start_date'), $this->input->post('end_date'), $hours_data);
+					
+					if(!is_numeric($result)){
+						$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. '.$result.'. Hours may not have been added</div>');
+						redirect('admin/building_hours/edit/'.$this->uri->segment(4));
+					}
+					else{
+						$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Hours added successfully</div>');
+						redirect('admin/building_hours/edit/'.$this->uri->segment(4));
+					}
+				}
+				
+				//Deleting a closure
+				if($this->uri->segment(5) === 'remove_hours' && is_numeric($this->uri->segment(6))){
+					$this->hours_model->delete_hours($this->uri->segment(6));
+					
+					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Hours deleted successfully</div>');
+					redirect('admin/building_hours/edit/'.$this->uri->segment(4));
+				}
+				
+				
+				$data['closures'] = $this->hours_model->get_closures($this->uri->segment(4));
+				$data['hours'] = $this->hours_model->get_hours($this->uri->segment(4));
+			}
+			else{
+				$data['buildings'] = $this->building_model->list_buildings();
+			}
+			
+		
+			$this->template->load('admin_template', 'admin/building_hours', $data);
+					
+		}
+	}
+
 	function super_admin(){
 		//Deny access if user is not super admin
 		if(!$this->session->userdata('super_admin')){

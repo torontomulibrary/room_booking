@@ -323,7 +323,7 @@ class booking_Model  extends CI_Model  {
 					
 					//Is this time during the building hours?
 					$current_time = round(date('G', $datetime) + (date('i', $datetime)/60),1);
-					if($current_time < round(($hours[$room->external_id]->STARTTIME) * 24,1) || $current_time > round(($hours[$room->external_id]->ENDTIME) * 24,1)){
+					if($current_time < round(($hours[$room->building_id]->STARTTIME) * 24,1) || $current_time > round(($hours[$room->building_id]->ENDTIME) * 24,1)){
 						$skip = true;
 					}
 					

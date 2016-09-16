@@ -27,34 +27,36 @@ define('DIR_WRITE_MODE', 0777);
 |
 */
 
-define('FOPEN_READ',							'rb');
-define('FOPEN_READ_WRITE',						'r+b');
-define('FOPEN_WRITE_CREATE_DESTRUCTIVE',		'wb'); // truncates existing file data, use with care
-define('FOPEN_READ_WRITE_CREATE_DESTRUCTIVE',	'w+b'); // truncates existing file data, use with care
-define('FOPEN_WRITE_CREATE',					'ab');
-define('FOPEN_READ_WRITE_CREATE',				'a+b');
-define('FOPEN_WRITE_CREATE_STRICT',				'xb');
-define('FOPEN_READ_WRITE_CREATE_STRICT',		'x+b');
+define('FOPEN_READ',										'rb');
+define('FOPEN_READ_WRITE',									'r+b');
+define('FOPEN_WRITE_CREATE_DESTRUCTIVE',					'wb'); // truncates existing file data, use with care
+define('FOPEN_READ_WRITE_CREATE_DESTRUCTIVE',				'w+b'); // truncates existing file data, use with care
+define('FOPEN_WRITE_CREATE',								'ab');
+define('FOPEN_READ_WRITE_CREATE',							'a+b');
+define('FOPEN_WRITE_CREATE_STRICT',							'xb');
+define('FOPEN_READ_WRITE_CREATE_STRICT',					'x+b');
 
-define('USER_AGENT',							'LibraryBooking/1.0');
+define('USER_AGENT',										'LibraryBooking/1.0');
 
-define('DEBUG_MODE',							TRUE);
-define('SITE_ADMIN',							'siteadmin@domain.com');
-define('CONTACT_EMAIL',							'contact@domain.com');
+define('DEBUG_MODE',										TRUE);
+define('SITE_ADMIN',										'siteadmin@domain.com');
+define('CONTACT_EMAIL',										'contact@domain.com');
 
-define('HOURS_URL',								'https://domain.com/hours_external.cfm');
-define('LIBSTAFF_URL',							'https://domain.com');
-define('EMAIL_SUFFIX',							'@domain.com');
+define('USE_EXTERNAL_HOURS',								TRUE);
+define('EXTERNAL_HOURS_URL',								'https://domain.com/hours_external.cfm');
 
-define('RMS_USERNAME',							'rms_username');
-define('RMS_PASSWORD',							'rms_pass');
-define('RMS_SERVICE',							'https://rms.domain.com');
+define('LIBSTAFF_URL',										'https://domain.com');
+define('EMAIL_SUFFIX',										'@domain.com');
+
+define('RMS_USERNAME',										'rms_username');
+define('RMS_PASSWORD',										'rms_pass');
+define('RMS_SERVICE',										'https://rms.domain.com');
 
 //How long to wait (seconds) for the first slot to become bookable for moderated rooms
-define('MODERATION_TIME_DELAY',						24*60*60); //24 hours
+define('MODERATION_TIME_DELAY',								24*60*60); //24 hours
 
 //How long to wait (seconds) for the first slot to become bookable for non-moderated rooms
-define('TIME_DELAY',								0); //No delay
+define('TIME_DELAY',										0); //No delay
 
 //Options on whether or not to send emails regarding moderation. TRUE to send emails, FALSE otherwise
 define('SEND_MODERATION_ACTION_EMAIL',						TRUE);
