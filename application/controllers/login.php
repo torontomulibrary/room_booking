@@ -118,7 +118,7 @@ class Login extends CI_Controller {
 		//Check for local roles rights
 		$local_user = $this->user_model->get_user_by_matrix($user_data->userlogin);
 		
-		//Assign local rows to the session
+		//Assign local roles to the session
 		if($local_user->num_rows() === 1){
 			$local_roles = $this->role_model->get_user_roles($local_user->first_row()->user_id);
 			

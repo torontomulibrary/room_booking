@@ -107,12 +107,10 @@ class role_Model  extends CI_Model  {
 		return TRUE;
 	}
 	
-	function edit_role($role_id, $role_name, $bookings_day, $hours_week, $booking_window){
+	function edit_role($role_id, $role_name, $hours_week, $booking_window){
 	
 		$data = array(
 			'name' => $role_name,
-			'bookings_per_day' => $bookings_day,
-		
 			'hours_per_week' => $hours_week,
 			'booking_window' => $booking_window,
 		);

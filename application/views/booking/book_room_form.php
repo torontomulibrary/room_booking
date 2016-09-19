@@ -69,8 +69,6 @@ if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot'))
 											$start_time = $this->input->get('slot') + (30*60); //Start at the starting time + 30 minutes as the first slot to book
 											
 											//Figure out the end time. It's either the users max allowed booking time, or midnight
-											//$end_time = $start_time + ($limits['booking_limit'] * 60 * 60) - (30*60);
-											
 											$end_time = $start_time + (($room_data->max_daily_hours - $limits['day_used'])*60*60 ); 
 											
 											//If there is another booking ahead of this, do not allow for overlap

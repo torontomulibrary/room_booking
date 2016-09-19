@@ -111,8 +111,6 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 											$start_time = strtotime($booking->start) + (30*60); //Start at the starting time + 30 minutes as the first slot to book
 											
 											//Figure out the end time. It's either the users max allowed booking time, or midnight
-											//$end_time = $start_time + ($limits['booking_limit'] * 60 * 60) - (30*60);
-											
 											$end_time = $start_time + $max_per_day * 60*60;
 										
 											
