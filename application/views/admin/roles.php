@@ -81,11 +81,6 @@
 	</div>
 	
 	<div class="form-group">
-		<label for="bookings_day">Bookings per Day</label>
-		<input class="form-control" type="text" id="bookings_day" name="bookings_day" value="<?php if(isset($current)) echo ltrim($current->bookings_per_day, '0') ?>" />
-	</div>
-	
-	<div class="form-group">
 		<label for="hours_week">Hours per Week</label>
 		<input class="form-control" type="text" id="hours_week" name="hours_week" value="<?php if(isset($current)) echo ltrim($current->hours_per_week, '0') ?>" />
 	</div>

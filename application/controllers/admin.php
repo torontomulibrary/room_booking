@@ -157,11 +157,10 @@ class Admin extends CI_Controller {
 			
 			if($this->uri->segment(3) === 'add'){
 				$role_name = $this->input->post('role_name');
-				$bookings_day = $this->input->post('bookings_day');
 				$hours_week = $this->input->post('hours_week');
 				$booking_window = $this->input->post('booking_window');
 				
-				$id = $this->role_model->add_role($role_name, $bookings_day,  $hours_week, $booking_window);
+				$id = $this->role_model->add_role($role_name, $hours_week, $booking_window);
 				
 				if(is_numeric($id)){
 					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Building added successfully</div>');

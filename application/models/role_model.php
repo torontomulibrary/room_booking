@@ -79,11 +79,9 @@ class role_Model  extends CI_Model  {
 		return $this->db->query($sql);		
 	}
 	
-	function add_role($role_name, $bookings_day, $hours_week, $booking_window){
+	function add_role($role_name, $hours_week, $booking_window){
 		$data = array(
 			'name' => $role_name,
-			'bookings_per_day' => $bookings_day,
-			
 			'hours_per_week' => $hours_week,
 			'booking_window' => $booking_window,
 		);
