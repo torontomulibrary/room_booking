@@ -24,21 +24,21 @@
 	<table class="table table-striped">
 		<thead>
 			<tr>
-				<th>Role ID</th>
+				
 				<th>Role Name</th>
 				<th>Hours per Week</th>
 				<th>Booking Window</th>
+				<th>Login Attributes</th>
 				<th>Options</th>
 			</tr>
 		</thead>
 		<tbody>
 			<?php foreach($roles->result() as $role): ?>
 			<tr>
-				<td><?= $role->role_id ?></td>
 				<td><?= $role->name ?></td>
-			
 				<td><?= ltrim($role->hours_per_week, '0'); ?></td>
 				<td><?= ltrim($role->booking_window, '0'); ?></td>
+				<td><?= $role->login_attributes ?></td>
 				
 				<td>
 					<a href="<?= base_url() ?>admin/roles/edit/<?= $role->role_id ?>">
@@ -85,6 +85,11 @@
 	<div class="form-group">
 		<label for="booking_window">How far in the future a booking can be made (days)</label>
 		<input class="form-control" type="text" id="booking_window" name="booking_window" value="<?php if(isset($current)) echo ltrim($current->booking_window, '0') ?>" />
+	</div>
+	
+	<div class="form-group">
+		<label for="booking_window">Login Attributes (Comma Seperated)</label>
+		<input class="form-control" type="text" id="login_attributes" name="login_attributes" value="<?php if(isset($current)) echo ltrim($current->login_attributes, '0') ?>" />
 	</div>
 	
 	

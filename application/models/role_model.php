@@ -79,11 +79,12 @@ class role_Model  extends CI_Model  {
 		return $this->db->query($sql);		
 	}
 	
-	function add_role($role_name, $hours_week, $booking_window){
+	function add_role($role_name, $hours_week, $booking_window, $login_attributes){
 		$data = array(
 			'name' => $role_name,
 			'hours_per_week' => $hours_week,
 			'booking_window' => $booking_window,
+			'login_attributes' => $login_attributes,
 		);
 		
 		$this->db->insert('roles', $data);
@@ -107,12 +108,13 @@ class role_Model  extends CI_Model  {
 		return TRUE;
 	}
 	
-	function edit_role($role_id, $role_name, $hours_week, $booking_window){
+	function edit_role($role_id, $role_name, $hours_week, $booking_window, $login_attributes){
 	
 		$data = array(
 			'name' => $role_name,
 			'hours_per_week' => $hours_week,
 			'booking_window' => $booking_window,
+			'login_attributes' => $login_attributes,
 		);
 		
 		$this->db->where('role_id', $role_id); 
