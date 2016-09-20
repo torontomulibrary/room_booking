@@ -6,6 +6,11 @@ class role_Model  extends CI_Model  {
 	function __construct() {
 		parent::__construct();
 	}
+	
+	function get_roles(){
+		$this->db->order_by('name');
+		return $this->db->get('roles');
+	}
 
     function list_roles(){
 		//Only show roles you are a member of, unless user is a super admin 

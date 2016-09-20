@@ -69,39 +69,49 @@ class Login extends CI_Controller {
 			$cas_roles = array();
 		}
 		
-		//Grad Rooms
-		if(is_array($cas_roles) && (in_array('graduate', $cas_roles)|| in_array('visitingGrad', $cas_roles))){
-			$object = new stdClass();
-			$object->role_id = 5; //Hardcoded ID. Yuck!
-			$object->name = "Graduate";
-			$roles[] = $object;
-		}
+		//Load all roles from the database
+		$all_roles = $this->role_model->get_roles();
 		
-		
-		//Undergrad/Grad/CE are all allowed to book these rooms
-		if(is_array($cas_roles) && (in_array('undergrad', $cas_roles) || in_array('cned', $cas_roles) || in_array('graduate', $cas_roles) || in_array('lppStudent', $cas_roles) || in_array('visitingGrad', $cas_roles))){
-			$object = new stdClass();
-			$object->role_id = 4; //Hardcoded ID. Yuck!
-			$object->name = "Undergraduate";
-			$roles[] = $object;
-		}
-		
-		//Access centre rooms
-		if( !strstr($_SERVER['HTTP_HOST'], 'localhost') && $this->user_model->is_access_center($user_data->userlogin)){ //Disable on localhost
-			$object = new stdClass();
-			$object->role_id = 6; //Hardcoded ID. Yuck!
-			$object->name = "Adaptive";
-			$roles[] = $object;
-		}
-		
-		//Library Staff rooms
-		if(  $this->user_model->is_libstaff($user_data->userlogin)){ 
-			$object = new stdClass();
-			$object->role_id = 8; //Hardcoded ID. Yuck!
-			$object->name = "LibraryStaff";
-			$roles[] = $object;
-		}
-		
+		foreach($all_roles->result() as $role){
+			
+			$role_attributes = explode(",",$role->login_attributes);
+			
+			foreach($cas_roles as $cas_role){
+				
+				if(in_array($cas_role, $role_attributes)){
+					$object = new stdClass();
+					$object->role_id = $role->role_id;
+					$object->name = $role->name;
+					$roles[] = $object;
+					
+					break;
+				}
+			}
+			
+			//Access centre special role
+			if(USE_ACCESS_CENTRE_LIST){
+				if($role === "access_centre"){
+					if(!strstr($_SERVER['HTTP_HOST'], 'localhost') && $this->user_model->is_access_center($user_data->userlogin)){
+						$object = new stdClass();
+						$object->role_id = $role->role_id;
+						$object->name = $role->name;
+						$roles[] = $object;
+					}					
+				}				
+			}
+			
+			//Libstaff special role
+			if(USE_LIBSTAFF_LIST){
+				if($role === "libstaff"){
+					if( $this->user_model->is_libstaff($user_data->userlogin)){
+						$object = new stdClass();
+						$object->role_id = $role->role_id;
+						$object->name = $role->name;
+						$roles[] = $object;
+					}					
+				}				
+			}
+		}			
 		
 		$this->session->set_userdata('name', $this->cas->getAttribute('firstname') . ' ' . $this->cas->getAttribute('lastname'));
 		
