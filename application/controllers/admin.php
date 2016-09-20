@@ -157,11 +157,11 @@ class Admin extends CI_Controller {
 			
 			if($this->uri->segment(3) === 'add'){
 				$role_name = $this->input->post('role_name');
-				$bookings_day = $this->input->post('bookings_day');
 				$hours_week = $this->input->post('hours_week');
 				$booking_window = $this->input->post('booking_window');
+				$login_attributes = $this->input->post('login_attributes');
 				
-				$id = $this->role_model->add_role($role_name, $bookings_day,  $hours_week, $booking_window);
+				$id = $this->role_model->add_role($role_name, $hours_week, $booking_window, $login_attributes);
 				
 				if(is_numeric($id)){
 					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Building added successfully</div>');
@@ -211,12 +211,11 @@ class Admin extends CI_Controller {
 			else if ($this->uri->segment(3) === 'update'){
 				$role_id = $this->input->post('role_id');
 				$role_name = $this->input->post('role_name');
-				$bookings_day = $this->input->post('bookings_day');
-				$hours_day = $this->input->post('hours_day');
 				$hours_week = $this->input->post('hours_week');
 				$booking_window = $this->input->post('booking_window');
+				$login_attributes = $this->input->post('login_attributes');
 		
-				$id = $this->role_model->edit_role($role_id, $role_name, $bookings_day, $hours_week, $booking_window);
+				$id = $this->role_model->edit_role($role_id, $role_name, $hours_week, $booking_window, $login_attributes);
 				
 				$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The role has been updated</div>');
 				$this->db->cache_delete_all();
@@ -753,9 +752,6 @@ class Admin extends CI_Controller {
 		}
 	}
 	
-	
-	
-	
 	function block_booking(){
 
 			$this->load->model('booking_model');
@@ -956,8 +952,6 @@ class Admin extends CI_Controller {
 						
 						$room_data = $this->room_model->load_room($mod_data->room_id);
 						
-
-						
 						//Send an email
 						$data['name'] = $mod_data->booker_name;
 						$data['start'] = $mod_data->start;
@@ -1045,10 +1039,6 @@ class Admin extends CI_Controller {
 		$data['usage_by_seats'] = $this->log_model->usage_by_seats($start_time, $end_time, $building_id, $room_id, $role_id);
 		$data['ratio_by_seats'] = $this->log_model->ratio_by_seats($start_time, $end_time, $building_id, $room_id, $role_id);
 		
-	
-	
-		
-		
 		
 		$this->template->load('admin_template', 'admin/reports', $data);
 	}
@@ -1073,10 +1063,6 @@ class Admin extends CI_Controller {
 			$data['start'] = 0;
 			$data['end'] = 50;
 		}
-		
-		
-		
-		
 		
 		$data['events'] = $this->log_model->login_denied_events($data['start'], $data['end']);
 		
@@ -1106,9 +1092,6 @@ class Admin extends CI_Controller {
 		
 		foreach($data->result() as $row){
 			$json = json_decode($row->data);
-			
-			
-			
 			
 			if(is_object($json)){
 				foreach($json as $key => $value){

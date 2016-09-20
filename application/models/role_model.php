@@ -6,6 +6,11 @@ class role_Model  extends CI_Model  {
 	function __construct() {
 		parent::__construct();
 	}
+	
+	function get_roles(){
+		$this->db->order_by('name');
+		return $this->db->get('roles');
+	}
 
     function list_roles(){
 		//Only show roles you are a member of, unless user is a super admin 
@@ -79,13 +84,12 @@ class role_Model  extends CI_Model  {
 		return $this->db->query($sql);		
 	}
 	
-	function add_role($role_name, $bookings_day, $hours_week, $booking_window){
+	function add_role($role_name, $hours_week, $booking_window, $login_attributes){
 		$data = array(
 			'name' => $role_name,
-			'bookings_per_day' => $bookings_day,
-			
 			'hours_per_week' => $hours_week,
 			'booking_window' => $booking_window,
+			'login_attributes' => $login_attributes,
 		);
 		
 		$this->db->insert('roles', $data);
@@ -109,14 +113,13 @@ class role_Model  extends CI_Model  {
 		return TRUE;
 	}
 	
-	function edit_role($role_id, $role_name, $bookings_day, $hours_week, $booking_window){
+	function edit_role($role_id, $role_name, $hours_week, $booking_window, $login_attributes){
 	
 		$data = array(
 			'name' => $role_name,
-			'bookings_per_day' => $bookings_day,
-		
 			'hours_per_week' => $hours_week,
 			'booking_window' => $booking_window,
+			'login_attributes' => $login_attributes,
 		);
 		
 		$this->db->where('role_id', $role_id); 

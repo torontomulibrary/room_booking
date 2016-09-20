@@ -24,24 +24,21 @@
 	<table class="table table-striped">
 		<thead>
 			<tr>
-				<th>Role ID</th>
+				
 				<th>Role Name</th>
-				<th>Bookings per Day</th>
-			
 				<th>Hours per Week</th>
 				<th>Booking Window</th>
+				<th>Login Attributes</th>
 				<th>Options</th>
 			</tr>
 		</thead>
 		<tbody>
 			<?php foreach($roles->result() as $role): ?>
 			<tr>
-				<td><?= $role->role_id ?></td>
 				<td><?= $role->name ?></td>
-				<td><?= $role->bookings_per_day ?></td>
-			
 				<td><?= ltrim($role->hours_per_week, '0'); ?></td>
 				<td><?= ltrim($role->booking_window, '0'); ?></td>
+				<td><?= $role->login_attributes ?></td>
 				
 				<td>
 					<a href="<?= base_url() ?>admin/roles/edit/<?= $role->role_id ?>">
@@ -81,18 +78,26 @@
 	</div>
 	
 	<div class="form-group">
-		<label for="bookings_day">Bookings per Day</label>
-		<input class="form-control" type="text" id="bookings_day" name="bookings_day" value="<?php if(isset($current)) echo ltrim($current->bookings_per_day, '0') ?>" />
-	</div>
-	
-	<div class="form-group">
 		<label for="hours_week">Hours per Week</label>
 		<input class="form-control" type="text" id="hours_week" name="hours_week" value="<?php if(isset($current)) echo ltrim($current->hours_per_week, '0') ?>" />
 	</div>
 	
 	<div class="form-group">
-		<label for="booking_window">Booking Window (Number of days in the future that members can make a booking)</label>
+		<label for="booking_window">How far in the future a booking can be made (days)</label>
 		<input class="form-control" type="text" id="booking_window" name="booking_window" value="<?php if(isset($current)) echo ltrim($current->booking_window, '0') ?>" />
+	</div>
+	
+	<div class="form-group">
+		<label for="booking_window">Login Attributes (Comma Seperated)</label>
+		<input class="form-control" type="text" id="login_attributes" name="login_attributes" value="<?php if(isset($current)) echo ltrim($current->login_attributes, '0') ?>" />
+		
+		<?php if(USE_ACCESS_CENTRE_LIST === TRUE): ?>
+			<span style="display: block; margin-top: 0.5em; padding-left: 2em; font-size: 0.9em; ">For special Access Centre role, please use the attribute: <span style="font-weight: bold; font-style: italic;">access_centre</span></span>
+		<?php endif; ?>
+		
+		<?php if(USE_LIBSTAFF_LIST === TRUE): ?>
+			<span style="display: block; margin-top: 0.5em; padding-left: 2em; font-size: 0.9em">For special Library staff role, please use the attribute: <span style="font-weight: bold; font-style: italic;">libstaff</span></span>
+		<?php endif; ?>
 	</div>
 	
 	
