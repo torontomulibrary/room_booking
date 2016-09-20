@@ -90,6 +90,14 @@
 	<div class="form-group">
 		<label for="booking_window">Login Attributes (Comma Seperated)</label>
 		<input class="form-control" type="text" id="login_attributes" name="login_attributes" value="<?php if(isset($current)) echo ltrim($current->login_attributes, '0') ?>" />
+		
+		<?php if(USE_ACCESS_CENTRE_LIST === TRUE): ?>
+			<span style="display: block; margin-top: 0.5em; padding-left: 2em; font-size: 0.9em; ">For special Access Centre role, please use the attribute: <span style="font-weight: bold; font-style: italic;">access_centre</span></span>
+		<?php endif; ?>
+		
+		<?php if(USE_LIBSTAFF_LIST === TRUE): ?>
+			<span style="display: block; margin-top: 0.5em; padding-left: 2em; font-size: 0.9em">For special Library staff role, please use the attribute: <span style="font-weight: bold; font-style: italic;">libstaff</span></span>
+		<?php endif; ?>
 	</div>
 	
 	
