@@ -90,7 +90,7 @@ class Login extends CI_Controller {
 			
 			//Access centre special role
 			if(USE_ACCESS_CENTRE_LIST){
-				if($role === "access_centre"){
+				if(in_array("access_centre", $role_attributes)){
 					if(!strstr($_SERVER['HTTP_HOST'], 'localhost') && $this->user_model->is_access_center($user_data->userlogin)){
 						$object = new stdClass();
 						$object->role_id = $role->role_id;
@@ -102,7 +102,7 @@ class Login extends CI_Controller {
 			
 			//Libstaff special role
 			if(USE_LIBSTAFF_LIST){
-				if($role === "libstaff"){
+				if(in_array("libstaff", $role_attributes)){
 					if( $this->user_model->is_libstaff($user_data->userlogin)){
 						$object = new stdClass();
 						$object->role_id = $role->role_id;
