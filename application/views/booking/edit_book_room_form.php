@@ -128,8 +128,8 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 											}
 											
 											//If greater then closing time
-											if($end_time > (mktime(0,0,0, date('n',strtotime($booking->start)),date('j',strtotime($booking->start)),date('Y',strtotime($booking->start))) + round(($hours[$building['building_data']->row()->external_id]->ENDTIME *24*60*60)))){
-												$end_time = mktime(0,0,0, date('n',strtotime($booking->start)),date('j',strtotime($booking->start)),date('Y',strtotime($booking->start))) + round(($hours[$building['building_data']->row()->external_id]->ENDTIME *24*60*60));
+											if($end_time > (mktime(0,0,0, date('n',strtotime($booking->start)),date('j',strtotime($booking->start)),date('Y',strtotime($booking->start))) + round(($hours[$building['building_data']->row()->building_id]->ENDTIME *24*60*60)))){
+												$end_time = mktime(0,0,0, date('n',strtotime($booking->start)),date('j',strtotime($booking->start)),date('Y',strtotime($booking->start))) + round(($hours[$building['building_data']->row()->building_id]->ENDTIME *24*60*60));
 											}
 											
 											
