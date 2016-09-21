@@ -611,33 +611,36 @@ class booking_Model  extends CI_Model  {
 		}
 		
 		$sql = "SELECT 
-					COUNT(*) - (SELECT 
+					(COUNT(*) - (SELECT 
 							COUNT(*)
 						FROM
-							bookings b, room_roles rr
+							bookings b,
+							room_roles rr
 						WHERE
 							b.room_id = rr.room_id
-							and rr.role_id = ".$role_id." 
-							and
-							(start = '".date('Y-m-d H:i:s', $time)."'
+								AND rr.role_id = ".$role_id." 
+								AND (start = '".date('Y-m-d H:i:s', $time)."'
 								OR (start < '".date('Y-m-d H:i:s', $time)."'
-								AND end > '".date('Y-m-d H:i:s', $time)."'))
-								AND b.room_id NOT IN (SELECT 
-									bbr.room_id
-								FROM
-									block_booking_room bbr,
-									block_booking bb
-								WHERE
-									bb.block_booking_id = bbr.block_booking_id
-										AND (bb.start = '".date('Y-m-d H:i:s', $time)."'
-										OR (bb.start < '".date('Y-m-d H:i:s', $time)."'
-										AND bb.end > '".date('Y-m-d H:i:s', $time)."')))) as free_rooms
+								AND end > '".date('Y-m-d H:i:s', $time)."'))) - (SELECT 
+							COUNT(*)
+						FROM
+							block_booking_room bbr,
+							block_booking bb,
+							rooms r
+						WHERE
+							bbr.room_id = r.room_id
+								AND bb.block_booking_id = bbr.block_booking_id
+								AND (bb.start = '".date('Y-m-d H:i:s', $time)."'
+								OR (bb.start < '".date('Y-m-d H:i:s', $time)."'
+								AND bb.end > '".date('Y-m-d H:i:s', $time)."'))
+								AND r.is_active = 1)) as free_rooms
 				FROM
 					rooms r,
 					room_roles rr
 				WHERE
 					r.room_id = rr.room_id
-						AND rr.role_id = ".$role_id;
+						AND rr.role_id = ".$role_id." 
+						AND r.is_active = 1";
 		
 		
 		$this->db->cache_off();
