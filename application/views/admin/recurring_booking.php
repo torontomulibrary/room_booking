@@ -32,7 +32,7 @@
 				<th>End Date</th>
 				<th>Start Time</th>
 				<th>End Time</th>
-				<th>Repeat every X day(s)</th>
+				<th>Repeat once every X day(s)</th>
 				<th>Options</th>
 			</tr>
 		</thead>
