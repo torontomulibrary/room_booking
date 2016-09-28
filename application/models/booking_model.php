@@ -388,8 +388,10 @@ class booking_Model  extends CI_Model  {
 	}
 	
 	//Lists upcoming block bookings (unless optional parameter is true, where past block bookings are shown)
-	function list_block_bookings($date = 0, $include_past = false, $skip_permissions = false){
+	function list_block_bookings($date = 0, $include_past = false, $skip_permissions = false, $recurring = false){
 		if($date == 0) $date = time();
+		if($recurring === false) $use_recurring = 0;
+		else $use_recurring = 1;
 		
 		$sql = "SELECT DISTINCT bb.*, bbr.room_id, r.name FROM block_booking bb, block_booking_room bbr, rooms r ";
 		
@@ -418,7 +420,7 @@ class booking_Model  extends CI_Model  {
 			$sql .= " AND (start >= '".date('Y-m-d', $date)."' OR end  > '".date('Y-m-d', $date)."')";
 		}
 		
-		$sql .= " ORDER BY start ASC, r.name asc";
+		$sql .= "AND bb.is_recurring = ". $use_recurring ." ORDER BY start ASC, r.name asc";
 		$result = $this->db->query($sql);
 		
 		
@@ -431,11 +433,8 @@ class booking_Model  extends CI_Model  {
 			$data[$row->block_booking_id]['start'] = $row->start;
 			$data[$row->block_booking_id]['end'] = $row->end;
 			$data[$row->block_booking_id]['reason'] = $row->reason;
-			$data[$row->block_booking_id]['room'][$row->room_id] = 	array(
-															'room_id' 	=>	$row->room_id,
-															'room_name' =>	$row->name
-														);
-			
+			$data[$row->block_booking_id]['repeat_interval'] = $row->repeat_interval;
+			$data[$row->block_booking_id]['room'][$row->room_id] = 	array('room_id' => $row->room_id, 'room_name' => $row->name);
 		}
 		
 		return $data;
@@ -456,11 +455,7 @@ class booking_Model  extends CI_Model  {
 			$data['start'] = $row->start;
 			$data['end'] = $row->end;
 			$data['reason'] = $row->reason;
-			$data['room'][$row->room_id] = 	array(
-									'room_id' 	=>	$row->room_id,
-									'room_name' =>	$row->name
-								);
-			
+			$data['room'][$row->room_id] = 	array('room_id' => $row->room_id, 'room_name' => $row->name);
 		}
 		
 		return $data;
@@ -469,13 +464,14 @@ class booking_Model  extends CI_Model  {
 	function add_block_booking($reason, $start, $end, $rooms, $permissions){
 		$this->load->library('calendar');
 		
-		//CHeck for valid input formats
+		//Check for valid input formats
 		if(!is_array($rooms)) return FALSE;
 		if(!$this->calendar->isValidDateTimeString($start, 'Y-m-d G:i') || !$this->calendar->isValidDateTimeString($end, 'Y-m-d G:i'))return FALSE;		
 		
 		//Make sure the end is always after the start
 		$dt_start = date_create($start);
 		$dt_end = date_create($end);
+		
 		if($dt_start > $dt_end){
 			return FALSE;
 		}
@@ -486,6 +482,47 @@ class booking_Model  extends CI_Model  {
 						'end' => $end,
 						'booked_by' => $this->session->userdata('name'),
 						'matrix_id' => $this->session->userdata('username'),
+						'is_recurring' => 0,
+					);
+			
+		$this->db->insert('block_booking', $data);
+		$this->db->cache_delete_all();
+		$id = $this->db->insert_id();
+		
+		$this->set_block_booking_rooms($rooms, $id);
+		$this->set_block_booking_permissions($permissions, $id);
+
+		$this->db->cache_delete_all();
+		return TRUE;
+	}
+	
+	function add_recurring_booking($reason, $start, $end, $start_time, $end_time, $rooms, $permissions, $repeat_interval){
+		$this->load->library('calendar');
+		
+		//Check for valid input formats
+		if(!is_array($rooms)) return FALSE;
+		if(!is_numeric($repeat_interval)) return FALSE;
+		if(!$this->calendar->isValidDateTimeString($start, 'Y-m-d') || !$this->calendar->isValidDateTimeString($end, 'Y-m-d')) return FALSE;		
+		
+		//Make sure the end is always after the start
+		$dt_start = date_create($start);
+		$dt_end = date_create($end);
+		
+		if($dt_start > $dt_end){
+			return FALSE;
+		}
+		
+		$start_datetime = date('Y-m-d G:i',strtotime($start_time, strtotime($start)));
+		$end_datetime = date('Y-m-d G:i',strtotime($end_time, strtotime($end)));
+		
+		$data = array(
+						'reason' => $reason,
+						'start' => $start_datetime,
+						'end' => $end_datetime,
+						'booked_by' => $this->session->userdata('name'),
+						'matrix_id' => $this->session->userdata('username'),
+						'is_recurring' => 1,
+						'repeat_interval' => $repeat_interval,
 					);
 			
 		$this->db->insert('block_booking', $data);
@@ -519,6 +556,7 @@ class booking_Model  extends CI_Model  {
 						'end' => $end,
 						'booked_by' => $this->session->userdata('name'),
 						'matrix_id' => $this->session->userdata('username'),
+						'is_recurring' => 0,
 					);
 		
 		
