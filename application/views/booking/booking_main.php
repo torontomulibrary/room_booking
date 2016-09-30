@@ -261,17 +261,23 @@
 							while($tNow <= $tEnd && $hours[$room->building_id]->ISOPEN == true && $hours[$room->building_id]->HASCLOSURE == false){
 								$end_row = false;
 								
+							
+								
 								//Check for block bookings! (Nested loops, YUCK!)
 								foreach($block_bookings as $block_booking){
+									//If block booking starts before opening, bump it to the opening time
 									if(strtotime($block_booking['start']) < $tStart){
 										$block_booking['start'] = date('Y-m-d H:i:s', $tStart);
 									}
-
-									//Since we bumped the start time forward, make sure it didn't pass the end time. If it did, ignore the block booking (since the booking started/ended during closed hours)
+									
+									//Since we bumped the start time forward, make sure it didn't pass the block booking end time. 
+									//If it did, ignore the block booking (since the booking started/ended during closed hours)
 									if($block_booking['end'] > $block_booking['start']){
 										
+									//	echo date('g:iA',strtotime($block_booking['start'])) . " applied to ". date('g:iA', $tNow) . "\n";
+										
 										if(array_key_exists($room->room_id, $block_booking['room']) && strtotime($block_booking['start']) == $tNow){
-											
+										
 											$bbStart = strtotime($block_booking['start']);
 											$bbEnd = strtotime($block_booking['end']);
 											
@@ -286,14 +292,13 @@
 											
 											//If the block booking goes past the end time, set it to the end time
 											if($tNow >= $tEnd){
-												$tNow = $tEnd + (60*30);
+												$tNow = $tEnd + (60*30); //Keep adding half hour increments until the end of the booking is reached
 												$colspan += 1; //Need for the edge case, not sure why
 												$end_row = true;
 											}
 											
 											echo '<td class="closed booking_cell" colspan="'.$colspan.'"><div class="table_cell_height">'.$block_booking['reason'].'</div></td>';
 											
-											break;
 										}
 									}
 								}
