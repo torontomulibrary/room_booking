@@ -904,10 +904,10 @@ class Admin extends CI_Controller {
 				
 				$result = $this->booking_model->delete_block_booking($this->uri->segment(4));
 				if($result !== FALSE){
-					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Block Booking deleted successfully</div>');
+					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Recurring Booking deleted successfully</div>');
 				}
 				else{
-					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error has occured. The block booking may not have been deleted</div>');
+					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error has occured. The recurring booking may not have been deleted</div>');
 				}
 				$this->db->cache_delete_all(); //Delete all cache to take care of foreign keys
 				redirect('admin/recurring_booking');
@@ -941,7 +941,7 @@ class Admin extends CI_Controller {
 				$status = $this->booking_model->edit_recurring_booking($reason, $start, $end, $start_time, $end_time, $rooms, $permissions, $repeat_interval, $id);
 				
 				if($status !== FALSE){
-					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The block booking has been updated</div>');
+					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The recurring booking has been updated</div>');
 				}
 				else{
 					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Errors</div>');
@@ -951,7 +951,7 @@ class Admin extends CI_Controller {
 				redirect('admin/recurring_booking');
 			}
 			
-			//Load all UPCOMING block bookings. We don't care about past ones
+			//Load all UPCOMING recurring bookings. We don't care about past ones
 			$data['block_bookings'] = $this->booking_model->list_block_bookings(time(), false, false, true);
 			
 			$this->template->load('admin_template', 'admin/recurring_booking', $data);
