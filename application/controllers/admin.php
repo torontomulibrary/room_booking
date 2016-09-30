@@ -928,14 +928,17 @@ class Admin extends CI_Controller {
 			else if ($this->uri->segment(3) === 'update'){
 				$reason = $this->input->post('reason');
 				$start = $this->input->post('start');
+				$start_time = $this->input->post('start_time');
 				$end = $this->input->post('end');
+				$end_time = $this->input->post('end_time');
 				$rooms = $this->input->post('rooms');
-				$id = $this->input->post('block_booking_id');
 				$permissions = $this->input->post('permissions'); 
+				$repeat_interval = $this->input->post('repeat_interval'); 
+				$id = $this->input->post('block_booking_id');
 				
 				if($permissions === false) $permissions = array();
 				
-				$status = $this->booking_model->edit_block_booking($reason,$start,$end, $rooms, $permissions, $id);
+				$status = $this->booking_model->edit_recurring_booking($reason, $start, $end, $start_time, $end_time, $rooms, $permissions, $repeat_interval, $id);
 				
 				if($status !== FALSE){
 					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The block booking has been updated</div>');

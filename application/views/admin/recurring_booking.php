@@ -78,10 +78,10 @@
 	
 <?php endif; ?>
 
-<!--- 
+<!-- 
 	Display new/edit form.
 	Depending on which feature was selected, the form may be pre-populated
---->
+-->
 <?php if(isset($new) || isset($current_bb)): ?>
 
 <?= (isset($new))? '<h2>Create new recurring booking</h2>' : '<h2> Edit recurring booking</h2>'; ?>
@@ -107,12 +107,14 @@
 			
 			<?php while($start <= $end): ?>
 				<?php if($start == $end): ?><option value="24:00">12:00AM</option>
-				<?php else: ?><option value="<?php echo date('H:i', $start); ?>" <?php if($start == $default_start) echo 'selected="selected"';?>><?php echo date('g:iA', $start); ?></option>
+				<?php else: ?><option value="<?php echo date('H:i', $start); ?>" <?php if(isset($current_bb)): if (date('g:iA',strtotime($current_bb['start'])) == date('g:iA',$start)): echo 'selected="selected"'; endif;  elseif($start == $default_start): echo 'selected="selected"'; endif; ?>><?php echo date('g:iA', $start); ?></option>
 				<?php endif; ?>
 			<?php $start += 60*30; ?>
 			<?php endwhile; ?>
 		</select> 
 	</div>
+	
+	
 	
 	<div class="form-group">
 		<label for="end_time">End Time</label>
@@ -126,7 +128,7 @@
 			
 			<?php while($start <= $end): ?>
 				<?php if($start == $end): ?><option value="24:00">12:00AM</option>
-				<?php else: ?><option value="<?php echo date('H:i', $start); ?>" <?php if($start == $default_end) echo 'selected="selected"';?>><?php echo date('g:iA', $start); ?></option>
+				<?php else: ?><option value="<?php echo date('H:i', $start); ?>" <?php if(isset($current_bb)): if (date('g:iA',strtotime($current_bb['end'])) == date('g:iA',$start)): echo 'selected="selected"'; endif;  elseif($start == $default_start): echo 'selected="selected"'; endif; ?>><?php echo date('g:iA', $start); ?></option>
 				<?php endif; ?>
 			<?php $start += 60*30; ?>
 			<?php endwhile; ?>
@@ -160,7 +162,7 @@
 		<label for="repeat_interval">Number of days until this booking repeats</label>
 		<select class="form-control" name="repeat_interval" id="repeat_interval">
 			<?php for($i = 1; $i <= 30; $i++): ?>
-				<option value="<?php echo $i; ?>" <?php if($i == 7) echo 'selected="selected"';?>><?php echo $i; ?></option>
+				<option value="<?php echo $i; ?>" <?php if(isset($current_bb)): if ($current_bb['repeat_interval'] == $i): echo 'selected="selected"';  endif; elseif($i == 7): echo 'selected="selected"'; endif;?>><?php echo $i; ?></option>
 			<?php endfor; ?>
 		</select> 
 	</div>

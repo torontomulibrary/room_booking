@@ -456,6 +456,7 @@ class booking_Model  extends CI_Model  {
 			$data['end'] = $row->end;
 			$data['reason'] = $row->reason;
 			$data['room'][$row->room_id] = 	array('room_id' => $row->room_id, 'room_name' => $row->name);
+			$data['repeat_interval'] = $row->repeat_interval;
 		}
 		
 		return $data;
@@ -515,6 +516,10 @@ class booking_Model  extends CI_Model  {
 		$start_datetime = date('Y-m-d G:i',strtotime($start_time, strtotime($start)));
 		$end_datetime = date('Y-m-d G:i',strtotime($end_time, strtotime($end)));
 		
+		if(strtotime($start_datetime) > strtotime($end_datetime)){
+			return FALSE;
+		}
+		
 		$data = array(
 						'reason' => $reason,
 						'start' => $start_datetime,
@@ -558,6 +563,56 @@ class booking_Model  extends CI_Model  {
 						'matrix_id' => $this->session->userdata('username'),
 						'is_recurring' => 0,
 					);
+		
+		
+		$this->db->where('block_booking_id', $id);
+		$this->db->update('block_booking', $data);
+		
+		$this->set_block_booking_permissions($permissions, $id);
+		
+		$this->db->cache_delete_all();
+		
+		
+		$this->set_block_booking_rooms($rooms, $id);
+
+		$this->db->cache_delete_all();
+		return TRUE;
+	}
+	
+	function edit_recurring_booking($reason, $start, $end, $start_time, $end_time, $rooms, $permissions, $repeat_interval, $id){
+	
+		
+		$this->load->library('calendar');
+		
+	
+		if(!is_array($rooms)) return FALSE;
+		if(!$this->calendar->isValidDateTimeString($start, 'Y-m-d') || !$this->calendar->isValidDateTimeString($end, 'Y-m-d'))return FALSE;		
+		//Make sure the end is always after the start
+		$dt_start = date_create($start);
+		$dt_end = date_create($end);
+		if($dt_start > $dt_end){
+			
+			return FALSE;
+		}
+		
+		$start_datetime = date('Y-m-d G:i',strtotime($start_time, strtotime($start)));
+		$end_datetime = date('Y-m-d G:i',strtotime($end_time, strtotime($end)));
+		
+		if(strtotime($start_datetime) > strtotime($end_datetime)){
+			return FALSE;
+		}
+		
+		$data = array(
+						'reason' => $reason,
+						'start' => $start_datetime,
+						'end' => $end_datetime,
+						'booked_by' => $this->session->userdata('name'),
+						'matrix_id' => $this->session->userdata('username'),
+						'is_recurring' => 1,
+						'repeat_interval' => $repeat_interval,
+					);
+		
+		
 		
 		
 		$this->db->where('block_booking_id', $id);
