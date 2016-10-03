@@ -109,6 +109,9 @@ class Booking extends CI_Controller {
 				
 				$data['block_bookings'] = $this->booking_model->list_block_bookings(mktime(0,0,0, $current_month['month'],$current_month['day'],$current_month['year']), false, true);
 				
+				$data['recurring_bookings'] = $this->booking_model->list_block_bookings(mktime(0,0,0, $current_month['month'],$current_month['day'],$current_month['year']), false, true, true);
+				
+				
 				$data['limits'] = $this->booking_model->remaining_hours($this->session->userdata('username'), strtotime($this->input->get('date')));
 			}
 			else{
