@@ -148,7 +148,7 @@ class booking_Model  extends CI_Model  {
 		
 		$this->db->cache_on();
 		
-		if($this->is_block_booked($start, $room_id)) return FALSE;
+		if($this->is_block_booked($start, $end, $room_id)) return FALSE;
 		
 		if($existing_bookings->num_rows() == 0){
 			$data = array(
@@ -805,7 +805,7 @@ class booking_Model  extends CI_Model  {
 	
 	function add_to_moderation_queue($room_id, $start, $end, $comment){
 		
-		if($this->is_block_booked($start, $room_id)) return FALSE;
+		if($this->is_block_booked($start, $end, $room_id)) return FALSE;
 		
 		$data = array(
 			'room_id' => $room_id,
@@ -984,14 +984,19 @@ class booking_Model  extends CI_Model  {
 		return;
 	}
 	
-	function is_block_booked($start, $room_id){
+	function is_block_booked($start, $end, $room_id){
 		//Check for block/recurring bookings
 		$block_bookings = $this->list_block_bookings(strtotime(date("Y-m-d",$start)), false, false);
 		$recurring_bookings = $this->list_block_bookings(strtotime(date("Y-m-d",$start)), false, false, true);
 		
 		foreach($block_bookings as $block_booking){
-			if(array_key_exists($room_id, $block_booking['room']) && strtotime($block_booking['start']) <= $start && strtotime($block_booking['end']) > $start){
-				return TRUE;
+			if(array_key_exists($room_id, $block_booking['room'])){
+				if(strtotime($block_booking['start']) <= $start && strtotime($block_booking['end']) > $start){
+					return TRUE;
+				}
+				if($start < strtotime($block_booking['start']) && $end > strtotime($block_booking['start'])){
+					return TRUE;
+				}
 			}
 		}
 		
@@ -1013,9 +1018,11 @@ class booking_Model  extends CI_Model  {
 				$recurring_booking['end'] =  date("Y-m-d G:i:s",mktime(date("G", strtotime($recurring_booking['end'])),date("i", strtotime($recurring_booking['end'])),0, date('n',$start), date('j',$start), date('Y',$start)));
 			}
 			
-			if($start >= strtotime($recurring_booking['start']) && $start < strtotime($recurring_booking['end'])){
-				
-				if(array_key_exists($room_id, $recurring_booking['room'])){
+			if(array_key_exists($room_id, $recurring_booking['room'])){
+				if($start >= strtotime($recurring_booking['start']) && $start < strtotime($recurring_booking['end'])){
+					return TRUE;
+				}
+				if($start < strtotime($recurring_booking['start']) && $end > strtotime($recurring_booking['start'])){
 					return TRUE;
 				}
 			}
