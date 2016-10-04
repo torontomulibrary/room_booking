@@ -185,6 +185,7 @@
 				<?php if($super_admin || $permissions['can_block_book']):?>
 				<ul class="nav nav-sidebar">
 					<li class="<?php echo ($method === "block_booking" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/block_booking">Create Block Booking</a></li>
+					<li class="<?php echo ($method === "recurring_booking" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/recurring_booking">Create Recurring Booking</a></li>
 				</ul>
 				<?php endif; ?>
 			

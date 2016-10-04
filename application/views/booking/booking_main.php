@@ -163,15 +163,13 @@
 		
 	?>
 	
-	
-	
 	<?php foreach ($roles->result() as $role): ?>
 		<?php 
 			//Only show role type/table if rooms exist for it
 			if(isset($rooms[$role->role_id])): 
 		?>
 		
-		
+	
 		
 		<?php if($hours['min'] == 2 || $hours['max'] == -1): ?>
 				<h4><?php echo $role->name; ?></h4>
@@ -255,49 +253,113 @@
 							$tEnd =  mktime(0,0,0,$date_raw['month'], $date_raw['day'], $date_raw['year']) + (($hours[$room->building_id]->ENDTIME * 24) * 60 * 60) - 1800; 
 							$tNow = $tStart;
 
-						
-							
-							
 							while($tNow <= $tEnd && $hours[$room->building_id]->ISOPEN == true && $hours[$room->building_id]->HASCLOSURE == false){
 								$end_row = false;
 								
-								//Check for block bookings! (Nested loops, YUCK!)
-								foreach($block_bookings as $block_booking){
-									if(strtotime($block_booking['start']) < $tStart){
-										$block_booking['start'] = date('Y-m-d H:i:s', $tStart);
-									}
-
-									//Since we bumped the start time forward, make sure it didn't pass the end time. If it did, ignore the block booking (since the booking started/ended during closed hours)
-									if($block_booking['end'] > $block_booking['start']){
+								//Since block/recurring bookings advance "tNow", recheck to see if any new block/recurring
+								//bookings start at the new time
+								$recheck = true;
+								while($recheck){
+									$recheck = false;
+								
+									//Check for block bookings!
+									foreach($block_bookings as $block_booking){
+										//If block booking starts before opening, bump it to the opening time
+										if(strtotime($block_booking['start']) < $tStart){
+											$block_booking['start'] = date('Y-m-d H:i:s', $tStart);
+										}
 										
-										if(array_key_exists($room->room_id, $block_booking['room']) && strtotime($block_booking['start']) == $tNow){
-											
-											$bbStart = strtotime($block_booking['start']);
-											$bbEnd = strtotime($block_booking['end']);
-											
-											if($bbEnd > $tEnd){
-												$bbEnd = $tEnd;	
+										//Since we bumped the start time forward, make sure it didn't pass the block booking end time. 
+										//If it did, ignore the block booking (since the booking started/ended during closed hours)
+										if($block_booking['end'] > $block_booking['start']){
+											if($tNow >= strtotime($block_booking['start']) && $tNow < strtotime($block_booking['end'])){
+												$bbStart = $tNow;							
+												$bbEnd = strtotime($block_booking['end']);		
+
+												if(array_key_exists($room->room_id, $block_booking['room'])){
+													if($bbEnd > $tEnd){
+														$bbEnd = $tEnd;	
+													}
+													
+													$length = ($bbEnd - $bbStart);
+													$colspan = ($bbEnd - $bbStart) / 60 / 30;
+													
+													$tNow += $length; 
+													
+													//If the block booking goes past the end time, set it to the end time
+													if($tNow >= $tEnd){
+														$tNow = $tEnd + (60*30); //Keep adding half hour increments until the end of the booking is reached
+														$colspan += 1; //Need for the edge case, not sure why
+														$end_row = true; //Reached the end of the day. Set flag
+													}
+													
+													echo '<td class="closed booking_cell" colspan="'.$colspan.'"><div class="table_cell_height">'.$block_booking['reason'].'</div></td>';
+													
+													//Since we moved $tNow, recheck for bookings
+													$recheck = true;
+												}
+											}
+										}
+									}
+									
+									
+									//Check for recurring bookings here!
+									foreach($recurring_bookings as $recurring_booking){
+										//Does this booking apply to todays date? If not, skip it
+										//If Days since reccuring booking start MOD interval == 0
+										if(!(round(($tNow - strtotime($recurring_booking['start']))/(60*60*24)) % $recurring_booking['repeat_interval'] === 0)){
+											continue;
+										}
+										//The recurruing booking applies to todays date. Change the start/end dates to "today"
+										else{
+											//Make sure the recurring booking has started (and isn't just upcoming)
+											if($recurring_booking['start'] > date("Y-m-d G:i:s",mktime(date("G", strtotime($recurring_booking['start'])),date("i", strtotime($recurring_booking['start'])),0, $date_raw['month'], $date_raw['day'], $date_raw['year']))){
+												continue;
 											}
 											
-											$length = ($bbEnd - $bbStart);
-											$colspan = ($bbEnd - $bbStart) / 60 / 30;
+											$recurring_booking['start'] = date("Y-m-d G:i:s",mktime(date("G", strtotime($recurring_booking['start'])),date("i", strtotime($recurring_booking['start'])),0, $date_raw['month'], $date_raw['day'], $date_raw['year']));
+											$recurring_booking['end'] =  date("Y-m-d G:i:s",mktime(date("G", strtotime($recurring_booking['end'])),date("i", strtotime($recurring_booking['end'])),0, $date_raw['month'], $date_raw['day'], $date_raw['year']));
+										}
+										
+										//If recurring booking starts before opening, bump it to the opening time
+										if(strtotime($recurring_booking['start']) < $tStart){
+											$recurring_booking['start'] = date('Y-m-d H:i:s', $tStart);
+										}
+										
+										//Since we bumped the start time forward, make sure it didn't pass the recurring booking end time. 
+										//If it did, ignore the recurring booking (since the booking started/ended during closed hours)
+										if($recurring_booking['end'] > $recurring_booking['start']){
 											
-											$tNow += $length; 
-											
-											//If the block booking goes past the end time, set it to the end time
-											if($tNow >= $tEnd){
-												$tNow = $tEnd + (60*30);
-												$colspan += 1; //Need for the edge case, not sure why
-												$end_row = true;
+											if($tNow >= strtotime($recurring_booking['start']) && $tNow < strtotime($recurring_booking['end'])){
+												$bbStart = $tNow;							
+												$bbEnd = strtotime($recurring_booking['end']);		
+
+												if(array_key_exists($room->room_id, $recurring_booking['room'])){
+													if($bbEnd > $tEnd){
+														$bbEnd = $tEnd;	
+													}
+												
+													$length = ($bbEnd - $bbStart);
+													$colspan = ($bbEnd - $bbStart) / 60 / 30;
+													
+													$tNow += $length; 
+													
+													//If the recurring booking goes past the end time, set it to the end time
+													if($tNow >= $tEnd){
+														$tNow = $tEnd + (60*30); //Keep adding half hour increments until the end of the booking is reached
+														$colspan += 1; //Need for the edge case, not sure why
+														$end_row = true;
+													}
+													
+													echo '<td class="closed booking_cell" colspan="'.$colspan.'"><div class="table_cell_height">'.$recurring_booking['reason'].'</div></td>';
+													
+													//Since we moved $tNow, recheck for bookings
+													$recheck = true;
+												}
 											}
-											
-											echo '<td class="closed booking_cell" colspan="'.$colspan.'"><div class="table_cell_height">'.$block_booking['reason'].'</div></td>';
-											
-											break;
 										}
 									}
 								}
-								
 								if($end_row) break;
 								
 								//End block bookings

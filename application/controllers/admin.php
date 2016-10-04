@@ -853,6 +853,112 @@ class Admin extends CI_Controller {
 		
 	}
 	
+	function recurring_booking(){
+
+		$this->load->model('booking_model');
+		$this->load->model('room_model');
+		$this->load->model('role_model');
+		
+		$permissions = $this->role_model->load_permissions($this->session->userdata('username'));
+		if($permissions['can_block_book'] == false){
+			$this->template->load('admin_template', 'admin/denied');
+		}
+		else{
+			if($this->uri->segment(3) === 'add'){
+				$reason = $this->input->post('reason');
+				$start = $this->input->post('start');
+				$start_time = $this->input->post('start_time');
+				$end = $this->input->post('end');
+				$end_time = $this->input->post('end_time');
+				$rooms = $this->input->post('rooms');
+				$permissions = $this->input->post('permissions'); 
+				$repeat_interval = $this->input->post('repeat_interval'); 
+				
+				if($permissions === false) $permissions = array();
+				
+				$status = $this->booking_model->add_recurring_booking($reason, $start, $end, $start_time, $end_time, $rooms, $permissions, $repeat_interval);
+				
+				
+				if($status){
+					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Booking added successfully</div>');
+					redirect('admin/recurring_booking');
+				}
+				else{
+					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. Data may not have been added</div>');
+				}
+			}
+			
+			//Set variable so the view loads the form, rather then list out existing 
+			else if ($this->uri->segment(3) === 'new'){
+				$data['new'] = true;
+				$data['rooms'] = $this->room_model->list_admin_rooms();
+				$data['roles'] = $this->role_model->list_admin_roles();
+			}
+			
+			else if ($this->uri->segment(3) === 'delete'){
+				if(!is_numeric($this->uri->segment(4))){
+					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. The block booking was not deleted</div>');
+					
+					redirect('admin/recurring_booking');
+				}
+				
+				$result = $this->booking_model->delete_block_booking($this->uri->segment(4));
+				if($result !== FALSE){
+					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Recurring Booking deleted successfully</div>');
+				}
+				else{
+					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error has occured. The recurring booking may not have been deleted</div>');
+				}
+				$this->db->cache_delete_all(); //Delete all cache to take care of foreign keys
+				redirect('admin/recurring_booking');
+			}
+			else if ($this->uri->segment(3) === 'edit'){
+				if(!is_numeric($this->uri->segment(4))){
+					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. Unable to edit</div>');
+					redirect('admin/recurring_booking');
+				}
+				else{
+					$data['rooms'] = $this->room_model->list_admin_rooms();
+					$data['roles'] = $this->role_model->list_admin_roles();
+					$data['permissions'] = $this->booking_model->get_block_booking_permissions($this->uri->segment(4));
+					$data['current_bb'] = $this->booking_model->get_block_booking($this->uri->segment(4));
+				}
+			}
+			
+			else if ($this->uri->segment(3) === 'update'){
+				$reason = $this->input->post('reason');
+				$start = $this->input->post('start');
+				$start_time = $this->input->post('start_time');
+				$end = $this->input->post('end');
+				$end_time = $this->input->post('end_time');
+				$rooms = $this->input->post('rooms');
+				$permissions = $this->input->post('permissions'); 
+				$repeat_interval = $this->input->post('repeat_interval'); 
+				$id = $this->input->post('block_booking_id');
+				
+				if($permissions === false) $permissions = array();
+				
+				$status = $this->booking_model->edit_recurring_booking($reason, $start, $end, $start_time, $end_time, $rooms, $permissions, $repeat_interval, $id);
+				
+				if($status !== FALSE){
+					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The recurring booking has been updated</div>');
+				}
+				else{
+					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Errors</div>');
+				}
+				
+				$this->db->cache_delete_all();
+				redirect('admin/recurring_booking');
+			}
+			
+			//Load all UPCOMING recurring bookings. We don't care about past ones
+			$data['block_bookings'] = $this->booking_model->list_block_bookings(time(), false, false, true);
+			
+			$this->template->load('admin_template', 'admin/recurring_booking', $data);
+		}
+	
+	}
+	
 	function permissions(){
 		if(!$this->session->userdata('super_admin')){
 			$this->template->load('admin_template', 'admin/denied');

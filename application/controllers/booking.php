@@ -109,6 +109,9 @@ class Booking extends CI_Controller {
 				
 				$data['block_bookings'] = $this->booking_model->list_block_bookings(mktime(0,0,0, $current_month['month'],$current_month['day'],$current_month['year']), false, true);
 				
+				$data['recurring_bookings'] = $this->booking_model->list_block_bookings(mktime(0,0,0, $current_month['month'],$current_month['day'],$current_month['year']), false, true, true);
+				
+				
 				$data['limits'] = $this->booking_model->remaining_hours($this->session->userdata('username'), strtotime($this->input->get('date')));
 			}
 			else{
@@ -247,29 +250,34 @@ class Booking extends CI_Controller {
 					else{
 						//Does this room reqire moderation? If so, add it to the moderation queue rather than create a new active booking
 						if($room->requires_moderation == TRUE){
-							$this->booking_model->add_to_moderation_queue($room_id, $start_time, $finish_time, $comment);
+							$id = $this->booking_model->add_to_moderation_queue($room_id, $start_time, $finish_time, $comment);
 							
-							$this->session->set_flashdata('success', "Your request is awaiting approval!");
-							
-							if(SEND_MODERATION_REQUEST_CONFIRMATION_EMAIL){
-								$this->load->library('email');
-								$this->load->model('room_model');
-								$room = $this->room_model->load_room($room_id);
+							if(is_numeric($id)){
+								$this->session->set_flashdata('success', "Your request is awaiting approval!");
 								
-								//Send an email
-								$data['name'] = $this->session->userdata('name');
-								$data['start'] = $start_time;
-								$data['end'] = $finish_time;
-								$data['room'] = $room;
-								
-								$email_content = $this->load->view('email/awaiting_moderation', $data, TRUE);
-								$this->email->clear();
-								$this->email->set_mailtype('html');
-								$this->email->to($this->session->userdata('username').EMAIL_SUFFIX);
-								$this->email->from(CONTACT_EMAIL);
-								$this->email->subject('Your request is awaiting moderation');
-								$this->email->message($email_content);
-								$this->email->send();
+								if(SEND_MODERATION_REQUEST_CONFIRMATION_EMAIL){
+									$this->load->library('email');
+									$this->load->model('room_model');
+									$room = $this->room_model->load_room($room_id);
+									
+									//Send an email
+									$data['name'] = $this->session->userdata('name');
+									$data['start'] = $start_time;
+									$data['end'] = $finish_time;
+									$data['room'] = $room;
+									
+									$email_content = $this->load->view('email/awaiting_moderation', $data, TRUE);
+									$this->email->clear();
+									$this->email->set_mailtype('html');
+									$this->email->to($this->session->userdata('username').EMAIL_SUFFIX);
+									$this->email->from(CONTACT_EMAIL);
+									$this->email->subject('Your request is awaiting moderation');
+									$this->email->message($email_content);
+									$this->email->send();
+								}
+							}
+							else{
+								$this->session->set_flashdata('warning', "This booking cannot be added. Conflicting booking");
 							}
 							
 							redirect(base_url() . 'booking/booking_main?month='.date('Ym', $start_time).'&date='.date('Ymd',$start_time));

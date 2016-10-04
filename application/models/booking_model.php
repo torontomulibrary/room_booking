@@ -148,6 +148,8 @@ class booking_Model  extends CI_Model  {
 		
 		$this->db->cache_on();
 		
+		if($this->is_block_booked($start, $end, $room_id)) return FALSE;
+		
 		if($existing_bookings->num_rows() == 0){
 			$data = array(
 						'room_id' => $room_id,
@@ -300,6 +302,7 @@ class booking_Model  extends CI_Model  {
 		$roles = $data['roles'];
 		$limits = $data['limits'];
 		$block_bookings = $data['block_bookings'];
+		$recurring_bookings = $data['recurring_bookings'];
 		$bookings = $data['bookings'];
 		$rooms = $data['r'];
 		
@@ -333,7 +336,6 @@ class booking_Model  extends CI_Model  {
 							foreach($bookings[$room->room_id] as $booking){
 							
 								if((strtotime($booking->start) <= $datetime) && (strtotime($booking->end) > $datetime)){
-									//var_dump($booking); die;
 									$skip = true;
 									break;
 								}
@@ -341,13 +343,43 @@ class booking_Model  extends CI_Model  {
 						}
 					}
 					
-					//Is this time slot "block booked"? (also if we are already skipping the room, no need to check)
+					//No need to check if room is already skipped
 					if(!$skip){
+						//Is this time slot "block booked"?
 						foreach($block_bookings as $block_booking){
 							if(array_key_exists($room->room_id, $block_booking['room']) && strtotime($block_booking['start']) <= $datetime && strtotime($block_booking['end']) > $datetime){
 								$skip = true;
 								break;
 							}
+						}
+						
+						//Is there a recurring booking at this time?
+						foreach($recurring_bookings as $recurring_booking){
+							//Does this booking apply to todays date? If not, skip it
+							//If Days since reccuring booking start MOD interval == 0
+							if(!(round(($datetime - strtotime($recurring_booking['start']))/(60*60*24)) % $recurring_booking['repeat_interval'] === 0)){
+								continue;
+							}
+							//The recurruing booking applies to todays date. Change the start/end dates to "today"
+							else{
+								//Make sure the recurring booking has started (and isn't just upcoming)
+								if($recurring_booking['start'] > date("Y-m-d G:i:s",mktime(date("G", strtotime($recurring_booking['start'])),date("i", strtotime($recurring_booking['start'])),0, date('n',$datetime), date('j',$datetime), date('Y',$datetime)))){
+									continue;
+								}
+									
+								$recurring_booking['start'] = date("Y-m-d G:i:s",mktime(date("G", strtotime($recurring_booking['start'])),date("i", strtotime($recurring_booking['start'])),0, date('n',$datetime), date('j',$datetime), date('Y',$datetime)));
+								$recurring_booking['end'] =  date("Y-m-d G:i:s",mktime(date("G", strtotime($recurring_booking['end'])),date("i", strtotime($recurring_booking['end'])),0, date('n',$datetime), date('j',$datetime), date('Y',$datetime)));
+							}
+							
+							if($datetime >= strtotime($recurring_booking['start']) && $datetime < strtotime($recurring_booking['end'])){
+								
+								if(array_key_exists($room->room_id, $recurring_booking['room'])){
+									
+									$skip = true;
+									break;
+								}
+							}
+							
 						}
 					}
 					
@@ -388,8 +420,10 @@ class booking_Model  extends CI_Model  {
 	}
 	
 	//Lists upcoming block bookings (unless optional parameter is true, where past block bookings are shown)
-	function list_block_bookings($date = 0, $include_past = false, $skip_permissions = false){
+	function list_block_bookings($date = 0, $include_past = false, $skip_permissions = false, $recurring = false){
 		if($date == 0) $date = time();
+		if($recurring === false) $use_recurring = 0;
+		else $use_recurring = 1;
 		
 		$sql = "SELECT DISTINCT bb.*, bbr.room_id, r.name FROM block_booking bb, block_booking_room bbr, rooms r ";
 		
@@ -418,7 +452,8 @@ class booking_Model  extends CI_Model  {
 			$sql .= " AND (start >= '".date('Y-m-d', $date)."' OR end  > '".date('Y-m-d', $date)."')";
 		}
 		
-		$sql .= " ORDER BY start ASC, r.name asc";
+		$sql .= "AND bb.is_recurring = ". $use_recurring ." ORDER BY start ASC, r.name asc";
+		
 		$result = $this->db->query($sql);
 		
 		
@@ -431,11 +466,8 @@ class booking_Model  extends CI_Model  {
 			$data[$row->block_booking_id]['start'] = $row->start;
 			$data[$row->block_booking_id]['end'] = $row->end;
 			$data[$row->block_booking_id]['reason'] = $row->reason;
-			$data[$row->block_booking_id]['room'][$row->room_id] = 	array(
-															'room_id' 	=>	$row->room_id,
-															'room_name' =>	$row->name
-														);
-			
+			$data[$row->block_booking_id]['repeat_interval'] = $row->repeat_interval;
+			$data[$row->block_booking_id]['room'][$row->room_id] = 	array('room_id' => $row->room_id, 'room_name' => $row->name);
 		}
 		
 		return $data;
@@ -456,11 +488,8 @@ class booking_Model  extends CI_Model  {
 			$data['start'] = $row->start;
 			$data['end'] = $row->end;
 			$data['reason'] = $row->reason;
-			$data['room'][$row->room_id] = 	array(
-									'room_id' 	=>	$row->room_id,
-									'room_name' =>	$row->name
-								);
-			
+			$data['room'][$row->room_id] = 	array('room_id' => $row->room_id, 'room_name' => $row->name);
+			$data['repeat_interval'] = $row->repeat_interval;
 		}
 		
 		return $data;
@@ -469,13 +498,14 @@ class booking_Model  extends CI_Model  {
 	function add_block_booking($reason, $start, $end, $rooms, $permissions){
 		$this->load->library('calendar');
 		
-		//CHeck for valid input formats
+		//Check for valid input formats
 		if(!is_array($rooms)) return FALSE;
 		if(!$this->calendar->isValidDateTimeString($start, 'Y-m-d G:i') || !$this->calendar->isValidDateTimeString($end, 'Y-m-d G:i'))return FALSE;		
 		
 		//Make sure the end is always after the start
 		$dt_start = date_create($start);
 		$dt_end = date_create($end);
+		
 		if($dt_start > $dt_end){
 			return FALSE;
 		}
@@ -486,6 +516,51 @@ class booking_Model  extends CI_Model  {
 						'end' => $end,
 						'booked_by' => $this->session->userdata('name'),
 						'matrix_id' => $this->session->userdata('username'),
+						'is_recurring' => 0,
+					);
+			
+		$this->db->insert('block_booking', $data);
+		$this->db->cache_delete_all();
+		$id = $this->db->insert_id();
+		
+		$this->set_block_booking_rooms($rooms, $id);
+		$this->set_block_booking_permissions($permissions, $id);
+
+		$this->db->cache_delete_all();
+		return TRUE;
+	}
+	
+	function add_recurring_booking($reason, $start, $end, $start_time, $end_time, $rooms, $permissions, $repeat_interval){
+		$this->load->library('calendar');
+		
+		//Check for valid input formats
+		if(!is_array($rooms)) return FALSE;
+		if(!is_numeric($repeat_interval)) return FALSE;
+		if(!$this->calendar->isValidDateTimeString($start, 'Y-m-d') || !$this->calendar->isValidDateTimeString($end, 'Y-m-d')) return FALSE;		
+		
+		//Make sure the end is always after the start
+		$dt_start = date_create($start);
+		$dt_end = date_create($end);
+		
+		if($dt_start > $dt_end){
+			return FALSE;
+		}
+		
+		$start_datetime = date('Y-m-d G:i',strtotime($start_time, strtotime($start)));
+		$end_datetime = date('Y-m-d G:i',strtotime($end_time, strtotime($end)));
+		
+		if(strtotime($start_datetime) > strtotime($end_datetime)){
+			return FALSE;
+		}
+		
+		$data = array(
+						'reason' => $reason,
+						'start' => $start_datetime,
+						'end' => $end_datetime,
+						'booked_by' => $this->session->userdata('name'),
+						'matrix_id' => $this->session->userdata('username'),
+						'is_recurring' => 1,
+						'repeat_interval' => $repeat_interval,
 					);
 			
 		$this->db->insert('block_booking', $data);
@@ -519,7 +594,58 @@ class booking_Model  extends CI_Model  {
 						'end' => $end,
 						'booked_by' => $this->session->userdata('name'),
 						'matrix_id' => $this->session->userdata('username'),
+						'is_recurring' => 0,
 					);
+		
+		
+		$this->db->where('block_booking_id', $id);
+		$this->db->update('block_booking', $data);
+		
+		$this->set_block_booking_permissions($permissions, $id);
+		
+		$this->db->cache_delete_all();
+		
+		
+		$this->set_block_booking_rooms($rooms, $id);
+
+		$this->db->cache_delete_all();
+		return TRUE;
+	}
+	
+	function edit_recurring_booking($reason, $start, $end, $start_time, $end_time, $rooms, $permissions, $repeat_interval, $id){
+	
+		
+		$this->load->library('calendar');
+		
+	
+		if(!is_array($rooms)) return FALSE;
+		if(!$this->calendar->isValidDateTimeString($start, 'Y-m-d') || !$this->calendar->isValidDateTimeString($end, 'Y-m-d'))return FALSE;		
+		//Make sure the end is always after the start
+		$dt_start = date_create($start);
+		$dt_end = date_create($end);
+		if($dt_start > $dt_end){
+			
+			return FALSE;
+		}
+		
+		$start_datetime = date('Y-m-d G:i',strtotime($start_time, strtotime($start)));
+		$end_datetime = date('Y-m-d G:i',strtotime($end_time, strtotime($end)));
+		
+		if(strtotime($start_datetime) > strtotime($end_datetime)){
+			return FALSE;
+		}
+		
+		$data = array(
+						'reason' => $reason,
+						'start' => $start_datetime,
+						'end' => $end_datetime,
+						'booked_by' => $this->session->userdata('name'),
+						'matrix_id' => $this->session->userdata('username'),
+						'is_recurring' => 1,
+						'repeat_interval' => $repeat_interval,
+					);
+		
+		
 		
 		
 		$this->db->where('block_booking_id', $id);
@@ -678,6 +804,9 @@ class booking_Model  extends CI_Model  {
 	}
 	
 	function add_to_moderation_queue($room_id, $start, $end, $comment){
+		
+		if($this->is_block_booked($start, $end, $room_id)) return FALSE;
+		
 		$data = array(
 			'room_id' => $room_id,
 			'start' => date('Y-m-d H:i:s', $start),
@@ -695,8 +824,7 @@ class booking_Model  extends CI_Model  {
 	
 	function moderator_approve($moderation_id){
 		//see if the slot is free, then "book"
-		//function book_room($room_id, $start, $end, $comment){
-			
+		
 		$this->db->where('moderation_id', $moderation_id);
 		$data = $this->db->get('moderation_queue')->row();
 		
@@ -854,5 +982,53 @@ class booking_Model  extends CI_Model  {
 	function delete_ics($booking_id){
 		@unlink('temp/'.$booking_id.'.ics');
 		return;
+	}
+	
+	function is_block_booked($start, $end, $room_id){
+		//Check for block/recurring bookings
+		$block_bookings = $this->list_block_bookings(strtotime(date("Y-m-d",$start)), false, false);
+		$recurring_bookings = $this->list_block_bookings(strtotime(date("Y-m-d",$start)), false, false, true);
+		
+		foreach($block_bookings as $block_booking){
+			if(array_key_exists($room_id, $block_booking['room'])){
+				if(strtotime($block_booking['start']) <= $start && strtotime($block_booking['end']) > $start){
+					return TRUE;
+				}
+				if($start < strtotime($block_booking['start']) && $end > strtotime($block_booking['start'])){
+					return TRUE;
+				}
+			}
+		}
+		
+		
+		foreach($recurring_bookings as $recurring_booking){
+			//Does this booking apply to todays date? If not, skip it
+			//If Days since reccuring booking start MOD interval == 0
+			if(!(round(($start - strtotime($recurring_booking['start']))/(60*60*24)) % $recurring_booking['repeat_interval'] === 0)){
+				continue;
+			}
+			//The recurruing booking applies to todays date. Change the start/end dates to "today"
+			else{
+				//Make sure the recurring booking has started (and isn't just upcoming)
+				if($recurring_booking['start'] > date("Y-m-d G:i:s",mktime(date("G", strtotime($recurring_booking['start'])),date("i", strtotime($recurring_booking['start'])),0, date('n',$start), date('j',$start), date('Y',$start)))){
+					continue;
+				}
+				
+				$recurring_booking['start'] = date("Y-m-d G:i:s",mktime(date("G", strtotime($recurring_booking['start'])),date("i", strtotime($recurring_booking['start'])),0, date('n',$start), date('j',$start), date('Y',$start)));
+				$recurring_booking['end'] =  date("Y-m-d G:i:s",mktime(date("G", strtotime($recurring_booking['end'])),date("i", strtotime($recurring_booking['end'])),0, date('n',$start), date('j',$start), date('Y',$start)));
+			}
+			
+			if(array_key_exists($room_id, $recurring_booking['room'])){
+				if($start >= strtotime($recurring_booking['start']) && $start < strtotime($recurring_booking['end'])){
+					return TRUE;
+				}
+				if($start < strtotime($recurring_booking['start']) && $end > strtotime($recurring_booking['start'])){
+					return TRUE;
+				}
+			}
+			
+		}
+		
+		return FALSE;
 	}
 }
