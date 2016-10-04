@@ -431,9 +431,15 @@ class Admin extends CI_Controller {
 			
 			if($this->uri->segment(3) === 'add'){
 				$building = $this->input->post('building');
-				$ext_id = $this->input->post('ext_id');
 				
-				$id = $this->building_model->add_building($building);
+				if(USE_EXTERNAL_HOURS){
+					$ext_id = $this->input->post('ext_id');
+				}
+				else{
+					$ext_id = 0;
+				}
+				
+				$id = $this->building_model->add_building($building, $ext_id);
 				
 				if(is_numeric($id)){
 					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Building added successfully</div>');
@@ -1044,8 +1050,6 @@ class Admin extends CI_Controller {
 				//Save the data first, in order to be able to populate the email
 				$mod_data = $this->booking_model->load_moderation_entry($this->uri->segment(4))->row();
 				
-				
-				
 				$result = $this->booking_model->moderator_deny($this->uri->segment(4));
 				
 				if($result !== FALSE){
@@ -1053,8 +1057,6 @@ class Admin extends CI_Controller {
 					if(SEND_MODERATION_ACTION_EMAIL){
 						$this->load->library('email');
 						$this->load->model('room_model');
-						
-						$booking = $this->booking_model->get_booking($ret_val)->row();
 						
 						$room_data = $this->room_model->load_room($mod_data->room_id);
 						

@@ -48,7 +48,7 @@ class building_Model  extends CI_Model  {
 		return TRUE;
 	}
 	
-	function add_building($building_name, $ext_id){
+	function add_building($building_name, $ext_id = 0){
 		
 		$data = array(
 			'name' => $building_name,
