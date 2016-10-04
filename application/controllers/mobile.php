@@ -81,6 +81,7 @@ class Mobile extends CI_Controller {
 			$data['hours'] = $this->hours_model->getAllHours($time);
 			$data['limits'] = $this->booking_model->remaining_hours($this->session->userdata('username'), $time);
 			$data['block_bookings'] = $this->booking_model->list_block_bookings($time, false, true);
+			$data['recurring_bookings'] = $this->booking_model->list_block_bookings($time, false, true, true);
 			$data['bookings'] = $this->booking_model->get_bookings(date('Ymd',$time));
 			
 			foreach($data['bookings']->result() as $booking){
@@ -131,6 +132,7 @@ class Mobile extends CI_Controller {
 			
 			//Get all block bookings
 			$data['block_bookings'] = $this->booking_model->list_block_bookings(strtotime($this->input->get('selected_date')), false, true);
+			$data['recurring_bookings'] = $this->booking_model->list_block_bookings(strtotime($this->input->get('selected_date')), false, true, true);
 			
 			
 			//Return all bookings for the day (as an associative array for easy retrieval) 

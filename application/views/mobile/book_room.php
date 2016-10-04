@@ -162,6 +162,35 @@
 												break;
 											}
 										}
+										
+										
+										foreach($recurring_bookings as $recurring_booking){
+											//Does this booking apply to todays date? If not, skip it
+											//If Days since reccuring booking start MOD interval == 0
+											if(!(round(($this->input->get('set_time') - strtotime($recurring_booking['start']))/(60*60*24)) % $recurring_booking['repeat_interval'] === 0)){
+												continue;
+											}
+											//The recurruing booking applies to todays date. Change the start/end dates to "today"
+											else{
+												//Make sure the recurring booking has started (and isn't just upcoming)
+												if($recurring_booking['start'] > date("Y-m-d G:i:s",mktime(date("G", strtotime($recurring_booking['start'])),date("i", strtotime($recurring_booking['start'])),0, date('n',$this->input->get('set_time')), date('j',$this->input->get('set_time')), date('Y',$this->input->get('set_time'))))){
+													continue;
+												}
+												
+												$recurring_booking['start'] = date("Y-m-d G:i:s",mktime(date("G", strtotime($recurring_booking['start'])),date("i", strtotime($recurring_booking['start'])),0, date('n',$this->input->get('set_time')), date('j',$this->input->get('set_time')), date('Y',$this->input->get('set_time'))));
+												$recurring_booking['end'] =  date("Y-m-d G:i:s",mktime(date("G", strtotime($recurring_booking['end'])),date("i", strtotime($recurring_booking['end'])),0, date('n',$this->input->get('set_time')), date('j',$this->input->get('set_time')), date('Y',$this->input->get('set_time'))));
+											}
+											
+											if($this->input->get('set_time') >= strtotime($recurring_booking['start']) && $this->input->get('set_time') < strtotime($recurring_booking['end'])){
+												
+												if(array_key_exists($room->room_id, $recurring_booking['room'])){
+													
+													$skip = true;
+													break;
+												}
+											}
+											
+										}
 									}
 									
 									if(!$skip){
