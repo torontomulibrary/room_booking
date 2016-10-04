@@ -312,6 +312,11 @@
 										}
 										//The recurruing booking applies to todays date. Change the start/end dates to "today"
 										else{
+											//Make sure the recurring booking has started (and isn't just upcoming)
+											if($recurring_booking['start'] > date("Y-m-d G:i:s",mktime(date("G", strtotime($recurring_booking['start'])),date("i", strtotime($recurring_booking['start'])),0, $date_raw['month'], $date_raw['day'], $date_raw['year']))){
+												continue;
+											}
+											
 											$recurring_booking['start'] = date("Y-m-d G:i:s",mktime(date("G", strtotime($recurring_booking['start'])),date("i", strtotime($recurring_booking['start'])),0, $date_raw['month'], $date_raw['day'], $date_raw['year']));
 											$recurring_booking['end'] =  date("Y-m-d G:i:s",mktime(date("G", strtotime($recurring_booking['end'])),date("i", strtotime($recurring_booking['end'])),0, $date_raw['month'], $date_raw['day'], $date_raw['year']));
 										}
