@@ -24,8 +24,8 @@
 	<table class="table table-striped">
 		<thead>
 			<tr>
-				<th>Building ID</th>
-				<th>External ID</th>
+			
+				<?php if(USE_EXTERNAL_HOURS): ?><th>External ID</th><?php endif; ?>
 				<th>Building Name</th>
 				<th>Options</th>
 			</tr>
@@ -33,8 +33,8 @@
 		<tbody>
 			<?php foreach($buildings->result() as $building): ?>
 			<tr>
-				<td><?= $building->building_id ?></td>
-				<td><?= $building->external_id ?></td>
+			
+				<?php if(USE_EXTERNAL_HOURS): ?><td><?= $building->external_id ?></td><?php endif; ?>
 				<td><?= $building->name ?></td>
 				<td>
 					<a href="<?= base_url() ?>admin/buildings/edit/<?= $building->building_id ?>">
@@ -73,12 +73,12 @@
 		<label for="building">Building Name</label>
 		<input class="form-control" type="text" id="building" name="building" value="<?php if(isset($current)) echo $current->name ?>" />
 	</div>
-	
+	<?php if(USE_EXTERNAL_HOURS): ?>
 	<div class="form-group">
 		<label for="building">External ID (used for hours of operation)</label>
 		<input class="form-control" type="text" id="ext_id" name="ext_id" value="<?php if(isset($current)) echo $current->external_id ?>" />
 	</div>
-
+	<?php endif; ?>
   
 	<?php if(isset($current)): ?><input type="hidden" name="building_id" value="<?= $current->building_id ?>" /><?php endif; ?>
 	<button type="submit" class="btn btn-default">Submit</button>
