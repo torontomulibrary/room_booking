@@ -113,7 +113,22 @@ class hours_Model  extends CI_Model  {
 		}
 		
 		//Make sure it is valid JSON
-		if($hours_json === null) return FALSE;
+		if($hours_json === null){
+			//The file could be invalid JSON. Destroy it
+			if(file_exists('temp/'. date('Ymd', $date).'.hours')){
+				@unlink('temp/'. date('Ymd', $date).'.hours');
+			}
+			
+			$blank_data = new stdClass;
+			$blank_data->HASCLOSURE = true;
+			$blank_data->LOCATION_ID = 0;
+			$blank_data->REASONFORCLOSURE = '';
+			$blank_data->ENDTIME = 0;
+			$blank_data->STARTTIME = 0;
+			$blank_data->ISOPEN = false;
+			
+			return array($blank_data, 'min'=>0, 'max'=>0);
+		}
 		
 		
 		
@@ -144,7 +159,9 @@ class hours_Model  extends CI_Model  {
 			//Is the building closed?
 			if($location->DATA->STARTTIME == $location->DATA->ENDTIME || $location->DATA->ISOPEN == false || $location->DATA->HASCLOSURE == true || $location->DATA->ISOPEN == false){
 				//Delete the cache file, as the user may be looking too far into the future where the hours have not yet been entered
-				@unlink('temp/'. date('Ymd', $date).'.hours');					
+				if(file_exists('temp/'. date('Ymd', $date).'.hours')){
+					@unlink('temp/'. date('Ymd', $date).'.hours');
+				}
 				continue;
 			}
 			

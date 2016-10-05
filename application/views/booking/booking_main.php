@@ -223,6 +223,11 @@
 							
 							echo 	'</div></th>';
 							
+							//If no hours are set (usually from invalid hours data)
+							if(!isset($hours[$room->building_id])){
+								$hours[$room->building_id] = $hours[0];
+							}
+							
 							//Check to see if opening hours are the same as min for the day. Placeholders may be needed otherwise.
 							if($hours[$room->building_id]->STARTTIME == $hours[$room->building_id]->ENDTIME || $hours[$room->building_id]->HASCLOSURE == true || $hours[$room->building_id]->ISOPEN == false){
 								//Room is closed for the day
