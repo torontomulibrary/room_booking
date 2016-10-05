@@ -204,7 +204,7 @@
 					<?php if($super_admin):?>
 						<li class="<?php echo ($method === "room_resources" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/room_resources">Manage Room Resources</a></li>
 						<li class="<?php echo ($method === "buildings" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/buildings">Manage Buildings</a></li>
-						<li class="<?php echo ($method === "building_hours" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/building_hours">Manage Building Hours</a></li>
+						<?php if(!USE_EXTERNAL_HOURS): ?><li class="<?php echo ($method === "building_hours" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/building_hours">Manage Building Hours</a></li><?php endif; ?>
 						<li class="<?php echo ($method === "roles" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/roles">Manage Role Types</a></li>
 					<?php endif; ?>
 				</ul>

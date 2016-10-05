@@ -27,6 +27,10 @@
 
 <?= $this->session->flashdata('message'); ?>
 
+<div class="alert alert-warning" role="alert">
+<p>Warning! If any building does not have current hours, it may cause a slight performance decrease</p>
+</div>
+
 
 <?php if(!isset($current_building)): ?>
 

@@ -44,9 +44,11 @@ class hours_Model  extends CI_Model  {
 				//Generate a json file from the local db
 				$buildings = $this->building_model->list_buildings();
 				
+				$hours_json = array();
+				
 				//Iterate all the buildings
 				foreach($buildings->result() as $building){
-					$hours_json['LOCATION_ID'] = intval($building->building_id);
+					$temp_json['LOCATION_ID'] = intval($building->building_id); // <----- bad bad bad. sets location_id to the last entry
 					
 					$hours = $this->get_hours($building->building_id);
 					
@@ -55,12 +57,13 @@ class hours_Model  extends CI_Model  {
 					if($closures->num_rows() > 0) $closure = true;
 					else $closure = false;
 					
-					
 					$has_hours = false;
 					
 					//Find which hours apply to the selected date
 					foreach($hours->result() as $hour){
 						if(strtotime($hour->start_date) <= $date && strtotime($hour->end_date) >= $date){
+							
+							
 							//Get the start & end times
 							$weekly_hours = json_decode($hour->hours_data, true);
 							
@@ -73,7 +76,7 @@ class hours_Model  extends CI_Model  {
 							if($open_value === $closed_value || $closed === true) $isopen = false;
 							else $isopen = true;
 							
-							$hours_json['DATA'] = array(
+							$temp_json['DATA'] = array(
 								"HASCLOSURE"		=>	$closure,
 								"LOCATION_ID"		=>	intval($building->building_id),
 								"REASONFORCLOSURE"	=>	'',
@@ -82,21 +85,17 @@ class hours_Model  extends CI_Model  {
 								"ISOPEN"			=>	$isopen
 							);
 							
-							$encoded_string = '['.json_encode($hours_json).']';
 							
-							//Write it to a file
-							file_put_contents('temp/'. date('Ymd', $date).'.hours', $encoded_string);
-							
-							$hours_json = json_decode($encoded_string);
-							
+							$hours_json[] = $temp_json;
+						
 							$has_hours = true;
 							break;					
 						}
 					}
 					
-					//No hours exist in the database. Set it to being closed
+					//No hours exist in the database. Set it to being closed (Note: this disables caching hours)
 					if(!$has_hours){
-						$hours_json['DATA'] = array(
+						$temp_json['DATA'] = array(
 							"HASCLOSURE"		=>	true,
 							"LOCATION_ID"		=>	intval($building->building_id),
 							"REASONFORCLOSURE"	=>	'',
@@ -105,11 +104,16 @@ class hours_Model  extends CI_Model  {
 							"ISOPEN"			=>	false
 						);
 						
-						$encoded_string = '['.json_encode($hours_json).']';
-						$hours_json = json_decode($encoded_string);
+						$hours_json[] = $temp_json;
 					}
 				}
+				
+				//Write it to a file
+				$json_text = json_encode($hours_json);
+				file_put_contents('temp/'. date('Ymd', $date).'.hours', $json_text); 
+				$hours_json = json_decode($json_text); //Horrible. But it keeps the arrays organized the same
 			}
+			
 		}
 		
 		//Make sure it is valid JSON
@@ -143,6 +147,7 @@ class hours_Model  extends CI_Model  {
 		
 		//Match the external ID's with those in the JSON result
 		foreach($hours_json as $location){
+
 			if(!USE_EXTERNAL_HOURS){
 				$building_id = $location->LOCATION_ID;
 			}
