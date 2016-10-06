@@ -265,6 +265,8 @@
 								//bookings start at the new time
 								$recheck = true;
 								while($recheck){
+									if($end_row) break;
+									
 									$recheck = false;
 								
 									//Check for block bookings!
