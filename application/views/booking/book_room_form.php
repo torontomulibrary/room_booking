@@ -88,16 +88,15 @@ if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot'))
 												$end_time = mktime(0,0,0,date('n',$this->input->get('slot')), date('d',$this->input->get('slot'))+1);
 											}
 											
-											
-											
-											
-											
-											
-											//TODO: Compare this to the buildings closing time & block bookings
-											
 											$slot = $start_time;
 											while($slot <= $end_time){
 												if($max_per_day <= 0 || $max_per_week <= 0) break;
+												
+												//Check for block bookings
+												if($this->booking_model->is_block_booked($slot, $slot, $this->input->get('room_id'))){
+													echo '<option value="'.$slot.'">'.date('g:ia', $slot).' (EST)</option>';
+													break;
+												}
 												
 												echo '<option value="'.$slot.'">'.date('g:ia', $slot).' (EST)</option>';
 												
