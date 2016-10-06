@@ -309,7 +309,6 @@
 										}
 									}
 									
-									
 									//Check for recurring bookings here!
 									foreach($recurring_bookings as $recurring_booking){
 										//Does this booking apply to todays date? If not, skip it
@@ -326,16 +325,17 @@
 											
 											$recurring_booking['start'] = date("Y-m-d G:i:s",mktime(date("G", strtotime($recurring_booking['start'])),date("i", strtotime($recurring_booking['start'])),0, $date_raw['month'], $date_raw['day'], $date_raw['year']));
 											$recurring_booking['end'] =  date("Y-m-d G:i:s",mktime(date("G", strtotime($recurring_booking['end'])),date("i", strtotime($recurring_booking['end'])),0, $date_raw['month'], $date_raw['day'], $date_raw['year']));
+											
 										}
 										
 										//If recurring booking starts before opening, bump it to the opening time
 										if(strtotime($recurring_booking['start']) < $tStart){
 											$recurring_booking['start'] = date('Y-m-d H:i:s', $tStart);
 										}
-										
+									
 										//Since we bumped the start time forward, make sure it didn't pass the recurring booking end time. 
 										//If it did, ignore the recurring booking (since the booking started/ended during closed hours)
-										if($recurring_booking['end'] > $recurring_booking['start']){
+										if(strtotime($recurring_booking['end']) > strtotime($recurring_booking['start'])){
 											
 											if($tNow >= strtotime($recurring_booking['start']) && $tNow < strtotime($recurring_booking['end'])){
 												$bbStart = $tNow;							
