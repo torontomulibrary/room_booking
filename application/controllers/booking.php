@@ -240,10 +240,23 @@ class Booking extends CI_Controller {
 						}
 						$id = $this->booking_model->edit_booking($room_id, $start_time, $finish_time, $comment, $this->input->post('booking_id'), $booking->matrix_id, $booking->booker_name);
 						
-						if($id !== FALSE) $id = $this->input->post('booking_id'); 
-						
+						if($id !== FALSE){
+							$id = $this->input->post('booking_id'); 
+							
 							$this->load->model('log_model');
 							$this->log_model->log_event('desktop', $this->session->userdata('username'), "Edit Booking", $id);
+							
+							$this->session->set_flashdata('success', "Edit Successfully Made");
+							redirect(base_url() . 'booking/booking_main?month='.date('Ym', $start_time).'&date='.date('Ymd',$start_time));
+						}
+						else{
+								$this->session->set_flashdata('warning', "This booking cannot be added. Conflicting booking");
+								redirect(base_url() . 'booking/booking_main?month='.date('Ym', $start_time).'&date='.date('Ymd',$start_time));
+						}
+							
+						
+						
+						
 					}
 						
 					//This is a new booking

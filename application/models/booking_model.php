@@ -172,6 +172,8 @@ class booking_Model  extends CI_Model  {
 	function edit_booking($room_id, $start, $end, $comment, $booking_id, $matrix_id, $booker_name){
 		if(!is_numeric($booking_id)) return FALSE;
 		
+		if($this->is_block_booked($start, $end, $room_id)) return FALSE;
+		
 		//Make sure the slot is not already booked by someone else (prevent changing start time)!
 		$this->db->cache_off();
 		

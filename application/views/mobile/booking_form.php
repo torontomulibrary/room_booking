@@ -92,6 +92,12 @@
 						while($slot <= $end_time){
 							if($max_per_day <= 0 || $max_per_week <= 0) break;
 							
+							//Check for block bookings
+							if($this->booking_model->is_block_booked($slot, $slot, $this->input->get('room_id'))){
+								echo '<option value="'.$slot.'">'.date('g:ia', $slot).' (EST)</option>';
+								break;
+							}
+							
 							echo '<option value="'.$slot.'">'.date('g:iA', $slot).'</option>';
 							
 							$slot += 30*60;
