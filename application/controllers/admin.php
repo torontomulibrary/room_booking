@@ -1178,19 +1178,30 @@ class Admin extends CI_Controller {
 	}
 	
 	function error_logs(){
-		$this->load->model('log_model');
-		
-		if($this->uri->segment(3) !== false){
-			$data['log_data'] = $this->log_model->get_log($this->uri->segment(3));
+		if(!$this->session->userdata('super_admin')){
+			$this->template->load('admin_template', 'admin/denied');
 		}
 		else{
-			$data = array();
-			$data['error_files'] = $this->log_model->get_error_files();
-		
+			$this->load->model('log_model');
 			
+			if($this->uri->segment(3) === "delete"){
+				if($this->uri->segment(4) !== false){
+					$this->log_model->delete_log($this->uri->segment(4));
+				}
+				redirect('admin/error_logs');
+			}
+			elseif($this->uri->segment(3) !== false){
+				$data['log_data'] = $this->log_model->get_log($this->uri->segment(3));
+			}
+			else{
+				$data = array();
+				$data['error_files'] = $this->log_model->get_error_files();
+			
+				
+			}
+			
+			$this->template->load('admin_template', 'admin/error_logs', $data);
 		}
-		
-		$this->template->load('admin_template', 'admin/error_logs', $data);
 	}
 	
 	function filter_stats(){

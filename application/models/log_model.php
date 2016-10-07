@@ -291,5 +291,14 @@ class log_Model  extends CI_Model  {
 		if($input === false) return '';
 		else return $input;
 	}
+	
+	function delete_log($file){
+		//Add some safety to this function
+		if(substr($file, 0, 4) !== "log-") return false;
+		
+		if(file_exists('application/logs/'.$file)){
+			unlink('application/logs/'.$file);
+		}
+	}
 
 }

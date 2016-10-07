@@ -19,7 +19,7 @@
 <h2>Error Logs</h2>
 
 <?php foreach($error_files as $file): ?>
-	<div><a href="<?php echo base_url(); ?>admin/error_logs/<?php echo $file; ?>"><?php echo $file; ?></a></div>
+	<div><a href="<?php echo base_url(); ?>admin/error_logs/<?php echo $file; ?>"><?php echo $file; ?></a> ( <a href="<?php echo base_url(); ?>admin/error_logs/delete/<?php echo $file; ?>">X</a> )</div>
 <?php endforeach; ?>
 
 <?php else: ?>
