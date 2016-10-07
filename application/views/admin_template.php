@@ -175,7 +175,7 @@
 				<ul class="nav nav-sidebar">
 					<li class="<?php echo ($method === "index" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin">Overview</a></li>
 					<li class="<?php echo ($method === "reports" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/reports">Reports</a></li>	
-						
+					<li class="<?php echo ($method === "check_for_bookings" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/check_for_bookings">Check For Bookings</a></li>	
 				</ul>
 				
 				<ul class="nav nav-sidebar">
