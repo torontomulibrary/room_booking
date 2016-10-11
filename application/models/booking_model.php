@@ -431,9 +431,9 @@ class booking_Model  extends CI_Model  {
 		
 		if($this->session->userdata('super_admin') !== true && !$skip_permissions){
 			$sql.= ", block_booking_permissions bbp WHERE
-					bbp.block_booking_id = bb.block_booking_id "; //Add permissions table to query if not a super admin
+					(bb.matrix_id=".$this->db->escape($this->session->userdata('username')) ." OR (bbp.block_booking_id = bb.block_booking_id "; //Add permissions table to query if not a super admin
 			
-			$sql .= "AND (bbp.role_id IN ";
+			$sql .= "AND bbp.role_id IN ";
 				
 			//Gather roles from session rather then database (since students etc.. are not whitelisted)
 			$roles = array();
@@ -442,7 +442,7 @@ class booking_Model  extends CI_Model  {
 				if(is_numeric($role->role_id)) $roles[] = $role->role_id;
 			}
 			
-			$sql .= "(".implode(",", $roles).") OR bb.matrix_id=".$this->db->escape($this->session->userdata('username')).")";
+			$sql .= "(".implode(",", $roles)."))) ";
 		}
 		else{
 			$sql.= " WHERE 1=1 "; //Added the dreaded 1=1 to deal with avoid extra code related to placing the "AND" in the query

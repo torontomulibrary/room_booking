@@ -261,7 +261,6 @@ class user_Model  extends CI_Model  {
 	function is_access_center($username){
 		$response = array();
 		
-		
 		// Create a stream
 		$opts = array(
 		  'http'=>array(
@@ -281,7 +280,7 @@ class user_Model  extends CI_Model  {
 		$file = @file_get_contents($url, false, $context);
 		
 		//Make sure the server gave a 200 response, else return the user an error
-		if($file !== FALSE && $http_response_header[0] === "HTTP/1.1 200 OK"){
+		if($file !== FALSE && strstr($http_response_header[0],"HTTP/1.1 200")){
 			$data = json_decode($file);
 			
 			if($data->hasOwnerResource == true){
