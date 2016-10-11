@@ -754,9 +754,12 @@ class booking_Model  extends CI_Model  {
 						FROM
 							block_booking_room bbr,
 							block_booking bb,
-							rooms r
+							rooms r,
+							room_roles rr
 						WHERE
 							bbr.room_id = r.room_id
+								AND r.room_id = rr.room_id
+								AND rr.role_id = ".$role_id." 
 								AND bb.block_booking_id = bbr.block_booking_id
 								AND (bb.start = '".date('Y-m-d H:i:s', $time)."'
 								OR (bb.start < '".date('Y-m-d H:i:s', $time)."'
