@@ -1207,15 +1207,18 @@ class Admin extends CI_Controller {
 	function check_for_bookings(){
 		$this->load->model('log_model');
 		$this->load->model('building_model');
+		$this->load->model('booking_model');
 		$this->load->model('room_model');
 		$this->load->model('role_model');
 		
 		$data['rooms'] = $this->room_model->list_rooms();
 		
 		if($this->input->post('username') !== FALSE){
-			data['upcoming_user_bookings'] = $this->booking_model->get_upcoming_bookings($this->input->post('username'));
-			data['current_user_bookings'] = $this->booking_model->get_current_bookings($this->input->post('username'));
-			data['past_user_bookings'] = $this->booking_model->get_previous_bookings($this->input->post('username'));
+			$data['upcoming_user_bookings'] = $this->booking_model->get_upcoming_bookings($this->input->post('username'));
+			$data['current_user_bookings'] = $this->booking_model->get_current_bookings($this->input->post('username'));
+			$data['past_user_bookings'] = $this->booking_model->get_previous_bookings($this->input->post('username'), 100);
+			$data['searched'] = $this->input->post('username');
+			$data['username_mode'] = TRUE;
 		}
 		
 		
