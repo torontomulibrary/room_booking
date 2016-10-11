@@ -60,10 +60,10 @@
 	
 	<h2 style="font-size: 1.7em">Search by Username</h2>
 	
-	<form class="form-inline">
+	<form class="form-inline" method="POST" action="<?php echo base_url(); ?>admin/check_for_bookings">
 		<div class="form-group">
-			<label for="exampleInputName2">Username</label>
-			<input type="text" class="form-control" id="exampleInputName2" placeholder="john.smith">
+			<label for="username">Username</label>
+			<input type="text" class="form-control" id="username" name="username" placeholder="john.smith">
 		</div>
 		
 		<button type="submit" class="btn btn-default">Submit</button>

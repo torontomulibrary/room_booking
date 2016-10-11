@@ -1212,22 +1212,13 @@ class Admin extends CI_Controller {
 		
 		$data['rooms'] = $this->room_model->list_rooms();
 		
-		if($this->input->get('room') !== FALSE && is_numeric($this->input->get('room'))){
-			$room_id = $this->input->get('room');
-		}
-		else{
-			$room_id = null;
+		if($this->input->post('username') !== FALSE){
+			data['upcoming_user_bookings'] = $this->booking_model->get_upcoming_bookings($this->input->post('username'));
+			data['current_user_bookings'] = $this->booking_model->get_current_bookings($this->input->post('username'));
+			data['past_user_bookings'] = $this->booking_model->get_previous_bookings($this->input->post('username'));
 		}
 		
-		//Refine by start/end times
-		if($this->input->get('start_date') !== FALSE && strlen($this->input->get('start_date')) > 0 && $this->input->get('end_date') !== FALSE && strlen($this->input->get('end_date')) > 0){
-			$start_time = strtotime($this->input->get('start_date'));
-			$end_time = strtotime($this->input->get('end_date'))+ ((24*60*60)-1); //Add a day (minus a second) to get as late as possible
-		}
-		else{
-			$start_time = mktime(0,0,0,date('n'),1);
-			$end_time = mktime(23,59,59,date('n')+1,0);
-		}
+		
 		
 		$this->template->load('admin_template', 'admin/check_for_bookings', $data);
 	}
