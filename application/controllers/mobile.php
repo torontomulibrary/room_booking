@@ -324,10 +324,15 @@ class Mobile extends CI_Controller {
 		$booking_data = $this->booking_model->get_booking($this->input->get('booking_id'));
 		$data['booking'] = $booking_data->row();
 		
+		if($data['booking'] === FALSE || $booking_data->num_rows == 0){
+			$this->session->set_flashdata('warning', "An error has occured. The booking has not been deleted");
+			redirect(base_url() . 'mobile');
+		}
+		
 		if(!$this->session->userdata('super_admin') || !$this->session->userdata('admin')){
 			if($this->session->userdata('username') !== $data['booking']->matrix_id){
 				$this->session->set_flashdata('warning', "An error has occured. The booking has not been deleted");
-				redirect(base_url().'booking/booking_main');
+				redirect(base_url() . 'mobile');
 			}
 
 		}
