@@ -1221,6 +1221,13 @@ class Admin extends CI_Controller {
 			$data['username_mode'] = TRUE;
 		}
 		
+		if($this->input->post('fullname') !== FALSE){
+			if(strlen($this->input->post('fullname')) > 3){  //Prevent massive lists of results
+				$data['fullname_bookings'] = $this->booking_model->get_bookings_by_name($this->input->post('fullname'));
+				$data['searched'] = $this->input->post('fullname');
+				$data['fullname_mode'] = TRUE;
+			}
+		}
 		
 		
 		$this->template->load('admin_template', 'admin/check_for_bookings', $data);

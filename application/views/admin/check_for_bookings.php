@@ -55,8 +55,8 @@
 	
 	<form class="form-inline" method="POST" action="<?php echo base_url(); ?>admin/check_for_bookings">
 		<div class="form-group">
-			<label for="username">Name</label>
-			<input type="text" class="form-control" id="username" name="username" placeholder="John Smith">
+			<label for="fullname">Name</label>
+			<input type="text" class="form-control" id="fullname" name="fullname" placeholder="John Smith" <?php if(isset($fullname_mode) && $fullname_mode && isset($searched)):?>value="<?php echo $searched; ?>" <?php endif; ?>>
 		</div>
 		
 		<button type="submit" class="btn btn-default">Submit</button>
@@ -68,7 +68,7 @@
 	<form class="form-inline" method="POST" action="<?php echo base_url(); ?>admin/check_for_bookings">
 		<div class="form-group">
 			<label for="username">Username</label>
-			<input type="text" class="form-control" id="username" name="username" placeholder="john.smith" <?php if(isset($searched)):?>value="<?php echo $searched; ?>" <?php endif; ?>>
+			<input type="text" class="form-control" id="username" name="username" placeholder="john.smith" <?php if(isset($username_mode) && $username_mode && isset($searched)):?>value="<?php echo $searched; ?>" <?php endif; ?>>
 		</div>
 		
 		<button type="submit" class="btn btn-default">Submit</button>
@@ -78,19 +78,16 @@
 
 	<hr />
 
-	<?php if(isset($username_mode) && $username_mode): ?>
+	<?php if(isset($searched)): ?>
 	<div class="table-responsive">
 		
-		<h3 style="font-size: 1.3em">Upcoming Bookings</h3>
+		<h3 style="font-size: 1.3em">All Bookings</h3>
 	
 	
-		<?php if($upcoming_user_bookings->num_rows() == 0): ?>
-			<div style="font-style: italic"> None! </div>
-			
-		<?php else: ?>
 		<table class="table table-striped">
 			<thead>
 				<tr>
+					<th>Full Name</th>
 					<th>Username</th>
 					<th>Room</th>
 					<th>Booking Date</th>
@@ -99,85 +96,57 @@
 				</tr>
 			</thead>
 			<tbody>
+				<?php if(isset($upcoming_user_bookings)): ?>
 				<?php foreach($upcoming_user_bookings->result() as $upcoming_user_booking): ?>
 				<tr>
+					<td><?php echo $upcoming_user_booking->booker_name ?></td>
 					<td><?php echo $upcoming_user_booking->matrix_id ?></td>
 					<td><?php echo $upcoming_user_booking->name ?></td>
 					<td><?php echo date('M j, Y ',strtotime($upcoming_user_booking->start)); ?></td>
 					<td><?php echo date('g:iA',strtotime($upcoming_user_booking->start)); ?> - <?php echo date('g:iA',strtotime($upcoming_user_booking->end)); ?></td>
-					
-					
 				</tr>
 				<?php endforeach; ?>
-			</tbody>
-		</table>
-		
-		<?php endif; ?>
-		
-		<h3 style="font-size: 1.3em">Current Bookings</h3>
-		
-		<?php if($current_user_bookings->num_rows() == 0): ?>
-			<div style="font-style: italic"> None! </div>
-			
-		<?php else: ?>
-		
-		<table class="table table-striped">
-			<thead>
-				<tr>
-					<th>Username</th>
-					<th>Room</th>
-					<th>Booking Date</th>
-					<th>Booking Time</th>
-					
-				</tr>
-			</thead>
-			<tbody>
+				<?php endif; ?>
+				
+				<?php if(isset($current_user_bookings)): ?>
 				<?php foreach($current_user_bookings->result() as $current_user_booking): ?>
 				<tr>
+					<td><?php echo $current_user_booking->booker_name ?></td>
 					<td><?php echo $current_user_booking->matrix_id ?></td>
 					<td><?php echo $current_user_booking->name ?></td>
 					<td><?php echo date('M j, Y ',strtotime($current_user_booking->start)); ?></td>
 					<td><?php echo date('g:iA',strtotime($current_user_booking->start)); ?> - <?php echo date('g:iA',strtotime($current_user_booking->end)); ?></td>
-					
-					
 				</tr>
 				<?php endforeach; ?>
-			</tbody>
-		</table>
-		
-		<?php endif; ?>
-		
-		<h3 style="font-size: 1.3em">Past Bookings</h3>
-	
-		<?php if($past_user_bookings->num_rows() == 0): ?>
-			<div style="font-style: italic"> None! </div>
-			
-		<?php else: ?>
-	
-		<table class="table table-striped">
-			<thead>
-				<tr>
-					<th>Username</th>
-					<th>Room</th>
-					<th>Booking Date</th>
-					<th>Booking Time</th>
-					
-				</tr>
-			</thead>
-			<tbody>
+				<?php endif; ?>				
+				
+				<?php if(isset($past_user_bookings)): ?>
 				<?php foreach($past_user_bookings->result() as $past_user_booking): ?>
 				<tr>
+					<td><?php echo $past_user_booking->booker_name ?></td>
 					<td><?php echo $past_user_booking->matrix_id ?></td>
 					<td><?php echo $past_user_booking->name ?></td>
 					<td><?php echo date('M j, Y ',strtotime($past_user_booking->start)); ?></td>
 					<td><?php echo date('g:iA',strtotime($past_user_booking->start)); ?> - <?php echo date('g:iA',strtotime($past_user_booking->end)); ?></td>
-					
-					
 				</tr>
 				<?php endforeach; ?>
+				<?php endif; ?>
+				
+				<?php if(isset($fullname_bookings)): ?>
+				<?php foreach($fullname_bookings->result() as $fullname_booking): ?>
+				<tr>
+					<td><?php echo $fullname_booking->booker_name ?></td>
+					<td><?php echo $fullname_booking->matrix_id ?></td>
+					<td><?php echo $fullname_booking->name ?></td>
+					<td><?php echo date('M j, Y ',strtotime($fullname_booking->start)); ?></td>
+					<td><?php echo date('g:iA',strtotime($fullname_booking->start)); ?> - <?php echo date('g:iA',strtotime($fullname_booking->end)); ?></td>
+				</tr>
+				<?php endforeach; ?>
+				<?php endif; ?>
 			</tbody>
 		</table>
-		<?php endif; ?>
+		
+	
 	</div>
 	
 	<?php endif; ?>

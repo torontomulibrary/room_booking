@@ -251,6 +251,23 @@ class booking_Model  extends CI_Model  {
 		}		
 	}
 	
+	function get_bookings_by_name($fullname, $limit = 30){
+			if(!is_numeric($limit)) return FALSE;
+			
+			$sql = "SELECT b.booking_id, b.room_id, r.name, b.matrix_id, b.booker_name, b.start, b.end, r.seats from bookings b, rooms r
+					WHERE 
+					b.room_id = r.room_id
+					AND booker_name like '%".$this->db->escape_like_str($fullname)."%'
+					ORDER BY start DESC
+					LIMIT 0, $limit";
+		
+		$this->db->cache_off();
+		$query = $this->db->query($sql);
+		$this->db->cache_on();
+		
+		return $query;
+	}
+	
 	function get_upcoming_bookings($matrix_id){
 		$sql = "select b.booking_id, b.room_id, r.name, b.matrix_id, b.booker_name, b.start, b.end, r.seats from bookings b, rooms r
 				where 
