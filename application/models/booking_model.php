@@ -56,6 +56,45 @@ class booking_Model  extends CI_Model  {
 		return $result;
 	}
 	
+	function get_selected_bookings($start, $end, $rooms){
+		if(!is_array($rooms)){
+			return;
+		}
+		
+		foreach($rooms as $room){
+			if(!is_numeric($room)){
+				return;
+			}
+		}
+		
+		$sql = "SELECT distinct booking_id, r.room_id, r.name,  matrix_id, start, end, comment, booker_name FROM bookings b, rooms r, room_roles rr
+					WHERE
+					b.start BETWEEN '".$start." 00:00:00' AND '".$end." 23:59:59'
+					AND b.room_id = r.room_id
+					AND r.room_id = rr.room_id 
+					AND r.room_id IN (". implode(',', $rooms) .") ";
+			
+		if($this->session->userdata('super_admin') !== true){
+			$sql .= "AND rr.role_id IN ";
+			
+			//Gather roles from session rather then database (since students etc.. are not whitelisted)
+			$roles = array();
+		
+			foreach($this->session->userdata('roles') as $role){
+				if(is_numeric($role->role_id)) $roles[] = $role->role_id;
+			}
+			
+			$sql .= "(".implode(",", $roles).")";
+		}
+		
+		//Run query, but prevent caching as this data changes frequently
+		$this->db->cache_off();
+		$query = $this->db->query($sql);
+		$this->db->cache_on();
+		
+		return $query;
+	}
+	
 	function next_booking($datetime, $room_id){
 		if(!is_numeric($room_id)) return;
 		$sql = "SELECT MIN(start) AS start FROM bookings WHERE room_id = ".$room_id."     AND start > ".$this->db->escape(date('Y-m-d H:i:s', $datetime));
@@ -254,10 +293,25 @@ class booking_Model  extends CI_Model  {
 	function get_bookings_by_name($fullname, $limit = 30){
 			if(!is_numeric($limit)) return FALSE;
 			
-			$sql = "SELECT b.booking_id, b.room_id, r.name, b.matrix_id, b.booker_name, b.start, b.end, r.seats from bookings b, rooms r
+			$sql = "SELECT b.booking_id, b.room_id, r.name, b.matrix_id, b.booker_name, b.start, b.end, r.seats from bookings b, rooms r, room_roles rr
 					WHERE 
 					b.room_id = r.room_id
-					AND booker_name like '%".$this->db->escape_like_str($fullname)."%'
+					AND r.room_id = rr.room_id ";
+					
+					if($this->session->userdata('super_admin') !== true){
+					$sql .= "AND rr.role_id IN ";
+					
+					//Gather roles from session rather then database (since students etc.. are not whitelisted)
+					$roles = array();
+				
+					foreach($this->session->userdata('roles') as $role){
+						if(is_numeric($role->role_id)) $roles[] = $role->role_id;
+					}
+					
+					$sql .= "(".implode(",", $roles).")";
+				}
+					
+			$sql .= " AND booker_name like '%".$this->db->escape_like_str($fullname)."%'
 					ORDER BY start DESC
 					LIMIT 0, $limit";
 		
@@ -269,10 +323,26 @@ class booking_Model  extends CI_Model  {
 	}
 	
 	function get_upcoming_bookings($matrix_id){
-		$sql = "select b.booking_id, b.room_id, r.name, b.matrix_id, b.booker_name, b.start, b.end, r.seats from bookings b, rooms r
-				where 
+		$sql = "SELECT b.booking_id, b.room_id, r.name, b.matrix_id, b.booker_name, b.start, b.end, r.seats from bookings b, rooms r, room_roles rr
+				WHERE 
 				b.room_id = r.room_id
-				and start > ". $this->db->escape(date('Y-m-d H:i:s'))."
+				
+				AND r.room_id = rr.room_id ";
+					
+				if($this->session->userdata('super_admin') !== true){
+					$sql .= "AND rr.role_id IN ";
+					
+					//Gather roles from session rather then database (since students etc.. are not whitelisted)
+					$roles = array();
+				
+					foreach($this->session->userdata('roles') as $role){
+						if(is_numeric($role->role_id)) $roles[] = $role->role_id;
+					}
+					
+					$sql .= "(".implode(",", $roles).")";
+				}
+					
+		$sql .= " AND start > ". $this->db->escape(date('Y-m-d H:i:s'))."
 				AND matrix_id = '".$matrix_id."'";
 		
 		$this->db->cache_off();
@@ -283,11 +353,27 @@ class booking_Model  extends CI_Model  {
 	}
 	
 	function get_current_bookings($matrix_id){
-		$sql = "select b.booking_id, b.room_id, r.name, b.matrix_id, b.booker_name, b.start, b.end, r.seats from bookings b, rooms r
-				where 
+		$sql = "SELECT b.booking_id, b.room_id, r.name, b.matrix_id, b.booker_name, b.start, b.end, r.seats from bookings b, rooms r, room_roles rr
+				WHERE 
 				b.room_id = r.room_id
-				and start <= ". $this->db->escape(date('Y-m-d H:i:s'))."
-				and end > ". $this->db->escape(date('Y-m-d H:i:s'))."
+				
+				AND r.room_id = rr.room_id ";
+					
+				if($this->session->userdata('super_admin') !== true){
+					$sql .= "AND rr.role_id IN ";
+					
+					//Gather roles from session rather then database (since students etc.. are not whitelisted)
+					$roles = array();
+				
+					foreach($this->session->userdata('roles') as $role){
+						if(is_numeric($role->role_id)) $roles[] = $role->role_id;
+					}
+					
+					$sql .= "(".implode(",", $roles).")";
+				}
+					
+			$sql .= " AND start <= ". $this->db->escape(date('Y-m-d H:i:s'))."
+				AND end > ". $this->db->escape(date('Y-m-d H:i:s'))."
 				AND matrix_id = '".$matrix_id."'";
 		
 		$this->db->cache_off();
@@ -300,10 +386,26 @@ class booking_Model  extends CI_Model  {
 	function get_previous_bookings($matrix_id, $limit = 5){
 		if(!is_numeric($limit)) return false;
 		
-		$sql = "select b.booking_id, b.room_id, r.name, b.matrix_id, b.booker_name, b.start, b.end, r.seats from bookings b, rooms r
+		$sql = "select b.booking_id, b.room_id, r.name, b.matrix_id, b.booker_name, b.start, b.end, r.seats from bookings b, rooms r, room_roles rr
 				where 
 				b.room_id = r.room_id
-				and end < ". $this->db->escape(date('Y-m-d H:i:s'))."
+				
+				AND r.room_id = rr.room_id ";
+					
+					if($this->session->userdata('super_admin') !== true){
+					$sql .= "AND rr.role_id IN ";
+					
+					//Gather roles from session rather then database (since students etc.. are not whitelisted)
+					$roles = array();
+				
+					foreach($this->session->userdata('roles') as $role){
+						if(is_numeric($role->role_id)) $roles[] = $role->role_id;
+					}
+					
+					$sql .= "(".implode(",", $roles).")";
+				}
+					
+		$sql .= " and end < ". $this->db->escape(date('Y-m-d H:i:s'))."
 				AND matrix_id = '".$matrix_id."'
 				ORDER BY end DESC
 				LIMIT 0,".$limit;

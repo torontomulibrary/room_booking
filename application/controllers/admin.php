@@ -1221,11 +1221,42 @@ class Admin extends CI_Controller {
 			$data['username_mode'] = TRUE;
 		}
 		
-		if($this->input->post('fullname') !== FALSE){
+		else if($this->input->post('fullname') !== FALSE){
 			if(strlen($this->input->post('fullname')) > 3){  //Prevent massive lists of results
 				$data['fullname_bookings'] = $this->booking_model->get_bookings_by_name($this->input->post('fullname'));
-				$data['searched'] = $this->input->post('fullname');
+				$data['searched_start_date'] = $this->input->post('fullname');
 				$data['fullname_mode'] = TRUE;
+			}
+		}
+		
+		else if($this->input->post('room') !== FALSE){
+			$this->load->library('calendar');
+			
+			$start = $this->input->post('start');
+			$end = $this->input->post('end');
+
+			
+			if(is_array($this->input->post('room'))){
+				//If Dates aren't valid or set, default to 'today'
+				if($start === FALSE || !$this->calendar->isValidDateTimeString($start, 'Y-m-d')){
+					$start = date('Y-m-d');
+				}
+				if($end === FALSE || !$this->calendar->isValidDateTimeString($end, 'Y-m-d')){
+					$end = date('Y-m-d');
+				}
+				if(strtotime($start) > strtotime($end)){
+					$start = date('Y-m-d');
+					$end = date('Y-m-d');
+				}
+				
+				$data['selected_bookings'] = $this->booking_model->get_selected_bookings($start, $end, $this->input->post('room'));
+				
+				$data['searched_start_date'] = $start;
+				$data['searched_end_date'] = $end;
+				$data['searched_rooms'] = $this->input->post('room');
+				$data['searched'] = TRUE;
+				$data['date_mode'] = TRUE;
+				
 			}
 		}
 		

@@ -21,13 +21,13 @@
 
 	<h1 class="page-header">Check for Bookings</h1>
 
-	<form class="form-inline" method="GET" action="">
+	<form class="form-inline" method="POST" action="<?php echo base_url(); ?>admin/check_for_bookings">
 		<h2 style="font-size: 1.7em">Search by Room</h2>
 		
 		<div class="form-group">
 			<label for="room" class="">Room</label><br>
 			
-				<select multiple="multiple" size=" 12" name="room" class="form-control">
+				<select multiple="multiple" size=" 12" name="room[]" class="form-control">
 					<option value=""></option>				
 					<?php foreach($rooms->result() as $room):?>
 						<option value="<?php echo $room->room_id; ?>" <?php if($room->room_id == $this->input->get('room')) echo 'selected="SELECTED"'; ?>><?php echo $room->name; ?></option>				
@@ -37,12 +37,12 @@
 		
 		<div class="form-group">
 			<label for="start">Start Date</label><br>
-			<input class="form-control date_time" type="text"  name="start" id="start" value="" />
+			<input class="form-control date_time" type="text"  name="start" id="start" <?php if(isset($date_mode) && $date_mode && isset($searched_start_date)):?>value="<?php echo $searched_start_date; ?>" <?php endif; ?> />
 		</div>
 		
 		<div class="form-group">
 			<label for="end">End Date</label><br>
-			<input class="form-control date_time" type="text" id="end" name="end" value="" />
+			<input class="form-control date_time" type="text" id="end" name="end" <?php if(isset($date_mode) && $date_mode && isset($searched_end_date)):?>value="<?php echo $searched_end_date; ?>" <?php endif; ?> />
 		</div>
 				
 		<button type="submit" class="btn btn-default">Submit</button>
@@ -143,6 +143,21 @@
 				</tr>
 				<?php endforeach; ?>
 				<?php endif; ?>
+				
+				<?php if(isset($selected_bookings)): ?>
+				<?php foreach($selected_bookings->result() as $selected_booking): ?>
+				<tr>
+					<td><?php echo $selected_booking->booker_name ?></td>
+					<td><?php echo $selected_booking->matrix_id ?></td>
+					<td><?php echo $selected_booking->name ?></td>
+					<td><?php echo date('M j, Y ',strtotime($selected_booking->start)); ?></td>
+					<td><?php echo date('g:iA',strtotime($selected_booking->start)); ?> - <?php echo date('g:iA',strtotime($selected_booking->end)); ?></td>
+				</tr>
+				<?php endforeach; ?>
+				<?php endif; ?>
+				
+				
+				
 			</tbody>
 		</table>
 		
