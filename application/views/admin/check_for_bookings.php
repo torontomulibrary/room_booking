@@ -30,7 +30,7 @@
 				<select multiple="multiple" size=" 12" name="room[]" class="form-control">
 					<option value=""></option>				
 					<?php foreach($rooms->result() as $room):?>
-						<option value="<?php echo $room->room_id; ?>" <?php if($room->room_id == $this->input->get('room')) echo 'selected="SELECTED"'; ?>><?php echo $room->name; ?></option>				
+						<option value="<?php echo $room->room_id; ?>" <?php if(isset($searched_rooms) && in_array($room->room_id, $searched_rooms)) echo 'selected="SELECTED"'; ?>><?php echo $room->name; ?></option>				
 					<?php endforeach; ?>
 				</select>
 		</div>
@@ -92,7 +92,7 @@
 					<th>Room</th>
 					<th>Booking Date</th>
 					<th>Booking Time</th>
-					
+					<th>Options</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -104,6 +104,14 @@
 					<td><?php echo $upcoming_user_booking->name ?></td>
 					<td><?php echo date('M j, Y ',strtotime($upcoming_user_booking->start)); ?></td>
 					<td><?php echo date('g:iA',strtotime($upcoming_user_booking->start)); ?> - <?php echo date('g:iA',strtotime($upcoming_user_booking->end)); ?></td>
+					<td>
+						<?php if(strtotime($upcoming_user_booking->start) > time()): ?>
+						<a href="<?= base_url() ?>booking/edit_booking?booking_id=<?= $upcoming_user_booking->booking_id ?>">
+							<button class="btn btn-default btn-sm" type="button"><span aria-hidden="true" class="glyphicon glyphicon-edit"></span> Modify Booking </button>
+						</a>
+						<?php endif; ?>
+					
+					</td>
 				</tr>
 				<?php endforeach; ?>
 				<?php endif; ?>
@@ -116,6 +124,15 @@
 					<td><?php echo $current_user_booking->name ?></td>
 					<td><?php echo date('M j, Y ',strtotime($current_user_booking->start)); ?></td>
 					<td><?php echo date('g:iA',strtotime($current_user_booking->start)); ?> - <?php echo date('g:iA',strtotime($current_user_booking->end)); ?></td>
+					
+					<td>
+						<?php if(strtotime($current_user_booking->start) > time()): ?>
+						<a href="<?= base_url() ?>booking/edit_booking?booking_id=<?= $current_user_booking->booking_id ?>">
+							<button class="btn btn-default btn-sm" type="button"><span aria-hidden="true" class="glyphicon glyphicon-edit"></span> Modify Booking</button>
+						</a>
+						<?php endif; ?>
+						
+					</td>
 				</tr>
 				<?php endforeach; ?>
 				<?php endif; ?>				
@@ -128,6 +145,15 @@
 					<td><?php echo $past_user_booking->name ?></td>
 					<td><?php echo date('M j, Y ',strtotime($past_user_booking->start)); ?></td>
 					<td><?php echo date('g:iA',strtotime($past_user_booking->start)); ?> - <?php echo date('g:iA',strtotime($past_user_booking->end)); ?></td>
+					
+					<td>
+						<?php if(strtotime($past_user_booking->start) > time()): ?>
+						<a href="<?= base_url() ?>booking/edit_booking?booking_id=<?= $past_user_booking->booking_id ?>">
+							<button class="btn btn-default btn-sm" type="button"><span aria-hidden="true" class="glyphicon glyphicon-edit"></span> Modify Booking</button>
+						</a>
+						<?php endif; ?>			
+					</td>
+				
 				</tr>
 				<?php endforeach; ?>
 				<?php endif; ?>
@@ -140,6 +166,17 @@
 					<td><?php echo $fullname_booking->name ?></td>
 					<td><?php echo date('M j, Y ',strtotime($fullname_booking->start)); ?></td>
 					<td><?php echo date('g:iA',strtotime($fullname_booking->start)); ?> - <?php echo date('g:iA',strtotime($fullname_booking->end)); ?></td>
+				
+					<td>
+						<?php if(strtotime($fullname_booking->start) > time()): ?>
+						<a href="<?= base_url() ?>booking/edit_booking?booking_id=<?= $fullname_booking->booking_id ?>">
+							<button class="btn btn-default btn-sm" type="button"><span aria-hidden="true" class="glyphicon glyphicon-edit"></span> Modify Booking</button>
+						</a>
+						<?php endif; ?>			
+					
+					</td>
+				
+				
 				</tr>
 				<?php endforeach; ?>
 				<?php endif; ?>
@@ -152,6 +189,15 @@
 					<td><?php echo $selected_booking->name ?></td>
 					<td><?php echo date('M j, Y ',strtotime($selected_booking->start)); ?></td>
 					<td><?php echo date('g:iA',strtotime($selected_booking->start)); ?> - <?php echo date('g:iA',strtotime($selected_booking->end)); ?></td>
+				
+					<td>
+						<?php if(strtotime($selected_booking->start) > time()): ?>
+						<a href="<?= base_url() ?>booking/edit_booking?booking_id=<?= $selected_booking->booking_id ?>">
+							<button class="btn btn-default btn-sm" type="button"><span aria-hidden="true" class="glyphicon glyphicon-edit"></span> Modify Booking</button>
+						</a>
+						<?php endif; ?>
+					</td>
+				
 				</tr>
 				<?php endforeach; ?>
 				<?php endif; ?>

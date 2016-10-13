@@ -87,6 +87,8 @@ class booking_Model  extends CI_Model  {
 			$sql .= "(".implode(",", $roles).")";
 		}
 		
+			$sql .= " ORDER BY start DESC";
+		
 		//Run query, but prevent caching as this data changes frequently
 		$this->db->cache_off();
 		$query = $this->db->query($sql);
