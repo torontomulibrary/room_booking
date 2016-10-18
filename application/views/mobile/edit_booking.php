@@ -73,7 +73,7 @@
 <ul data-role="listview" data-inset="true">
 	
 	<li><a href="<?php echo base_url(); ?>mobile/cancel_booking?booking_id=<?php echo $booking->booking_id; ?>">Cancel reservation?</a></li>
-	<li><a href="view_br.cfm?b=399545&del=y">Make another booking</a></li>
+	<li><a href="<?php echo base_url(); ?>mobile/book_room">Make another booking</a></li>
 </ul>
 
 <div class="back_img">
