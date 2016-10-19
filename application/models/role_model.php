@@ -178,6 +178,24 @@ class role_Model  extends CI_Model  {
 		
 		return $data;
 	}
+	
+	function load_email_templates(){
+		$files = array();
+		
+		if ($handle = opendir(getcwd() . DIRECTORY_SEPARATOR .'application'. DIRECTORY_SEPARATOR . 'views'. DIRECTORY_SEPARATOR . 'email')) {
+			while (false !== ($entry = readdir($handle))) {
+				if(strstr($entry, '.php') && $entry !== "booking_ics.php"){
+					$files[] = $entry;
+				}
+			}
+			closedir($handle);
+		}
+		
+		sort($files);
+		
+		return $files;
+		
+	}
 
 
 }

@@ -198,6 +198,9 @@ class Admin extends CI_Controller {
 					redirect('admin/roles');
 				}
 				else{
+					//Load list of email templates
+					$data['email_templates'] = $this->role_model->load_email_templates();
+					
 					$data['current_role'] = $this->role_model->get_role($this->uri->segment(4));
 					
 					if($data['current_role']->num_rows() === 0){
