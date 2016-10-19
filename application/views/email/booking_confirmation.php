@@ -8,5 +8,6 @@ This e-mail is your receipt for booking <?php echo $room['room_data']->row()->na
 
 To view/cancel your booking, please click the following <a href="<?php echo base_url() . 'booking/edit_booking?booking_id='.$booking_id; ?>">link</a><br><br>
 
+Please note, you must claim your room within the first 15 minutes of the booking, or your room may be taken by other eligible users.
 </body>
 </html>
