@@ -104,30 +104,32 @@
 	
 	<h3>Interface Settings</h3>
 	
+	<?php if(isset($current)) $interface_settings = json_decode($current->interface_settings); ?>
+	
 	<div class="form-group">
 		<label for="conf_email">Confirmation Email Template</label>
 		 <select id="conf_email" class="form-control" name="conf_email">
 			<?php foreach($email_templates as $email_template): ?>
-				<option value="<?php echo $email_template; ?>"><?php echo $email_template; ?></option>
+				<option value="<?php echo $email_template; ?>" <?php if(isset($interface_settings) && $interface_settings->conf_email === $email_template) echo 'selected="selected"'; ?>><?php echo $email_template; ?></option>
 			<?php endforeach; ?>
 		</select>
 	</div>
 	
 	<div class="form-group">
 		<label for="policy_url">URL to Booking Policy</label>
-		<input class="form-control" type="text" id="policy_url" name="policy_url" value="" />
+		<input class="form-control" type="text" id="policy_url" name="policy_url" value="<?php if(isset($interface_settings)) echo $interface_settings->policy_url; ?>" />
 	</div>
 
 	<div class="form-group">
 		<label for="sidebar_text">Booking Form - Sidebar Text (Supports HTML)</label>
-		<textarea rows="5" class="form-control" name="sidebar_text"></textarea>
+		<textarea rows="5" class="form-control" name="sidebar_text"><?php if(isset($interface_settings)) echo $interface_settings->sidebar_text; ?></textarea>
 	</div>
 	
 	<div class="form-group">
 		<label for="priority">Priority (If a user has more then one role, which settings should be used) [Bigger number = higher priority]</label>
 		 <select id="priority" class="form-control" name="priority">
 			<?php for($i=0; $i <= 10; $i++): ?>
-				<option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+				<option value="<?php echo $i; ?>" <?php if(isset($interface_settings) && $interface_settings->priority == $i) echo 'selected="selected"'; ?>><?php echo $i; ?></option>
 			<?php endfor; ?>
 		</select>
 	</div>

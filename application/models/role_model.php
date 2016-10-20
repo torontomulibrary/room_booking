@@ -113,13 +113,15 @@ class role_Model  extends CI_Model  {
 		return TRUE;
 	}
 	
-	function edit_role($role_id, $role_name, $hours_week, $booking_window, $login_attributes){
+	function edit_role($role_id, $role_name, $hours_week, $booking_window, $login_attributes, $interface_settings){
 	
 		$data = array(
 			'name' => $role_name,
 			'hours_per_week' => $hours_week,
 			'booking_window' => $booking_window,
 			'login_attributes' => $login_attributes,
+			'login_attributes' => $login_attributes,
+			'interface_settings' => $interface_settings,
 		);
 		
 		$this->db->where('role_id', $role_id); 

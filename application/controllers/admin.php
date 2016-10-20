@@ -217,8 +217,19 @@ class Admin extends CI_Controller {
 				$hours_week = $this->input->post('hours_week');
 				$booking_window = $this->input->post('booking_window');
 				$login_attributes = $this->input->post('login_attributes');
+			
+				//Interface fields
+				$interface_data = array();
+				$interface_data['conf_email'] = $this->input->post('conf_email');
+				$interface_data['policy_url'] = $this->input->post('policy_url');
+				$interface_data['priority'] = $this->input->post('priority');
+				$interface_data['sidebar_text'] = $this->input->post('sidebar_text');
+				
+				//Change Interface into a single field
+				$interface_settings = json_encode($interface_data);
 		
-				$id = $this->role_model->edit_role($role_id, $role_name, $hours_week, $booking_window, $login_attributes);
+		
+				$id = $this->role_model->edit_role($role_id, $role_name, $hours_week, $booking_window, $login_attributes, $interface_settings);
 				
 				$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The role has been updated</div>');
 				$this->db->cache_delete_all();
