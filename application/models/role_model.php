@@ -84,12 +84,15 @@ class role_Model  extends CI_Model  {
 		return $this->db->query($sql);		
 	}
 	
-	function add_role($role_name, $hours_week, $booking_window, $login_attributes){
+	function add_role($role_name, $hours_week, $booking_window, $login_attributes, $priority, $interface_settings){
 		$data = array(
 			'name' => $role_name,
 			'hours_per_week' => $hours_week,
 			'booking_window' => $booking_window,
 			'login_attributes' => $login_attributes,
+			'login_attributes' => $login_attributes,
+			'priority' => $priority,
+			'interface_settings' => $interface_settings,
 		);
 		
 		$this->db->insert('roles', $data);
@@ -113,7 +116,7 @@ class role_Model  extends CI_Model  {
 		return TRUE;
 	}
 	
-	function edit_role($role_id, $role_name, $hours_week, $booking_window, $login_attributes, $interface_settings){
+	function edit_role($role_id, $role_name, $hours_week, $booking_window, $login_attributes, $priority, $interface_settings){
 	
 		$data = array(
 			'name' => $role_name,
@@ -121,6 +124,7 @@ class role_Model  extends CI_Model  {
 			'booking_window' => $booking_window,
 			'login_attributes' => $login_attributes,
 			'login_attributes' => $login_attributes,
+			'priority' => $priority,
 			'interface_settings' => $interface_settings,
 		);
 		
@@ -179,6 +183,34 @@ class role_Model  extends CI_Model  {
 		}
 		
 		return $data;
+	}
+	
+	function get_policy_url($room_id = false){
+		if($room_id === false){
+			//Load all of the user roles, and return the one with highest priority
+			$sql = "	SELECT interface_settings FROM roles 
+						WHERE priority IN (SELECT max(priority) FROM roles) 
+						AND role_id IN ";
+			
+			
+			//Gather roles from session rather then database (since students etc.. are not whitelisted)
+			$roles = array();
+			
+			foreach($this->session->userdata('roles') as $role){
+				if(is_numeric($role->role_id)) $roles[] = $role->role_id;
+			}
+			
+			$sql .= "(".implode(",", $roles).")";
+			
+			//Retrieve the url
+			$result_json = $this->db->query($sql);
+			$result_data = json_decode($result_json->row()->interface_settings);
+			
+			return $result_data->policy_url;
+		}
+		else if(is_numeric($room_id)){
+			echo 'not implemented yet'; return;
+		}
 	}
 	
 	function load_email_templates(){

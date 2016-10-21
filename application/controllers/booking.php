@@ -128,6 +128,9 @@ class Booking extends CI_Controller {
 	
 	function index(){
 		$this->load->model('booking_model');
+		$this->load->model('role_model');
+		
+		$data['policy_url'] = $this->role_model->get_policy_url(); 
 		
 		$data['limits'] = $this->booking_model->remaining_hours($this->session->userdata('username'), time());
 		

@@ -29,6 +29,7 @@
 				<th>Hours per Week</th>
 				<th>Booking Window</th>
 				<th>Login Attributes</th>
+				<th>Priority</th>
 				<th>Options</th>
 			</tr>
 		</thead>
@@ -39,6 +40,7 @@
 				<td><?= ltrim($role->hours_per_week, '0'); ?></td>
 				<td><?= ltrim($role->booking_window, '0'); ?></td>
 				<td><?= $role->login_attributes ?></td>
+				<td><?= $role->priority ?></td>
 				
 				<td>
 					<a href="<?= base_url() ?>admin/roles/edit/<?= $role->role_id ?>">
@@ -118,6 +120,7 @@
 	<div class="form-group">
 		<label for="policy_url">URL to Booking Policy</label>
 		<input class="form-control" type="text" id="policy_url" name="policy_url" value="<?php if(isset($interface_settings)) echo $interface_settings->policy_url; ?>" />
+		<span style="display: block; margin-top: 0.5em; padding-left: 2em; font-size: 0.9em; ">Please include <i>http://</i> or <i>https://</i> in your URL</i></span>
 	</div>
 
 	<div class="form-group">
@@ -129,7 +132,7 @@
 		<label for="priority">Priority (If a user has more then one role, which settings should be used) [Bigger number = higher priority]</label>
 		 <select id="priority" class="form-control" name="priority">
 			<?php for($i=0; $i <= 10; $i++): ?>
-				<option value="<?php echo $i; ?>" <?php if(isset($interface_settings) && $interface_settings->priority == $i) echo 'selected="selected"'; ?>><?php echo $i; ?></option>
+				<option value="<?php echo $i; ?>" <?php if(isset($current) && $current->priority == $i) echo 'selected="selected"'; ?>><?php echo $i; ?></option>
 			<?php endfor; ?>
 		</select>
 	</div>
