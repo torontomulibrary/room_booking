@@ -39,8 +39,10 @@ class Mobile extends CI_Controller {
 
 	
 	public function index(){
+		$this->load->model('role_model');
 		
-		$this->template->load('mobile_template', 'mobile/mobile_main');
+		$data['policy_url'] = $this->role_model->get_policy_url(); 
+		$this->template->load('mobile_template', 'mobile/mobile_main', $data);
 	}
 	
 	function my_bookings(){
