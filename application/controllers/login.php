@@ -134,7 +134,13 @@ class Login extends CI_Controller {
 			
 			if($local_roles->num_rows() > 0){
 				foreach($local_roles->result() as $role){
-					$roles[] = $role;
+					//Make sure user doesn't already have this role
+					$found = false;
+					
+					foreach($roles as $existing_role){
+						if($existing_role->role_id == $role->role_id) $found = true;
+					}
+					if(!$found) $roles[] = $role;
 				}
 			}
 		}
