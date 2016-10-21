@@ -23,7 +23,7 @@
 
 
 	<ul data-role="listview" data-inset="true">
-		<li><a href="http://library.ryerson.ca/info/policies/study-room-booking-policy/" rel="external">View Booking Policy</a></li>
+		<li><a href="<?php echo $policy_url; ?>" rel="external">View Booking Policy</a></li>
 		<li><a href="https://library.cf.ryerson.ca/studentbooking/no-cas/study_space.cfm" rel="external">Additional Study Locations</a></li>
 
 		<li><a href="<?php echo base_url();?>logout" rel="external">Log Out</a></li>
