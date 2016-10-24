@@ -160,6 +160,7 @@ class Admin extends CI_Controller {
 				$hours_week = $this->input->post('hours_week');
 				$booking_window = $this->input->post('booking_window');
 				$login_attributes = $this->input->post('login_attributes');
+				$is_private = $this->input->post('is_private');
 				$priority = $this->input->post('priority');
 			
 				//Interface fields
@@ -173,7 +174,7 @@ class Admin extends CI_Controller {
 				$interface_settings = json_encode($interface_data);
 		
 		
-				$id = $this->role_model->add_role($role_name, $hours_week, $booking_window, $login_attributes, $priority, $interface_settings);
+				$id = $this->role_model->add_role($role_name, $hours_week, $booking_window, $login_attributes, $priority, $is_private, $interface_settings);
 				
 				if(is_numeric($id)){
 					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Building added successfully</div>');
@@ -231,7 +232,8 @@ class Admin extends CI_Controller {
 				$booking_window = $this->input->post('booking_window');
 				$login_attributes = $this->input->post('login_attributes');
 				$priority = $this->input->post('priority');
-			
+				$is_private = $this->input->post('is_private');
+		
 				//Interface fields
 				$interface_data = array();
 				$interface_data['conf_email'] = $this->input->post('conf_email');
@@ -243,7 +245,7 @@ class Admin extends CI_Controller {
 				$interface_settings = json_encode($interface_data);
 		
 		
-				$id = $this->role_model->edit_role($role_id, $role_name, $hours_week, $booking_window, $login_attributes, $priority, $interface_settings);
+				$id = $this->role_model->edit_role($role_id, $role_name, $hours_week, $booking_window, $login_attributes, $priority, $is_private, $interface_settings);
 				
 				$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The role has been updated</div>');
 				$this->db->cache_delete_all();

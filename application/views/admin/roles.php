@@ -29,6 +29,7 @@
 				<th>Hours per Week</th>
 				<th>Booking Window</th>
 				<th>Login Attributes</th>
+				<th>Hide User Names for Booked Rooms</th>
 				<th>Priority</th>
 				<th>Options</th>
 			</tr>
@@ -40,6 +41,7 @@
 				<td><?= ltrim($role->hours_per_week, '0'); ?></td>
 				<td><?= ltrim($role->booking_window, '0'); ?></td>
 				<td><?= $role->login_attributes ?></td>
+				<td><?= ($role->is_private)? '<span class="glyphicon glyphicon glyphicon-ok"></span>' : '<span class="glyphicon glyphicon-remove"></span>' ?></td>
 				<td><?= $role->priority ?></td>
 				
 				<td>
@@ -109,6 +111,24 @@
 	<?php if(isset($current)) $interface_settings = json_decode($current->interface_settings); ?>
 	
 	<div class="form-group">
+		<label for="priority">Priority (If a user has more then one role, which settings should be used) [Bigger number = higher priority]</label>
+		 <select id="priority" class="form-control" name="priority">
+			<?php for($i=0; $i <= 10; $i++): ?>
+				<option value="<?php echo $i; ?>" <?php if(isset($current) && $current->priority == $i) echo 'selected="selected"'; ?>><?php echo $i; ?></option>
+			<?php endfor; ?>
+		</select>
+	</div>
+	
+	<div class="form-group">
+		<label for="is_private">Hide User names for booked rooms?</label>
+		 <select id="is_private" class="form-control" name="is_private">
+			<option value="1" <?php if(isset($current) && $current->is_private == "1") echo 'selected="selected"'; ?>>Yes</option>
+			<option value="0" <?php if(isset($current) && $current->is_private == "0") echo 'selected="selected"'; ?>>No</option>
+			
+		</select>
+	</div>
+	
+	<div class="form-group">
 		<label for="conf_email">Confirmation Email Template</label>
 		 <select id="conf_email" class="form-control" name="conf_email">
 			<?php foreach($email_templates as $email_template): ?>
@@ -128,15 +148,7 @@
 		<textarea rows="5" class="form-control" name="sidebar_text"><?php if(isset($interface_settings)) echo $interface_settings->sidebar_text; ?></textarea>
 	</div>
 	
-	<div class="form-group">
-		<label for="priority">Priority (If a user has more then one role, which settings should be used) [Bigger number = higher priority]</label>
-		 <select id="priority" class="form-control" name="priority">
-			<?php for($i=0; $i <= 10; $i++): ?>
-				<option value="<?php echo $i; ?>" <?php if(isset($current) && $current->priority == $i) echo 'selected="selected"'; ?>><?php echo $i; ?></option>
-			<?php endfor; ?>
-		</select>
-	</div>
-	
+
   
 	<?php if(isset($current)): ?><input type="hidden" name="role_id" value="<?= $current->role_id ?>" /><?php endif; ?>
 	<button type="submit" class="btn btn-default">Submit</button>

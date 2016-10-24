@@ -386,6 +386,9 @@
 									else if($this->session->userdata('super_admin') == TRUE || $this->session->userdata('admin')){
 										echo '<td colspan="'.($diff/30) .'" class="booked_cell booking_cell"><div class="table_cell_height"><a href="'.base_url().'booking/edit_booking?booking_id='.$bookings[$room->room_id][$tNow]->booking_id.'">'.$booker_name.'</a></div></td>';
 									}
+									else if($role->is_private == FALSE){
+										echo '<td colspan="'.($diff/30) .'" class="booked_cell booking_cell"><div class="table_cell_height">'.$booker_name.'</div></td>';
+									}
 									else{
 										echo '<td colspan="'.($diff/30) .'" class="booked_cell booking_cell"><div class="table_cell_height">Booked</div></td>';
 									}

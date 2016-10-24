@@ -169,6 +169,7 @@ class Booking extends CI_Controller {
 			$this->load->model('hours_model');
 			$this->load->model('resource_model');
 			$this->load->model('building_model');
+			$this->load->model('role_model');
 			
 			$data['hours'] = $this->hours_model->getAllHours(mktime(0,0,0, date('n',$this->input->get('slot')),date('j',$this->input->get('slot')),date('Y',$this->input->get('slot'))));
 			
@@ -180,6 +181,7 @@ class Booking extends CI_Controller {
 			$data['resources'] = $this->resource_model->load_resources($data['room']['room_resources']);
 			$data['limits'] = $this->booking_model->remaining_hours($this->session->userdata('username'), $this->input->get('slot'));
 			$data['next_booking'] = $this->booking_model->next_booking($this->input->get('slot'), $this->input->get('room_id'));
+			$data['role'] = $this->role_model->get_priority_role($this->input->get('room_id'));
 			
 			$this->template->load('rula_template', 'booking/book_room_form', $data);
 		}
@@ -327,6 +329,7 @@ class Booking extends CI_Controller {
 							
 							$this->load->library('email');
 							$this->load->model('room_model');
+							$this->load->model('role_model');
 							$room = $this->room_model->load_room($room_id);
 							
 							//Send an email
@@ -338,7 +341,10 @@ class Booking extends CI_Controller {
 							
 							$this->booking_model->generate_ics($id);
 							
-							$email_content = $this->load->view('email/booking_confirmation', $data, TRUE);
+							//Load in the email template
+							$email_template = $this->role_model->get_email_template($room_id);
+							
+							$email_content = $this->load->view('email/'.$email_template, $data, TRUE);
 							$this->email->clear();
 							$this->email->set_mailtype('html');
 							$this->email->to($this->session->userdata('username').EMAIL_SUFFIX);

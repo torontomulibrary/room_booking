@@ -275,6 +275,7 @@ class Mobile extends CI_Controller {
 						
 						$this->load->library('email');
 						$this->load->model('room_model');
+						$this->load->model('role_model');
 						$room = $this->room_model->load_room($room_id);
 						
 						//Send an email
@@ -285,7 +286,10 @@ class Mobile extends CI_Controller {
 						
 						$this->booking_model->generate_ics($id);
 						
-						$email_content = $this->load->view('email/booking_confirmation', $data, TRUE);
+						//Load in the email template
+						$email_template = $this->role_model->get_email_template($room_id);
+							
+						$email_content = $this->load->view('email/'.$email_template, $data, TRUE);
 						$this->email->clear();
 						$this->email->set_mailtype('html');
 						$this->email->to($this->session->userdata('username').EMAIL_SUFFIX);
