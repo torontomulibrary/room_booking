@@ -62,6 +62,35 @@ class role_Model  extends CI_Model  {
 		
 	}
 	
+	function get_priority_role($room_id){
+		if(!is_numeric($room_id)) return false;
+		
+		$sql = "SELECT * FROM roles
+				WHERE priority IN 
+
+				(
+					SELECT max(priority) FROM 
+					(
+						SELECT r.* FROM roles r, room_roles rr
+						WHERE r.role_id = rr.role_id
+						AND rr.room_id = ". $room_id ."  
+					) rrr
+				)
+				LIMIT 1"; //If more then 1 result for this priority, only take the first one
+		
+		return $this->db->query($sql);
+	}
+	
+	function get_email_template($room_id){
+		$role_data = $this->get_priority_role($room_id);
+		
+		$role_json = json_decode($role_data->row()->interface_settings);
+		
+		//Trim the file extension from the template (eg, '.php')
+		return substr($role_json->conf_email, 0, -4);
+		
+	}
+	
 	function get_room_roles($room_id){
 
 		$this->db->select('rr.role_id, r.name')
@@ -84,12 +113,16 @@ class role_Model  extends CI_Model  {
 		return $this->db->query($sql);		
 	}
 	
-	function add_role($role_name, $hours_week, $booking_window, $login_attributes){
+	function add_role($role_name, $hours_week, $booking_window, $login_attributes, $priority, $is_private, $interface_settings){
 		$data = array(
 			'name' => $role_name,
 			'hours_per_week' => $hours_week,
 			'booking_window' => $booking_window,
 			'login_attributes' => $login_attributes,
+			'login_attributes' => $login_attributes,
+			'priority' => $priority,
+			'is_private' => $is_private,
+			'interface_settings' => $interface_settings,
 		);
 		
 		$this->db->insert('roles', $data);
@@ -113,13 +146,17 @@ class role_Model  extends CI_Model  {
 		return TRUE;
 	}
 	
-	function edit_role($role_id, $role_name, $hours_week, $booking_window, $login_attributes){
+	function edit_role($role_id, $role_name, $hours_week, $booking_window, $login_attributes, $priority, $is_private, $interface_settings){
 	
 		$data = array(
 			'name' => $role_name,
 			'hours_per_week' => $hours_week,
 			'booking_window' => $booking_window,
 			'login_attributes' => $login_attributes,
+			'login_attributes' => $login_attributes,
+			'priority' => $priority,
+			'is_private' => $is_private,
+			'interface_settings' => $interface_settings,
 		);
 		
 		$this->db->where('role_id', $role_id); 
@@ -177,6 +214,63 @@ class role_Model  extends CI_Model  {
 		}
 		
 		return $data;
+	}
+	
+	function get_policy_url($room_id = false){
+		if($room_id === false){
+			//Load all of the user roles, and return the one with highest priority
+			$sql = "	SELECT interface_settings FROM roles 
+						WHERE priority IN (SELECT max(priority) FROM roles WHERE role_id IN ";
+			
+			
+						//Gather roles from session rather then database (since students etc.. are not whitelisted)
+						$roles = array();
+						
+						foreach($this->session->userdata('roles') as $role){
+							if(is_numeric($role->role_id)) $roles[] = $role->role_id;
+						}
+						
+						$sql .= "(".implode(",", $roles).")) 
+						AND role_id IN ";
+			
+			
+						//Gather roles from session rather then database (since students etc.. are not whitelisted)
+						$roles = array();
+						
+						foreach($this->session->userdata('roles') as $role){
+							if(is_numeric($role->role_id)) $roles[] = $role->role_id;
+						}
+						
+						$sql .= "(".implode(",", $roles).")
+						LIMIT 1";
+			
+			//Retrieve the url
+			$result_json = $this->db->query($sql);
+			$result_data = json_decode($result_json->row()->interface_settings);
+			
+			return $result_data->policy_url;
+		}
+		else if(is_numeric($room_id)){
+			echo 'not implemented yet'; return;
+		}
+	}
+	
+	function load_email_templates(){
+		$files = array();
+		
+		if ($handle = opendir(getcwd() . DIRECTORY_SEPARATOR .'application'. DIRECTORY_SEPARATOR . 'views'. DIRECTORY_SEPARATOR . 'email')) {
+			while (false !== ($entry = readdir($handle))) {
+				if(strstr($entry, '.php') && $entry !== "booking_ics.php"){
+					$files[] = $entry;
+				}
+			}
+			closedir($handle);
+		}
+		
+		sort($files);
+		
+		return $files;
+		
 	}
 
 

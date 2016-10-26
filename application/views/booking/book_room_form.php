@@ -1,3 +1,5 @@
+<?php $role_data = json_decode($role->row()->interface_settings); ?>
+
 <?php ob_start();?>
 
 <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/booking_form.css" type="text/css" media="screen" />
@@ -153,12 +155,7 @@ if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot'))
 			</div>
 		  
 		  <div class="col-xs-3" style="background-color: #F0F0F0; border: 2px solid #c3c3c3; height:720px">
-			<h4>Please Note</h4>
-			<ul>
-				<li>Study Rooms are for groups of 3 or more people</li>
-				<li>You must claim your room within the <strong>first 15 minutes</strong> of the booking, or your room may be taken by other eligible users</li>
-				<li>Please read the <a href="http://library.ryerson.ca/info/policies/study-room-booking-policy/">full policy</a></li>  
-			</ul>
+			<?php echo $role_data->sidebar_text; ?>
 			
 			<h4>You are able to</h4>
 			<ul>

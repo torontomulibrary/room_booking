@@ -160,8 +160,21 @@ class Admin extends CI_Controller {
 				$hours_week = $this->input->post('hours_week');
 				$booking_window = $this->input->post('booking_window');
 				$login_attributes = $this->input->post('login_attributes');
+				$is_private = $this->input->post('is_private');
+				$priority = $this->input->post('priority');
+			
+				//Interface fields
+				$interface_data = array();
+				$interface_data['conf_email'] = $this->input->post('conf_email');
+				$interface_data['policy_url'] = $this->input->post('policy_url');
+			
+				$interface_data['sidebar_text'] = $this->input->post('sidebar_text');
 				
-				$id = $this->role_model->add_role($role_name, $hours_week, $booking_window, $login_attributes);
+				//Change Interface into a single field
+				$interface_settings = json_encode($interface_data);
+		
+		
+				$id = $this->role_model->add_role($role_name, $hours_week, $booking_window, $login_attributes, $priority, $is_private, $interface_settings);
 				
 				if(is_numeric($id)){
 					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Building added successfully</div>');
@@ -177,6 +190,7 @@ class Admin extends CI_Controller {
 			
 			//Set variable so the view loads the form, rather then list out existing roles
 			else if ($this->uri->segment(3) === 'new'){
+				$data['email_templates'] = $this->role_model->load_email_templates();
 				$data['new'] = true;
 			}
 			
@@ -198,6 +212,9 @@ class Admin extends CI_Controller {
 					redirect('admin/roles');
 				}
 				else{
+					//Load list of email templates
+					$data['email_templates'] = $this->role_model->load_email_templates();
+					
 					$data['current_role'] = $this->role_model->get_role($this->uri->segment(4));
 					
 					if($data['current_role']->num_rows() === 0){
@@ -214,8 +231,21 @@ class Admin extends CI_Controller {
 				$hours_week = $this->input->post('hours_week');
 				$booking_window = $this->input->post('booking_window');
 				$login_attributes = $this->input->post('login_attributes');
+				$priority = $this->input->post('priority');
+				$is_private = $this->input->post('is_private');
 		
-				$id = $this->role_model->edit_role($role_id, $role_name, $hours_week, $booking_window, $login_attributes);
+				//Interface fields
+				$interface_data = array();
+				$interface_data['conf_email'] = $this->input->post('conf_email');
+				$interface_data['policy_url'] = $this->input->post('policy_url');
+			
+				$interface_data['sidebar_text'] = $this->input->post('sidebar_text');
+				
+				//Change Interface into a single field
+				$interface_settings = json_encode($interface_data);
+		
+		
+				$id = $this->role_model->edit_role($role_id, $role_name, $hours_week, $booking_window, $login_attributes, $priority, $is_private, $interface_settings);
 				
 				$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The role has been updated</div>');
 				$this->db->cache_delete_all();
