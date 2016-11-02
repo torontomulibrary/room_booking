@@ -113,7 +113,7 @@ class role_Model  extends CI_Model  {
 		return $this->db->query($sql);		
 	}
 	
-	function add_role($role_name, $hours_week, $booking_window, $login_attributes, $priority, $is_private, $interface_settings){
+	function add_role($role_name, $hours_week, $booking_window, $login_attributes, $priority, $is_private, $interface_settings, $site_theme){
 		$data = array(
 			'name' => $role_name,
 			'hours_per_week' => $hours_week,
@@ -123,6 +123,7 @@ class role_Model  extends CI_Model  {
 			'priority' => $priority,
 			'is_private' => $is_private,
 			'interface_settings' => $interface_settings,
+			'site_theme' => $site_theme,
 		);
 		
 		$this->db->insert('roles', $data);
@@ -146,7 +147,7 @@ class role_Model  extends CI_Model  {
 		return TRUE;
 	}
 	
-	function edit_role($role_id, $role_name, $hours_week, $booking_window, $login_attributes, $priority, $is_private, $interface_settings){
+	function edit_role($role_id, $role_name, $hours_week, $booking_window, $login_attributes, $priority, $is_private, $interface_settings, $site_theme){
 	
 		$data = array(
 			'name' => $role_name,
@@ -157,6 +158,7 @@ class role_Model  extends CI_Model  {
 			'priority' => $priority,
 			'is_private' => $is_private,
 			'interface_settings' => $interface_settings,
+			'site_theme' => $site_theme,
 		);
 		
 		$this->db->where('role_id', $role_id); 
@@ -272,6 +274,56 @@ class role_Model  extends CI_Model  {
 		return $files;
 		
 	}
+	
+	function load_themes(){
+		$files = array();
+		
+		if ($handle = opendir(getcwd() . DIRECTORY_SEPARATOR .'application'. DIRECTORY_SEPARATOR . 'views')) {
+			while (false !== ($entry = readdir($handle))) {
+				if(strstr($entry, '_template.php') && $entry != "admin_template.php" && $entry != "mobile_template.php"){
+					$files[] = $entry;
+				}
+			}
+			closedir($handle);
+		}
+		
+		sort($files);
+		
+		return $files;
+		
+	}
 
-
+	function get_theme(){
+		//Load all of the user roles, and return the one with highest priority
+			$sql = "	SELECT site_theme FROM roles 
+						WHERE priority IN (SELECT max(priority) FROM roles WHERE role_id IN ";
+			
+			
+						//Gather roles from session rather then database (since students etc.. are not whitelisted)
+						$roles = array();
+						
+						foreach($this->session->userdata('roles') as $role){
+							if(is_numeric($role->role_id)) $roles[] = $role->role_id;
+						}
+						
+						$sql .= "(".implode(",", $roles).")) 
+						AND role_id IN ";
+			
+			
+						//Gather roles from session rather then database (since students etc.. are not whitelisted)
+						$roles = array();
+						
+						foreach($this->session->userdata('roles') as $role){
+							if(is_numeric($role->role_id)) $roles[] = $role->role_id;
+						}
+						
+						$sql .= "(".implode(",", $roles).")
+						LIMIT 1";
+			
+			//Retrieve the url
+			$result = $this->db->query($sql);
+			$return_data = $result->row()->site_theme;
+			
+			return substr($return_data, 0, -4);
+	}
 }

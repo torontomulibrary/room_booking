@@ -30,6 +30,7 @@
 				<th>Booking Window</th>
 				<th>Login Attributes</th>
 				<th>Hide User Names for Booked Rooms</th>
+				<th>Site Theme</th>
 				<th>Priority</th>
 				<th>Options</th>
 			</tr>
@@ -42,6 +43,7 @@
 				<td><?= ltrim($role->booking_window, '0'); ?></td>
 				<td><?= $role->login_attributes ?></td>
 				<td><?= ($role->is_private)? '<span class="glyphicon glyphicon glyphicon-ok"></span>' : '<span class="glyphicon glyphicon-remove"></span>' ?></td>
+				<td><?= substr($role->site_theme, 0, -4); ?></td>
 				<td><?= $role->priority ?></td>
 				
 				<td>
@@ -110,12 +112,23 @@
 	
 	<?php if(isset($current)) $interface_settings = json_decode($current->interface_settings); ?>
 	
+	
+	
 	<div class="form-group">
 		<label for="priority">Priority (If a user has more then one role, which settings should be used) [Bigger number = higher priority]</label>
 		 <select id="priority" class="form-control" name="priority">
 			<?php for($i=0; $i <= 10; $i++): ?>
 				<option value="<?php echo $i; ?>" <?php if(isset($current) && $current->priority == $i) echo 'selected="selected"'; ?>><?php echo $i; ?></option>
 			<?php endfor; ?>
+		</select>
+	</div>
+	
+	<div class="form-group">
+		<label for="site_theme">Site Theme</label>
+		 <select id="site_theme" class="form-control" name="site_theme">
+			<?php foreach($site_themes as $site_theme): ?>
+				<option value="<?php echo $site_theme; ?>" <?php if(isset($current) && $current->site_theme === $site_theme) echo 'selected="selected"'; ?>><?php echo $site_theme; ?></option>
+			<?php endforeach; ?>
 		</select>
 	</div>
 	

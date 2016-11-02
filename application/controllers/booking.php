@@ -123,7 +123,8 @@ class Booking extends CI_Controller {
 			$data['calendar'] = $this->calendar->drawCalendar();
 		}
 		
-		$this->template->load('rula_template', 'booking/booking_main', $data);
+		
+		$this->template->load($this->role_model->get_theme(), 'booking/booking_main', $data);
 	}
 	
 	function index(){
@@ -134,11 +135,12 @@ class Booking extends CI_Controller {
 		
 		$data['limits'] = $this->booking_model->remaining_hours($this->session->userdata('username'), time());
 		
-		$this->template->load('rula_template', 'booking/landing_page', $data);
+		$this->template->load($this->role_model->get_theme(), 'booking/landing_page', $data);
 	}
 	
 	function my_bookings(){
 		$this->load->model('booking_model');
+		$this->load->model('role_model');
 		
 		$data['today'] = $this->booking_model->remaining_hours($this->session->userdata('username'), time());
 		$data['next_week'] = $this->booking_model->remaining_hours($this->session->userdata('username'), time() + 60*60*24*7);
@@ -149,7 +151,7 @@ class Booking extends CI_Controller {
 		$data['current'] = $this->booking_model->get_current_bookings($this->session->userdata('username'), 5);
 		
 		
-		$this->template->load('rula_template', 'booking/my_bookings', $data);
+		$this->template->load($this->role_model->get_theme(), 'booking/my_bookings', $data);
 	}
 	
 	function book_room(){
@@ -183,7 +185,7 @@ class Booking extends CI_Controller {
 			$data['next_booking'] = $this->booking_model->next_booking($this->input->get('slot'), $this->input->get('room_id'));
 			$data['role'] = $this->role_model->get_priority_role($this->input->get('room_id'));
 			
-			$this->template->load('rula_template', 'booking/book_room_form', $data);
+			$this->template->load($this->role_model->get_theme(), 'booking/book_room_form', $data);
 		}
 	}
 	
@@ -411,6 +413,7 @@ class Booking extends CI_Controller {
 		$this->load->model('hours_model');
 		$this->load->model('resource_model');
 		$this->load->model('building_model');
+		$this->load->model('role_model');
 		
 		$data['room'] = $this->room_model->load_room($data['booking']->room_id);
 		$data['resources'] = $this->resource_model->load_resources($data['room']['room_resources']);
@@ -423,7 +426,7 @@ class Booking extends CI_Controller {
 		//Check if user has already checked out of this booking
 		$data['checked_out'] = $this->booking_model->is_checked_out($this->input->get('booking_id'));
 		
-		$this->template->load('rula_template', 'booking/edit_book_room_form', $data);
+		$this->template->load($this->role_model->get_theme(), 'booking/edit_book_room_form', $data);
 	}
 	
 	function checkout(){

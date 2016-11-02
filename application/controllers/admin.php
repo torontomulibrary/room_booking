@@ -162,6 +162,7 @@ class Admin extends CI_Controller {
 				$login_attributes = $this->input->post('login_attributes');
 				$is_private = $this->input->post('is_private');
 				$priority = $this->input->post('priority');
+				$site_theme = $this->input->post('site_theme');
 			
 				//Interface fields
 				$interface_data = array();
@@ -174,7 +175,7 @@ class Admin extends CI_Controller {
 				$interface_settings = json_encode($interface_data);
 		
 		
-				$id = $this->role_model->add_role($role_name, $hours_week, $booking_window, $login_attributes, $priority, $is_private, $interface_settings);
+				$id = $this->role_model->add_role($role_name, $hours_week, $booking_window, $login_attributes, $priority, $is_private, $interface_settings, $site_theme);
 				
 				if(is_numeric($id)){
 					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Building added successfully</div>');
@@ -191,6 +192,7 @@ class Admin extends CI_Controller {
 			//Set variable so the view loads the form, rather then list out existing roles
 			else if ($this->uri->segment(3) === 'new'){
 				$data['email_templates'] = $this->role_model->load_email_templates();
+				$data['site_themes'] = $this->role_model->load_themes();
 				$data['new'] = true;
 			}
 			
@@ -214,6 +216,7 @@ class Admin extends CI_Controller {
 				else{
 					//Load list of email templates
 					$data['email_templates'] = $this->role_model->load_email_templates();
+					$data['site_themes'] = $this->role_model->load_themes();
 					
 					$data['current_role'] = $this->role_model->get_role($this->uri->segment(4));
 					
@@ -233,6 +236,7 @@ class Admin extends CI_Controller {
 				$login_attributes = $this->input->post('login_attributes');
 				$priority = $this->input->post('priority');
 				$is_private = $this->input->post('is_private');
+				$site_theme = $this->input->post('site_theme');
 		
 				//Interface fields
 				$interface_data = array();
@@ -245,7 +249,7 @@ class Admin extends CI_Controller {
 				$interface_settings = json_encode($interface_data);
 		
 		
-				$id = $this->role_model->edit_role($role_id, $role_name, $hours_week, $booking_window, $login_attributes, $priority, $is_private, $interface_settings);
+				$id = $this->role_model->edit_role($role_id, $role_name, $hours_week, $booking_window, $login_attributes, $priority, $is_private, $interface_settings, $site_theme);
 				
 				$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The role has been updated</div>');
 				$this->db->cache_delete_all();
