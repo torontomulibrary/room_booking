@@ -35,13 +35,13 @@
 				<td><?= $row->start ?></td>
 				<td><?= $row->end ?></td>
 				<td><?= $row->booker_name ?></td>
-				<td><?= $row->reason ?></td>
+				<td><?= $row->comment ?></td>
 
 				<td>
-					<a href="<?= base_url(); ?>admin/moderate/approve/<?= $row->moderation_id ?>">
+					<a href="<?= base_url(); ?>admin/moderate/approve/<?= $row->booking_id ?>">
 						<button class="btn btn-default btn-sm" type="button"><span aria-hidden="true" class="glyphicon glyphicon-ok"></span>Approve</button>
 					</a> 
-					<a href="<?= base_url(); ?>admin/moderate/deny/<?= $row->moderation_id ?>">
+					<a href="<?= base_url(); ?>admin/moderate/deny/<?= $row->booking_id ?>">
 						<button class="btn btn-default btn-sm" type="button"><span aria-hidden="true" class="glyphicon glyphicon-remove"></span>Deny</button>
 					</a>
 				</td>
