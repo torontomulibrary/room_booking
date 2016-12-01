@@ -18,7 +18,8 @@ class booking_Model  extends CI_Model  {
 			
 			$sql = "SELECT distinct booking_id, r.room_id, matrix_id, start, end, comment, booker_name FROM bookings b, rooms r, room_roles rr
 					WHERE
-					b.start BETWEEN '".date('Y-m-d H:i:s', $date_start)."' AND '".date('Y-m-d H:i:s', $date_end)."'
+					b.needs_moderation = 0
+					AND b.start BETWEEN '".date('Y-m-d H:i:s', $date_start)."' AND '".date('Y-m-d H:i:s', $date_end)."'
 					AND b.room_id = r.room_id
 					AND r.room_id = rr.room_id ";
 			
@@ -99,7 +100,7 @@ class booking_Model  extends CI_Model  {
 	
 	function next_booking($datetime, $room_id){
 		if(!is_numeric($room_id)) return;
-		$sql = "SELECT MIN(start) AS start FROM bookings WHERE room_id = ".$room_id."     AND start > ".$this->db->escape(date('Y-m-d H:i:s', $datetime));
+		$sql = "SELECT MIN(start) AS start FROM bookings WHERE needs_moderation = 0 AND room_id = ".$room_id."     AND start > ".$this->db->escape(date('Y-m-d H:i:s', $datetime));
 		
 		$this->db->cache_off();
 		$result = $this->db->query($sql);
@@ -124,13 +125,13 @@ class booking_Model  extends CI_Model  {
 		
 		//Pull down their existing bookings for that week (don't cache this)
 		$this->db->cache_off();
-		$weekly_bookings_query = $this->db->query("SELECT IFNULL(sum(TIMESTAMPDIFF(minute,start,end)),0) as weekly_minutes FROM bookings where matrix_id = ". $this->db->escape($this->session->userdata('username')). " AND  yearweek(start,6) = yearweek('" . date('Y-m-d',$date) ."',6)");
+		$weekly_bookings_query = $this->db->query("SELECT IFNULL(sum(TIMESTAMPDIFF(minute,start,end)),0) as weekly_minutes FROM bookings where needs_moderation = 0 AND matrix_id = ". $this->db->escape($this->session->userdata('username')). " AND  yearweek(start,6) = yearweek('" . date('Y-m-d',$date) ."',6)");
 		$this->db->cache_on();
 		$weekly_bookings = $weekly_bookings_query->row();
 		
 		//Pull down existing bookings for that day
 		$this->db->cache_off();
-		$daily_bookings_query = $this->db->query("SELECT IFNULL(sum(TIMESTAMPDIFF(minute,start,end)),0) as daily_minutes FROM bookings where matrix_id = ". $this->db->escape($this->session->userdata('username')). " AND  year(start) = '".date('Y',$date)."' AND dayofyear(start) = " . (date('z', $date) + 1));
+		$daily_bookings_query = $this->db->query("SELECT IFNULL(sum(TIMESTAMPDIFF(minute,start,end)),0) as daily_minutes FROM bookings where needs_moderation = 0 AND matrix_id = ". $this->db->escape($this->session->userdata('username')). " AND  year(start) = '".date('Y',$date)."' AND dayofyear(start) = " . (date('z', $date) + 1));
 		$this->db->cache_on();
 		$daily_bookings = $daily_bookings_query->row();
 		
@@ -183,6 +184,7 @@ class booking_Model  extends CI_Model  {
 				and start < '". date('Y-m-d H:i:s', $end)."'))
 				
 				
+				and needs_moderation = 0 
 				and room_id = $room_id";
 		
 		$existing_bookings = $this->db->query($sql);
@@ -198,7 +200,8 @@ class booking_Model  extends CI_Model  {
 						'end' => date('Y-m-d H:i:s', $end),
 						'comment' => $comment,
 						'booker_name' => $booker_name,
-						'matrix_id' => $matrix_id
+						'matrix_id' => $matrix_id,
+						'needs_moderation' => FALSE
 					);
 			
 			$this->db->insert('bookings', $data);
@@ -297,6 +300,7 @@ class booking_Model  extends CI_Model  {
 			
 			$sql = "SELECT b.booking_id, b.room_id, r.name, b.matrix_id, b.booker_name, b.start, b.end, r.seats from bookings b, rooms r, room_roles rr
 					WHERE 
+					b.needs_moderation = 0 AND
 					b.room_id = r.room_id
 					AND r.room_id = rr.room_id ";
 					
@@ -327,6 +331,7 @@ class booking_Model  extends CI_Model  {
 	function get_upcoming_bookings($matrix_id){
 		$sql = "SELECT b.booking_id, b.room_id, r.name, b.matrix_id, b.booker_name, b.start, b.end, r.seats from bookings b, rooms r, room_roles rr
 				WHERE 
+				b.needs_moderation = 0 AND
 				b.room_id = r.room_id
 				
 				AND r.room_id = rr.room_id ";
@@ -357,6 +362,7 @@ class booking_Model  extends CI_Model  {
 	function get_current_bookings($matrix_id){
 		$sql = "SELECT b.booking_id, b.room_id, r.name, b.matrix_id, b.booker_name, b.start, b.end, r.seats from bookings b, rooms r, room_roles rr
 				WHERE 
+				b.needs_moderation = 0 AND
 				b.room_id = r.room_id
 				
 				AND r.room_id = rr.room_id ";
@@ -390,6 +396,7 @@ class booking_Model  extends CI_Model  {
 		
 		$sql = "select b.booking_id, b.room_id, r.name, b.matrix_id, b.booker_name, b.start, b.end, r.seats from bookings b, rooms r, room_roles rr
 				where 
+				b.needs_moderation = 0 AND
 				b.room_id = r.room_id
 				
 				AND r.room_id = rr.room_id ";
@@ -866,6 +873,7 @@ class booking_Model  extends CI_Model  {
 							bookings b,
 							room_roles rr
 						WHERE
+							b.needs_moderation = 0 AND
 							b.room_id = rr.room_id
 								AND rr.role_id = ".$role_id." 
 								AND (start = '".date('Y-m-d H:i:s', $time)."'
@@ -905,9 +913,9 @@ class booking_Model  extends CI_Model  {
 	
 	function get_moderation_queue(){
 		
-		
-		$sql = "SELECT mq.moderation_id, mq.start, mq.end, r.name, mq.booker_name, mq.reason FROM moderation_queue mq, rooms r
-				WHERE mq.room_id = r.room_id";
+		$sql = "SELECT b.*, r.name FROM bookings b, rooms r
+				WHERE b.room_id = r.room_id
+				AND needs_moderation = 1 ";
 				
 		if($this->session->userdata('super_admin') !== true){
 			$sql.= " AND r.room_id IN (SELECT room_id FROM room_roles rr WHERE rr.role_id IN ";
@@ -937,22 +945,23 @@ class booking_Model  extends CI_Model  {
 			'room_id' => $room_id,
 			'start' => date('Y-m-d H:i:s', $start),
 			'end' => date('Y-m-d H:i:s', $end),
-			'reason' => $comment,
+			'comment' => $comment,
 			'booker_name' => $this->session->userdata('name'),
-			'matrix_id' => $this->session->userdata('username')
+			'matrix_id' => $this->session->userdata('username'),
+			'needs_moderation' => TRUE
 		);
 
-		$this->db->insert('moderation_queue', $data);
+		$this->db->insert('bookings', $data);
 
 		return $this->db->insert_id();
 		
 	}
 	
-	function moderator_approve($moderation_id){
+	function moderator_approve($booking_id){
 		//see if the slot is free, then "book"
 		
-		$this->db->where('moderation_id', $moderation_id);
-		$data = $this->db->get('moderation_queue')->row();
+		$this->db->where('booking_id', $booking_id);
+		$data = $this->db->get('bookings')->row();
 		
 		//Make sure the admin is allowed to moderate this entry!
 		if($this->session->userdata('super_admin') !== true){
@@ -987,17 +996,15 @@ class booking_Model  extends CI_Model  {
 			}
 		}
 		
-		
+		//Remove it from the moderator queue
+		$this->db->where('booking_id', $booking_id);
+		$this->db->delete('bookings');
 		
 		//Book the room, making it appear as booked to all users
 		$ret_val = $this->book_room($data->room_id, strtotime($data->start), strtotime($data->end), '', $data->booker_name, $data->matrix_id);
 		
 		
 		if($ret_val !== FALSE){
-			//Remove it from the moderator queue
-			$this->db->where('moderation_id', $moderation_id);
-			$this->db->delete('moderation_queue');
-			
 			$log_data = json_encode(array(
 				"room_id" => $data->room_id,
 				"matrix_id" => $data->matrix_id,
@@ -1011,20 +1018,31 @@ class booking_Model  extends CI_Model  {
 				
 			return $ret_val;
 		}
-		//Approval failed, likely because of an overlapping booking
+		//Approval failed, likely because of an overlapping booking. Re-add to the moderation queue
 		else{
+			$mod_data = array(
+				'room_id'			=> $data->room_id, 
+				'start'				=> $data->start, 
+				'end'				=> $data->end, 
+				'comment'			=> $data->comment,
+				'booker_name' 		=> $data->booker_name, 
+				'matrix_id'			=> $data->matrix_id,
+				'needs_moderation'	=> TRUE
+			);
+			
+			$this->db->insert('bookings', $data);
 			return FALSE;
 		}
 		
 		
 	}
 	
-	function moderator_deny($moderation_id){
+	function moderator_deny($booking_id){
 		$this->load->model('log_model');
 		//delete from moderation table
 		
-		$this->db->where('moderation_id', $moderation_id);
-		$data = $this->db->get('moderation_queue')->row();
+		$this->db->where('booking_id', $booking_id);
+		$data = $this->db->get('bookings')->row();
 		
 		//Make sure the admin is allowed to moderate this entry!
 		if($this->session->userdata('super_admin') !== true){
@@ -1072,16 +1090,16 @@ class booking_Model  extends CI_Model  {
 		$this->load->model('log_model');
 		$this->log_model->log_event('desktop', $this->session->userdata('username'), "Moderator Deny", null, $log_data);
 		
-		$this->db->where('moderation_id', $moderation_id);
-		$this->db->delete('moderation_queue');
+		$this->db->where('booking_id', $booking_id);
+		$this->db->delete('bookings');
 		
 		
 		
 	}
 	
-	function load_moderation_entry($moderation_id){
-		$this->db->where('moderation_id', $moderation_id);
-		return $this->db->get('moderation_queue');
+	function load_moderation_entry($booking_id){
+		$this->db->where('booking_id', $booking_id);
+		return $this->db->get('bookings');
 	}
 	
 	
