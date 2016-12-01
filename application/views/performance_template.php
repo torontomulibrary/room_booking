@@ -34,7 +34,7 @@ class="js" lang="en">
 		}
 		
 		body{
-			background-color: #f0f0f0;
+			background-color: #333333;
 		}
 	</style>
 	
