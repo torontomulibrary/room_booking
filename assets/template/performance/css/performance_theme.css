@@ -834,7 +834,7 @@ div.image-with-caption {
     height: auto;
 }
 table {
-    margin: 25px 0px;
+    /*margin: 25px 0px;*/
 }
 table td {
     vertical-align: top;
