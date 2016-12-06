@@ -1340,6 +1340,108 @@ class Admin extends CI_Controller {
 		
 		var_dump($arr);
 	}
+	
+	function form_customization(){
+		
+		
+		if(!$this->session->userdata('super_admin')){
+			$this->template->load('admin_template', 'admin/denied');
+		}
+		else{
+			$this->load->model('interface_model');
+		
+			$data = array();
+		
+			
+			if($this->uri->segment(3) === 'add'){
+				
+				
+				$field_title = $this->input->post('field_title');
+				$field_type = $this->input->post('field_type');
+				
+				$role = $this->input->post('role');
+				
+				if($field_type === "select"){
+					$select_field_data = $this->input->post('select_field_title');
+				}
+				else{
+					$select_field_data = array();
+				}
+				
+		
+				$id = $this->interface_model->add_field($field_title, $field_type, $select_field_data, $role);
+				
+				if(is_numeric($id)){
+					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Field added successfully</div>');
+					$this->db->cache_delete_all();
+					redirect('admin/form_customization');
+				}
+				else{
+					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. Data may not have been added</div>');
+					$this->db->cache_delete_all();
+					redirect('admin/form_customization');
+				}
+			}
+			
+			//Set variable so the view loads the form, rather then list out existing users
+			else if ($this->uri->segment(3) === 'new'){
+				$data['new'] = true;
+				$data['user_roles'] = $this->role_model->list_roles();
+			}
+			
+			else if ($this->uri->segment(3) === 'delete'){
+				if(!is_numeric($this->uri->segment(4))){
+					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. The user was not deleted</div>');
+					
+					redirect('admin/form_customization');
+				}
+				
+				$this->interface_model->delete_field($this->uri->segment(4));
+				$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Field deleted successfully</div>');
+				$this->db->cache_delete_all(); //Delete all cache to take care of foreign keys
+				redirect('admin/form_customization');
+			}
+			else if ($this->uri->segment(3) === 'edit'){
+				if(!is_numeric($this->uri->segment(4))){
+					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. Unable to edit</div>');
+					redirect('admin/form_customization');
+				}
+				else{
+					$data['current_field'] = $this->interface_model->get_field($this->uri->segment(4));
+					$data['user_roles'] = $this->role_model->list_roles();
+					$data['field_roles'] = $this->interface_model->get_field_roles($this->uri->segment(4));
+					
+					if($data['current_field']->num_rows() === 0){
+						$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Invalid Field ID</div>');
+						$this->db->cache_delete_all();
+						redirect('admin/form_customization');
+					}
+				}
+			}
+			
+			else if ($this->uri->segment(3) === 'update'){
+				/*$user_id = $this->input->post('user_id');
+				$matrix = $this->input->post('matrix');
+				$admin = $this->input->post('admin');
+				$role = $this->input->post('role');
+				$name = $this->input->post('name');
+		
+				$id = $this->user_model->edit_user($user_id, $matrix, $name, $admin, $role);
+				
+				$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The user has been updated</div>');
+				$this->db->cache_delete_all();
+				redirect('admin/users');*/
+			}
+			
+			$data['form_components'] = $this->interface_model->get_all_form_components();
+			$this->template->load('admin_template', 'admin/form_customization', $data);
+			
+		}
+		
+		
+		
+		
+	}
 }
 
 /* End of file admin.php */
