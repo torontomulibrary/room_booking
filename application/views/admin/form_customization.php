@@ -110,7 +110,7 @@
 		<label for="role">Roles:</label>
 		<select id="role" class="form-control" name="role[]" multiple size="7">
 			<?php foreach($user_roles->result() as $role): ?>
-				<option value="<?= $role->role_id ?>" <?php foreach ($field_roles->result() as $field_role): if($role->role_id === $field_role->role_id):?>selected="selected"<?php endif; endforeach;?>><?= $role->name ?></option>
+				<option value="<?= $role->role_id ?>" <?php if(isset($field_roles)){foreach ($field_roles->result() as $field_role): if($role->role_id === $field_role->role_id):?>selected="selected"<?php endif; endforeach;}?>><?= $role->name ?></option>
 			<?php endforeach; ?>
 		</select>
 	</div>
