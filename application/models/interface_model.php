@@ -17,8 +17,14 @@ class interface_Model  extends CI_Model  {
 	}
 	
 	function get_field_roles($fc_id){
-		$this->db->where('fc_id', $fc_id);
-		return $this->db->get('form_customization_role');
+		if(!is_numeric($fc_id)) return FALSE;
+		
+		$sql = "SELECT fcr.fc_id, fcr.role_id, r.name FROM form_customization_role fcr, roles r
+				WHERE fc_id = $fc_id
+				and fcr.role_id = r.role_id";
+		
+		
+		return $this->db->query($sql);
 	}
 	
 	function add_field($name, $type, $data, $roles){

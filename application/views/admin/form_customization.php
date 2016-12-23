@@ -29,6 +29,7 @@
 				<th>Field Type</th>
 				<th>Roles</th>
 				<th>Data</th>
+				<th>Show results when Moderating</th>
 				<th>Options</th>
 			</tr>
 		</thead>
@@ -43,17 +44,19 @@
 				
 				<td>
 					<?php 
-						/*
-						$roles = $this->role_model->get_user_roles($component->fc_id);
+						
+						$roles = $this->interface_model->get_field_roles($component->fc_id);
 						
 						foreach($roles->result() as $role){
 							echo $role->name ."<br />";
 						}
-						*/
+						
 					?>
 				</td>
 				
 				<td><?= $component->data ?></td>
+				
+				<td><?= ($component->show_moderator)? '<span class="glyphicon glyphicon glyphicon-ok"></span>' : '<span class="glyphicon glyphicon-remove"></span>' ?></td>
 				
 				<td>
 					<a href="<?= base_url() ?>admin/form_customization/edit/<?= $component->fc_id ?>">
@@ -64,6 +67,7 @@
 						<button class="btn btn-default btn-sm" type="button"><span aria-hidden="true" class="glyphicon glyphicon-remove"></span> Remove</button>
 					</a>
 				</td>
+				
 				
 			</tr>
 			<?php endforeach; ?>
@@ -115,6 +119,12 @@
 		</select>
 	</div>
   
+    
+  <div class="checkbox">
+    <label>
+      <input type="checkbox" name="active" <?php if(isset($current) && $current->show_moderator != 0) echo 'checked' ?>> Show results when Moderating
+    </label>
+  </div>
   
   <?php if(isset($current)): ?><input type="hidden" name="fc_id" value="<?= $current->fc_id ?>" /><?php endif; ?>
   <button type="submit" class="btn btn-default">Submit</button>
