@@ -123,8 +123,8 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 											}
 											
 											//If greater then midnight, set the end time to midnight
-											if($end_time > mktime(0,0,0,date('n',strtotime($booking->start)), date('d',strtotime($booking->start))+1)){
-												$end_time = mktime(0,0,0,date('n',strtotime($booking->start)), date('d',strtotime($booking->start))+1);
+											if($end_time > mktime(0,0,0,date('n',strtotime($booking->start)), date('d',strtotime($booking->start))+1,date('Y',strtotime($booking->start)))){
+												$end_time = mktime(0,0,0,date('n',strtotime($booking->start)), date('d',strtotime($booking->start))+1,date('Y',strtotime($booking->start)));
 											}
 											
 											//If greater then closing time

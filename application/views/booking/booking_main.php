@@ -240,7 +240,7 @@
 							}
 							else if($hours[$room->building_id]->STARTTIME > $hours['min'] || $hours[$room->building_id]->ISOPEN == false){
 								//How big is the placeholder
-								$numSlots = ceil(((($hours[$room->building_id]->STARTTIME - $hours['min']) * 24) * 60) / 30);
+								$numSlots = ceil((((($hours[$room->building_id]->STARTTIME - $hours['min']) * 24) * 60) / 30)- 0.005); //Subtract 0.005 to eliminate any rounding errors
 								
 								//Output the placeholder
 								echo '<td colspan="'. $numSlots .'" class="closed booking_cell"><div class="table_cell_height">Closed</div></td>';
