@@ -1354,12 +1354,15 @@ class Admin extends CI_Controller {
 		
 			
 			if($this->uri->segment(3) === 'add'){
-				
-				
 				$field_title = $this->input->post('field_title');
 				$field_type = $this->input->post('field_type');
+				$show_moderator = $this->input->post('show_moderator');
+				$fc_id = $this->input->post('fc_id');
 				
 				$role = $this->input->post('role');
+				
+				if($show_moderator === "on") $show_moderator = true;
+				else $show_moderator = false;
 				
 				if($field_type === "select"){
 					$select_field_data = $this->input->post('select_field_title');
@@ -1369,7 +1372,7 @@ class Admin extends CI_Controller {
 				}
 				
 		
-				$id = $this->interface_model->add_field($field_title, $field_type, $select_field_data, $role);
+				$id = $this->interface_model->add_field($field_title, $field_type, $select_field_data, $role, $show_moderator);
 				
 				if(is_numeric($id)){
 					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Field added successfully</div>');
@@ -1420,17 +1423,36 @@ class Admin extends CI_Controller {
 			}
 			
 			else if ($this->uri->segment(3) === 'update'){
-				/*$user_id = $this->input->post('user_id');
-				$matrix = $this->input->post('matrix');
-				$admin = $this->input->post('admin');
-				$role = $this->input->post('role');
-				$name = $this->input->post('name');
-		
-				$id = $this->user_model->edit_user($user_id, $matrix, $name, $admin, $role);
+				$field_title = $this->input->post('field_title');
+				$field_type = $this->input->post('field_type');
+				$show_moderator = $this->input->post('show_moderator');
+				$fc_id = $this->input->post('fc_id');
 				
-				$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The user has been updated</div>');
-				$this->db->cache_delete_all();
-				redirect('admin/users');*/
+				$role = $this->input->post('role');
+				
+				if($show_moderator === "on") $show_moderator = true;
+				else $show_moderator = false;
+				
+				if($field_type === "select"){
+					$select_field_data = $this->input->post('select_field_title');
+				}
+				else{
+					$select_field_data = array();
+				}
+				
+			
+				$id = $this->interface_model->edit_field($fc_id, $field_title, $field_type, $select_field_data, $role, $show_moderator);
+				
+				if(is_numeric($id)){
+					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Field updated successfully</div>');
+					$this->db->cache_delete_all();
+					redirect('admin/form_customization');
+				}
+				else{
+					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. Data may not have been added</div>');
+					$this->db->cache_delete_all();
+					redirect('admin/form_customization');
+				}
 			}
 			
 			$data['form_components'] = $this->interface_model->get_all_form_components();

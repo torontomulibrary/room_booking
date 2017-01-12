@@ -27,14 +27,15 @@ class interface_Model  extends CI_Model  {
 		return $this->db->query($sql);
 	}
 	
-	function add_field($name, $type, $data, $roles){
+	function add_field($name, $type, $data, $roles, $show_moderator){
 		if(!is_array($data)) return FALSE;
 		if(!is_array($roles)) return FALSE;
 		
 		$db_data = array(
 			'field_name'	=>	$name,
 			'field_type'	=>	$type,
-			'data'			=>	json_encode($data)
+			'data'			=>	json_encode($data),
+			'show_moderator'=>	$show_moderator
 		);
 		
 		$this->db->insert('form_customization', $db_data);
@@ -50,6 +51,37 @@ class interface_Model  extends CI_Model  {
 		}
 		
 		return $insert_id;
+	}
+	
+	function edit_field($fc_id, $name, $type, $data, $roles, $show_moderator){
+		if(!is_array($data)) return FALSE;
+		if(!is_array($roles)) return FALSE;
+		
+		$db_data = array(
+			'field_name'	=>	$name,
+			'field_type'	=>	$type,
+			'data'			=>	json_encode($data),
+			'show_moderator'=>	$show_moderator
+		);
+		
+		$this->db->where('fc_id', $fc_id);
+		$this->db->update('form_customization', $db_data);
+		
+		//Clear old roles first
+		$this->db->where('fc_id', $fc_id);
+		$this->db->delete('form_customization_role');
+		
+		//Insert updated roles
+		foreach($roles as $role){
+			$role_data = array(
+				'fc_id'		=> $fc_id,
+				'role_id'	=> $role
+			);
+			
+			$this->db->insert('form_customization_role', $role_data);
+		}
+		
+		return $fc_id;
 	}
 	
 	function delete_field($fc_id){

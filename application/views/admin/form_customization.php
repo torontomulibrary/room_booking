@@ -122,7 +122,7 @@
     
   <div class="checkbox">
     <label>
-      <input type="checkbox" name="active" <?php if(isset($current) && $current->show_moderator != 0) echo 'checked' ?>> Show results when Moderating
+      <input type="checkbox" name="show_moderator" <?php if(isset($current) && $current->show_moderator != 0) echo 'checked' ?>> Show results when Moderating
     </label>
   </div>
   
