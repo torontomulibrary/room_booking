@@ -16,6 +16,17 @@ class interface_Model  extends CI_Model  {
 		return $this->db->get('form_customization');
 	}
 	
+	function get_fields($room_id){
+		if(!is_numeric($room_id)) return FALSE;
+		
+		$sql = "SELECT DISTINCT fc.* FROM form_customization fc, form_customization_role fcr
+				WHERE fc.fc_id = fcr.fc_id
+				AND fcr.role_id IN (SELECT role_id FROM room_roles WHERE room_id = ".$room_id.")";
+				
+		return $this->db->query($sql);
+		
+	}
+	
 	function get_field_roles($fc_id){
 		if(!is_numeric($fc_id)) return FALSE;
 		
