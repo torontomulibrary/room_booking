@@ -47,15 +47,15 @@ if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot'))
 					<form action="<?php echo base_url()?>booking/submit" method="post" autocomplete="off">
 					
 						<div class="form_left">When</div>
-						<div class="form_right"><?php echo date('l M d, Y', $this->input->get('slot'));?></div>
+						<div class="form_right"><?php echo date('l M d, Y', $this->input->get('slot'));?></div><br>
 						
 						<div class="form_left">Where</div>
 						<div class="form_right"><?php echo $room_data->name;?> (<?php echo $room_data->seats; echo ($room_data->seats>1)? ' seats': ' seat'?>)</div>
-					
+					<br>
 						
 						
 						<div class="form_left">Start Time</div>
-						<div class="form_right"><?php echo date('g:ia', $this->input->get('slot'));?></div>
+						<div class="form_right"><?php echo date('g:ia', $this->input->get('slot'));?></div><br>
 						
 						<div class="form_left">Finish Time</div>
 						<div class="form_right">
@@ -77,8 +77,8 @@ if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot'))
 									}
 									
 									//If greater then closing time
-									if($end_time > (mktime(0,0,0, date('n',$this->input->get('slot')),date('j',$this->input->get('slot')),date('Y',$this->input->get('slot')), date('Y', $this->input->get('slot'))) + round(($hours[$building['building_data']->row()->building_id]->ENDTIME *24*60*60)))){
-										$end_time = mktime(0,0,0, date('n',$this->input->get('slot')),date('j',$this->input->get('slot')),date('Y',$this->input->get('slot')), date('Y', $this->input->get('slot'))) + round(($hours[$building['building_data']->row()->building_id]->ENDTIME *24*60*60));
+									if($end_time > (mktime(0,0,0, date('n',$this->input->get('slot')),date('j',$this->input->get('slot')),date('Y',$this->input->get('slot'))) + round(($hours[$building['building_data']->row()->building_id]->ENDTIME *24*60*60)))){
+										$end_time = mktime(0,0,0, date('n',$this->input->get('slot')),date('j',$this->input->get('slot')),date('Y',$this->input->get('slot'))) + round(($hours[$building['building_data']->row()->building_id]->ENDTIME *24*60*60));
 									}
 									
 									//If greater then midnight, set the end time to midnight
@@ -105,7 +105,7 @@ if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot'))
 								?>
 							</select> 
 						</div>
-					
+					<br>
 					
 						<div style="clear:both"></div>
 						
@@ -177,20 +177,19 @@ if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot'))
 					
 						<input type="hidden" name="slot" value="<?php echo $this->input->get('slot'); ?>" />
 						<input type="hidden" name="room_id" value="<?php echo $this->input->get('room_id'); ?>" />
-						
+						<div style="clear:both"></div>
 					</form>
 				<?php endif; ?>
 			
 			</div>
 					
-			<div class="col-xs-3">
+			<div class="col-md-3">
 				<?php echo $role_data->sidebar_text; ?>
 
 				<h4>You are able to</h4>
 				<ul>
-				<li style="display:none">Make 2 study room bookings per day (keep this?)</li>
-				<li>You have booked <strong><?php echo $limits['day_used']; ?> hours</strong> today</li>
-				<li>Book <strong><?php echo $limits['week_remaining']; ?> hours</strong> in the study rooms this week</li>  
+					<li>You have booked <strong><?php echo $limits['day_used']; ?> hours</strong> today</li>
+					<li>Book <strong><?php echo $limits['week_remaining']; ?> hours</strong> in the study rooms this week</li>  
 				</ul>
 
 			</div>

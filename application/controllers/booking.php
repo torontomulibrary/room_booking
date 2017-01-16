@@ -194,11 +194,23 @@ class Booking extends CI_Controller {
 	function submit(){
 		$this->load->model('booking_model');
 		$this->load->model('room_model');
+		$this->load->model('interface_model');
 		
 		$start_time = $this->input->post('slot');
 		$finish_time = $this->input->post('finish_time');
 		$room_id = $this->input->post('room_id');
 		$comment = $this->input->post('comment');
+		
+		
+		
+		//Get customized fields
+		if(!is_numeric($room_id)) return false;
+		$fields = $this->interface_model->get_fields($room_id);
+		
+		$user_data = array();
+		foreach($fields->result() as $field){
+			$user_data[] = array($field->fc_id, $this->input->post('fc_'.$field->fc_id));
+		}
 		
 		//Correct for the offset of times
 		if(is_numeric($room_id)){
@@ -247,7 +259,7 @@ class Booking extends CI_Controller {
 								redirect(base_url().'booking/booking_main');
 							}
 						}
-						$id = $this->booking_model->edit_booking($room_id, $start_time, $finish_time, $comment, $this->input->post('booking_id'), $booking->matrix_id, $booking->booker_name);
+						$id = $this->booking_model->edit_booking($room_id, $start_time, $finish_time, $user_data, $this->input->post('booking_id'), $booking->matrix_id, $booking->booker_name);
 						
 						if($id !== FALSE){
 							$id = $this->input->post('booking_id'); 
@@ -272,7 +284,7 @@ class Booking extends CI_Controller {
 					else{
 						//Does this room reqire moderation? If so, add it to the moderation queue rather than create a new active booking
 						if($room->requires_moderation == TRUE){
-							$id = $this->booking_model->add_to_moderation_queue($room_id, $start_time, $finish_time, $comment);
+							$id = $this->booking_model->add_to_moderation_queue($room_id, $start_time, $finish_time, $user_data);
 							
 							if(is_numeric($id)){
 								$this->session->set_flashdata('success', "Your request is awaiting approval!");
@@ -306,7 +318,7 @@ class Booking extends CI_Controller {
 						}
 						else{
 							//Get the ID of the new booking. Returns false if the booking slot was not free
-							$id = $this->booking_model->book_room($room_id, $start_time, $finish_time, $comment); 
+							$id = $this->booking_model->book_room($room_id, $start_time, $finish_time, $user_data); 
 							
 							
 							$log_data = json_encode(array(
@@ -380,7 +392,9 @@ class Booking extends CI_Controller {
 	
 	function edit_booking(){
 		$this->load->model('booking_model');
-		
+		$this->load->model('interface_model');
+			
+			
 		
 		
 		if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('booking_id'))){
@@ -417,11 +431,13 @@ class Booking extends CI_Controller {
 		$this->load->model('building_model');
 		$this->load->model('role_model');
 		
+		$data['interface'] = $this->interface_model->get_fields($data['booking']->room_id);
+		$data['custom_data'] = $this->booking_model->get_custom_fields_data($this->input->get('booking_id'));
 		$data['room'] = $this->room_model->load_room($data['booking']->room_id);
 		$data['resources'] = $this->resource_model->load_resources($data['room']['room_resources']);
 		$data['limits'] = $this->booking_model->remaining_hours($data['booking']->matrix_id, strtotime($data['booking']->start));
 		$data['next_booking'] = $this->booking_model->next_booking(strtotime($data['booking']->start), $data['booking']->room_id);
-		
+		$data['role'] = $this->role_model->get_priority_role($data['booking']->room_id);
 		$data['building'] = $this->building_model->load_building($data['room']['room_data']->row()->building_id);
 		$data['hours'] = $this->hours_model->getAllHours(mktime(0,0,0, date('n',strtotime($data['booking']->start)),date('j',strtotime($data['booking']->start)),date('Y',strtotime($data['booking']->start))));
 		

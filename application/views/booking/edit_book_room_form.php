@@ -1,3 +1,5 @@
+<?php $role_data = json_decode($role->row()->interface_settings); ?>
+
 <?php ob_start();?>
 
 <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/booking_form.css" type="text/css" media="screen" />
@@ -40,25 +42,19 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 			}
 			
 		?>
-		<div class="row">
-			<div class="col-xs-9">
-				<div class="row">
-					<div class="col-xs-3 " style="background-color: #F0F0F0; border: 2px solid #c3c3c3; height:720px">
-						
-						
-						<img style="margin: 3em auto;" src="<?php echo base_url() ?>assets/img/Book-Room-Icon3.png" alt="calendar">
-						
+		
+		<div class="row"  style="background-color: #F0F0F0; border: 2px solid #c3c3c3;  ">
+			<div class="col-md-2" >
+				<img style="margin: 3em auto;" src="<?php echo base_url() ?>assets/img/Book-Room-Icon3.png" alt="calendar">
+				<span id="month_left"><?php echo date('F',strtotime($booking->start)) ?></span>
+				<span id="date_left"><?php echo date('d', strtotime($booking->start)) ?></span>
+			</div>	
+
+			<div class="col-md-7" style="min-height:720px; background-color: #fff; border-left: 2px solid #c3c3c3; border-right: 2px solid #c3c3c3">
 					
 						
-						
-						
-						<span id="month_left"><?php echo date('F',strtotime($booking->start)) ?></span>
-						<span id="date_left"><?php echo date('d', strtotime($booking->start)) ?></span>
-					</div>
-					<div class="col-xs-9" style="border: 2px solid #c3c3c3;  min-height:720px">
-						
-						
-						<h3 id="page_title">Edit Reservation</h3>
+				<h3 id="page_title">Edit Reservation</h3>
+				
 						
 						<!--<?php if(isset($past_booking) && $past_booking):?><h2>This booking is in the past</h2><?php endif; ?>-->
 						
@@ -186,12 +182,64 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 									<div class="form_left">Note</div><div style="clear:both"><strong><?php echo $room_data->notes; ?></strong></div>
 								<?php endif; ?>
 								
-								
+								<!--
 								<div style="clear:both"></div>
 								<br><br>
-								
 								<div class="form_left">Additional Info</div><div style="clear:both"></div>
 								<div><textarea name="comment" style="max-width: 490px" rows="6" cols="75"><?php echo $booking->comment; ?></textarea></div>
+								-->
+								
+								<?php
+									foreach($interface->result() as $form_element){
+										if($form_element->field_type === "select"){
+											echo '	<div class="form-group" id="field_type_container">
+														<label class="form_label" for="fc_'.$form_element->fc_id.'">'.$form_element->field_name.'</label>
+														<select name="fc_'.$form_element->fc_id.'" id="field_type" class="form-control">';
+															foreach(json_decode($form_element->data) as $field_dropdown_option){
+																echo '<option value="'.$field_dropdown_option.'" ';
+																	foreach($custom_data->result() as $element){
+																		if($element->fc_id == $form_element->fc_id && $element->data == $field_dropdown_option){
+																			echo 'selected="selected"';
+																		}
+																	}
+																echo '>'.$field_dropdown_option.'</option>';
+															}
+											echo '		</select> 
+													</div>';
+										}
+										else if($form_element->field_type === "text"){
+											echo '	<div style="clear:both"></div>
+													<div class="form-group">
+														<label class="form_label" for="fc_'.$form_element->fc_id.'">'.$form_element->field_name.'</label>
+														<input class="form-control" id="field_title" name="fc_'.$form_element->fc_id.'" '; 
+															foreach($custom_data->result() as $element){
+																if($element->fc_id == $form_element->fc_id){
+																	echo 'value="'.$element->data.'"';
+																}
+															}
+													echo ' type="text">
+													</div>';
+											
+											
+										}
+										else if($form_element->field_type === "textarea"){
+											echo '	<div style="clear:both"></div>
+													
+													<div class="form_label">'.$form_element->field_name.'</div><div style="clear:both"></div>
+													<div><textarea name="fc_'.$form_element->fc_id.'" rows="6" cols="75" style="max-width: 490px">';
+													foreach($custom_data->result() as $element){
+																if($element->fc_id == $form_element->fc_id){
+																	echo $element->data;
+																}
+															}
+													echo '</textarea></div>';
+											
+											
+										}
+										
+									}
+								?>
+								
 								
 								<div class="form_buttons_container">
 									<input id="delete_button" type="button" value="Delete Booking" data-toggle="modal" data-target="#confirm-delete" /><input id="submit_button" type="submit" value="Edit Booking" /><input type="button" id="cancel_button" value="Cancel" />
@@ -204,26 +252,18 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 							</form>
 						<?php endif; ?>
 						
-					</div>
-				</div>
 			</div>
-		  
-		  <div class="col-xs-3" style="background-color: #F0F0F0; border: 2px solid #c3c3c3; height:720px">
-			<h4>Please Note</h4>
-			<ul>
-				<li>Study Rooms are for groups of 3 or more people</li>
-				<li>You must claim your room within the <strong>first 15 minutes</strong> of the booking, or your room may be taken by other eligible users</li>
-				<li>Please read the <a href="http://library.ryerson.ca/info/policies/study-room-booking-policy/">full policy</a></li>  
-			</ul>
-			
-			<h4>You are able to</h4>
-			<ul>
-				<li style="display:none">Make 2 study room bookings per day (keep this?)</li>
-				<li>You have booked <strong><?php echo $limits['day_used']; ?> hours</strong> today</li>
-				<li>Book <strong><?php echo $limits['week_remaining']; ?> hours</strong> in the study rooms this week</li>  
-			</ul>
-		  
-		  </div>
+			<div class="col-md-3">
+				<?php echo $role_data->sidebar_text; ?>
+
+				<h4>You are able to</h4>
+				<ul>
+					<li>You have booked <strong><?php echo $limits['day_used']; ?> hours</strong> today</li>
+					<li>Book <strong><?php echo $limits['week_remaining']; ?> hours</strong> in the study rooms this week</li>  
+				</ul>
+
+			</div>
+				
 		</div>
 		
 		<!--- Modal Dialog for delete option --->

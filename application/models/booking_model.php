@@ -167,7 +167,7 @@ class booking_Model  extends CI_Model  {
 		}
 	}
 	
-	function book_room($room_id, $start, $end, $comment, $booker_name = '', $matrix_id = ''){
+	function book_room($room_id, $start, $end, $custom_fields, $booker_name = '', $matrix_id = ''){
 		if($booker_name === '') $booker_name = $this->session->userdata('name');
 		if($matrix_id === '') $matrix_id = $this->session->userdata('username');
 		
@@ -198,7 +198,6 @@ class booking_Model  extends CI_Model  {
 						'room_id' => $room_id,
 						'start' => date('Y-m-d H:i:s', $start),
 						'end' => date('Y-m-d H:i:s', $end),
-						'comment' => $comment,
 						'booker_name' => $booker_name,
 						'matrix_id' => $matrix_id,
 						'needs_moderation' => FALSE
@@ -206,14 +205,40 @@ class booking_Model  extends CI_Model  {
 			
 			$this->db->insert('bookings', $data);
 			
-			return $this->db->insert_id();
+			$booking_id = $this->db->insert_id();
+			
+			if(is_array($custom_fields)){
+				foreach($custom_fields as $field_data){
+					$data = array(
+						'booking_id'	=> $booking_id,
+						'fc_id'			=> $field_data[0],
+						'data'			=> $field_data[1]
+					);
+					
+					$this->db->insert('form_customization_data', $data);
+				}
+			}
+			
+			return $booking_id;
 		}
 		else{
 			return FALSE;
 		}
 	}
 	
-	function edit_booking($room_id, $start, $end, $comment, $booking_id, $matrix_id, $booker_name){
+	//Turn off caching for this in case of edits
+	function get_custom_fields_data($booking_id){
+		$this->db->where('booking_id', $booking_id);
+		
+		$this->db->cache_off();
+		$query = $this->db->get('form_customization_data');
+		$this->db->cache_on();
+		
+		return $query;
+
+	}
+	
+	function edit_booking($room_id, $start, $end, $user_data, $booking_id, $matrix_id, $booker_name){
 		if(!is_numeric($booking_id)) return FALSE;
 		
 		if($this->is_block_booked($start, $end, $room_id)) return FALSE;
@@ -242,16 +267,30 @@ class booking_Model  extends CI_Model  {
 					'room_id' => $room_id,
 					'start' => date('Y-m-d H:i:s', $start),
 					'end' => date('Y-m-d H:i:s', $end),
-					'comment' => $comment,
 					'booker_name' => $this->session->userdata('name'),
 					'matrix_id' => $matrix_id,
 					'booker_name' => $booker_name
 				);
 			
+		$this->db->where('booking_id', $booking_id);
+		$this->db->update('bookings', $data);
+		
+		if(is_array($user_data)){
 			$this->db->where('booking_id', $booking_id);
-			$this->db->update('bookings', $data);
+			$this->db->delete('form_customization_data');
 			
-			return true;
+			foreach($user_data as $field_data){
+				$data = array(
+					'fc_id'			=> $field_data[0],
+					'data'			=> $field_data[1],
+					'booking_id'	=> $booking_id
+				);
+				
+				$this->db->insert('form_customization_data', $data);
+			}
+		}
+		
+		return true;
 		
 		
 	}
@@ -937,7 +976,7 @@ class booking_Model  extends CI_Model  {
 		return $query;
 	}
 	
-	function add_to_moderation_queue($room_id, $start, $end, $comment){
+	function add_to_moderation_queue($room_id, $start, $end, $user_data){
 		
 		if($this->is_block_booked($start, $end, $room_id)) return FALSE;
 		
@@ -945,15 +984,28 @@ class booking_Model  extends CI_Model  {
 			'room_id' => $room_id,
 			'start' => date('Y-m-d H:i:s', $start),
 			'end' => date('Y-m-d H:i:s', $end),
-			'comment' => $comment,
 			'booker_name' => $this->session->userdata('name'),
 			'matrix_id' => $this->session->userdata('username'),
 			'needs_moderation' => TRUE
 		);
 
 		$this->db->insert('bookings', $data);
-
-		return $this->db->insert_id();
+		$insert_id =  $this->db->insert_id();
+		
+		if(is_array($user_data)){
+			foreach($user_data as $field_data){
+				$data = array(
+					'fc_id'			=> $field_data[0],
+					'data'			=> $field_data[1],
+					'booking_id'	=> $insert_id
+				);
+				
+				$this->db->insert('form_customization_data', $data);
+			}
+		}
+		
+		
+		return $insert_id;
 		
 	}
 	
@@ -996,12 +1048,21 @@ class booking_Model  extends CI_Model  {
 			}
 		}
 		
+		//Get the custom fields
+		$customization_data = $this->get_custom_fields_data($booking_id);
+		
+		$user_data = array();
+		foreach($customization_data->result() as $field){
+			$user_data[] = array($field->fc_id, $field->data);
+		}
+		
+		
 		//Remove it from the moderator queue
 		$this->db->where('booking_id', $booking_id);
 		$this->db->delete('bookings');
 		
 		//Book the room, making it appear as booked to all users
-		$ret_val = $this->book_room($data->room_id, strtotime($data->start), strtotime($data->end), '', $data->booker_name, $data->matrix_id);
+		$ret_val = $this->book_room($data->room_id, strtotime($data->start), strtotime($data->end), $user_data, $data->booker_name, $data->matrix_id);
 		
 		
 		if($ret_val !== FALSE){
