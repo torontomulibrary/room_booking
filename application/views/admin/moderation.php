@@ -24,18 +24,44 @@
 				<th>Booking Start</th>
 				<th>Booking End</th>
 				<th>Booker Name</th>
-				<th>Reason</th>
+				
+				<?php
+					foreach($custom_fields->result() as $field){
+						echo '<th>'.$field->field_name.'</th>';						
+					}
+				?>
 				<th>Options</th>
 			</tr>
 		</thead>
 		<tbody>
 			<?php foreach($queue->result() as $row): ?>
+			
+			<?php
+				//Get the results for any custom fields for this booking
+				$custom_data = $this->booking_model->get_custom_fields_data($row->booking_id);
+			
+			?>
+			
 			<tr>
 				<td><?= $row->name ?></td>			
 				<td><?= $row->start ?></td>
 				<td><?= $row->end ?></td>
 				<td><?= $row->booker_name ?></td>
-				<td><?= $row->comment ?></td>
+				
+				<?php
+					foreach($custom_fields->result() as $field){
+						$match = 0;
+						 
+						foreach($custom_data->result() as $entry){
+							if($entry->fc_id == $field->fc_id){
+								echo '<td>'.$entry->data.'</td>';
+								$match = 1;
+								break;
+							}
+						}
+						if($match == 0) echo '<td>&nbsp;</td>';
+					}
+				?>
 
 				<td>
 					<a href="<?= base_url(); ?>admin/moderate/approve/<?= $row->booking_id ?>">

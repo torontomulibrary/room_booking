@@ -1121,7 +1121,12 @@ class Admin extends CI_Controller {
 			}
 		}
 		else{
+			$this->load->model('interface_model');
+			
+			
+			
 			$data = array();
+			$data['custom_fields'] = $this->interface_model->get_moderation_fields();
 			$data['queue'] = $this->booking_model->get_moderation_queue();
 		
 			$this->template->load('admin_template', 'admin/moderation', $data);

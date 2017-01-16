@@ -101,4 +101,24 @@ class interface_Model  extends CI_Model  {
 		$this->db->where('fc_id', $fc_id);
 		$this->db->delete('form_customization');
 	}
+	
+	function get_moderation_fields(){
+		$this->load->model('role_model');
+		
+		$sql = "SELECT distinct fc.field_name, fcr.fc_id FROM form_customization_role fcr, form_customization fc WHERE 
+				fcr.fc_id = fc.fc_id
+				AND fc.show_moderator = 1		
+				AND role_id IN ";
+				
+				//Gather roles from session rather then database (since students etc.. are not whitelisted)
+				$roles = array();
+				
+				foreach($this->session->userdata('roles') as $role){
+					if(is_numeric($role->role_id)) $roles[] = $role->role_id;
+				}
+				
+				$sql .= "(".implode(",", $roles).")";
+				
+		return $this->db->query($sql);
+	}
 }
