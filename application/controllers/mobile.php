@@ -158,9 +158,10 @@ class Mobile extends CI_Controller {
 		$this->load->model('building_model');
 		$this->load->model('booking_model');
 		$this->load->model('hours_model');
+		$this->load->model('interface_model');
 		
 		
-		
+		$data['interface'] = $this->interface_model->get_fields($this->input->get('room_id'));
 		$data['date'] = $this->input->get('selected_date');
 		$data['limits'] = $this->booking_model->remaining_hours($this->session->userdata('username'), $this->input->get('slot'));
 		$data['room'] = $this->room_model->load_room($this->input->get('room_id'));
@@ -174,7 +175,7 @@ class Mobile extends CI_Controller {
 	
 	function edit_booking(){
 		$this->load->model('booking_model');
-		
+		$this->load->model('interface_model');
 		
 		
 		if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('booking_id'))){
@@ -212,7 +213,8 @@ class Mobile extends CI_Controller {
 		$data['room'] = $this->room_model->load_room($data['booking']->room_id);
 		$data['resources'] = $this->resource_model->load_resources($data['room']['room_resources']);
 		$data['building'] = $this->building_model->load_building($data['room']['room_data']->row()->building_id);
-		
+		$data['interface'] = $this->interface_model->get_fields($data['booking']->room_id);
+		$data['custom_data'] = $this->booking_model->get_custom_fields_data($this->input->get('booking_id'));
 		$data['vars'] = $data;
 		
 		$this->template->load('mobile_template', 'mobile/edit_booking', $data);
@@ -223,6 +225,7 @@ class Mobile extends CI_Controller {
 	function submit(){
 		$this->load->model('booking_model');
 		$this->load->model('room_model');
+		$this->load->model('interface_model');
 		
 		$start_time = $this->input->post('slot');
 		$finish_time = $this->input->post('end_time');
@@ -230,16 +233,32 @@ class Mobile extends CI_Controller {
 		$comment = $this->input->post('add_info');
 		
 		
+		//Get customized fields
+		if(!is_numeric($room_id)) return false;
+		$fields = $this->interface_model->get_fields($room_id);
 		
-		//TODO: make sure time isnt past midnight, or before opening hours
+		$user_data = array();
+		foreach($fields->result() as $field){
+			$user_data[] = array($field->fc_id, $this->input->post('fc_'.$field->fc_id));
+		}
+		
+		//Correct for the offset of times
+		if(is_numeric($room_id)){
+			$room = $this->room_model->load_room($room_id);
+			$room = $room['room_data']->row(); 
+			
+			if($room->requires_moderation){
+				$time = time() + MODERATION_TIME_DELAY;
+			}
+			else{
+				$time = time() + TIME_DELAY;
+			}
+		}
 		
 		//Validate all the date/times submitted 
 		if(is_numeric($start_time) && ($start_time % 1800) == 0 && is_numeric($finish_time) && ($finish_time % 1800) == 0 && is_numeric($room_id) && $start_time > time()){
 			//Was this user allowed to book this room?
 			if($this->booking_model->is_allowed($room_id)){
-				$room = $this->room_model->load_room($room_id);
-				$room = $room['room_data']->row(); 
-				
 				//Check the users remaining bookable hours
 				$limits = $this->booking_model->remaining_hours($this->session->userdata('username'), $start_time);
 				$requested_time = (($finish_time - $start_time) / 60 / 60);
@@ -250,23 +269,55 @@ class Mobile extends CI_Controller {
 				}
 				else{
 					//Try to make the booking
-					
-					
-					//Get the ID of the new booking. Returns false if the booking slot was not free
-					$id = $this->booking_model->book_room($room_id, $start_time, $finish_time, $comment); 
-					
-					$log_data = json_encode(array(
-							"booking_id" => $id,
-							"room_id" => $room_id,
-							"matrix_id" => $this->session->userdata('username'),
-							"booker_name" => $this->session->userdata('name'),
-							"start" =>date('Y-m-d H:i:s', $start_time),
-							"end" =>date('Y-m-d H:i:s', $finish_time),
-						));
-					
-					$this->load->model('log_model');
-					$this->log_model->log_event('mobile', $this->session->userdata('username'), "Create Booking", $id, $log_data);
-				
+					if($room->requires_moderation == TRUE){
+							$id = $this->booking_model->add_to_moderation_queue($room_id, $start_time, $finish_time, $user_data);
+							
+							if(is_numeric($id)){
+								$this->session->set_flashdata('success', "Your request is awaiting approval!");
+								
+								if(SEND_MODERATION_REQUEST_CONFIRMATION_EMAIL){
+									$this->load->library('email');
+									$this->load->model('room_model');
+									$room = $this->room_model->load_room($room_id);
+									
+									//Send an email
+									$data['name'] = $this->session->userdata('name');
+									$data['start'] = $start_time;
+									$data['end'] = $finish_time;
+									$data['room'] = $room;
+									
+									$email_content = $this->load->view('email/awaiting_moderation', $data, TRUE);
+									$this->email->clear();
+									$this->email->set_mailtype('html');
+									$this->email->to($this->session->userdata('username').EMAIL_SUFFIX);
+									$this->email->from(CONTACT_EMAIL);
+									$this->email->subject('Your request is awaiting moderation');
+									$this->email->message($email_content);
+									$this->email->send();
+								}
+							}
+							else{
+								$this->session->set_flashdata('warning', "This booking cannot be added. Conflicting booking");
+							}
+							
+							redirect(base_url() . 'mobile');
+						}
+						else{
+							//Get the ID of the new booking. Returns false if the booking slot was not free
+							$id = $this->booking_model->book_room($room_id, $start_time, $finish_time, $user_data); 
+							
+							$log_data = json_encode(array(
+									"booking_id" => $id,
+									"room_id" => $room_id,
+									"matrix_id" => $this->session->userdata('username'),
+									"booker_name" => $this->session->userdata('name'),
+									"start" =>date('Y-m-d H:i:s', $start_time),
+									"end" =>date('Y-m-d H:i:s', $finish_time),
+								));
+							
+							$this->load->model('log_model');
+							$this->log_model->log_event('mobile', $this->session->userdata('username'), "Create Booking", $id, $log_data);
+						}
 					if($id === FALSE){
 						$this->session->set_flashdata('warning', "Another booking already exists for this time. Please choose a different room/time");
 						redirect(base_url() . 'mobile');

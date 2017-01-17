@@ -59,7 +59,7 @@
 	line-height: 3em;
 }
 
-#notes_field{
+.text_area_height{
 	height: auto !important;
 }
 

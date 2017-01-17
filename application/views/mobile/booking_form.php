@@ -108,9 +108,46 @@
 				</select>
 				
 				<div style="clear: both"></div>
-					
-				<span class="detail_label select_label">Notes</span>
-				<textarea name="add_info" id="notes_field" class="" rows="5"></textarea>
+				
+				<?php
+					foreach($interface->result() as $form_element){
+						if($form_element->field_type === "select"){
+							echo '	<div class="form-group" id="field_type_container">
+										<label style="font-weight: bold;" class="form_label" for="fc_'.$form_element->fc_id.'">'.$form_element->field_name.'</label>
+										<select name="fc_'.$form_element->fc_id.'" id="field_type" class="form-control">';
+											foreach(json_decode($form_element->data) as $field_dropdown_option){
+												echo '<option value="'.$field_dropdown_option.'">'.$field_dropdown_option.'</option>';
+											}
+							echo '		</select> 
+									</div>';
+						}
+	
+						else if($form_element->field_type === "text"){
+							echo '	<div style="clear:both"></div>
+									
+										<label style="font-weight: bold;" for="fc_'.$form_element->fc_id.'">'.$form_element->field_name.'</label>
+										<input class="form-control" name="fc_'.$form_element->fc_id.'"  type="text">';
+									
+							
+							
+						}
+						else if($form_element->field_type === "textarea"){
+							echo '	<div style="clear:both"></div>
+									
+									<span class="detail_label select_label">'.$form_element->field_name.'</span>
+									<textarea rows="5" name="fc_'.$form_element->fc_id.'" class="text_area_height"></textarea>';
+							
+							
+						}
+						
+					}
+				?>
+				
+				
+				
+				
+				
+				
 
 				<input type="hidden" name="slot" value="<?php echo $this->input->get('slot'); ?>">
 				<input type="hidden" name="room_id" value="<?php echo $this->input->get('room_id'); ?>">
