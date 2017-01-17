@@ -56,15 +56,21 @@
 				
 			<?php endif; ?>
 			
-			<span class="detail_label">Notes</span>
-			<span style="display: inline-block; float: left">
-				<?php echo htmlspecialchars($booking->comment); ?><br />
-			</span>
-			<div style="clear: both"></div>
 			
-			
-		
-		
+
+			<?php
+				foreach($interface->result() as $form_element){
+					echo '	<span class="detail_label">'.$form_element->field_name.'</span>';
+							
+					foreach($custom_data->result() as $element){
+								if($element->fc_id == $form_element->fc_id){
+									echo '<span style="display: inline-block; float: left">'.htmlspecialchars($element->data) .'<br /></span>';
+								}
+					}
+					echo '<div style="clear: both"></div>';
+				}
+			?>
+
 		</div>
 	</div>
 
