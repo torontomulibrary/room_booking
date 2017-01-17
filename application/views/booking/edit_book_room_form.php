@@ -214,7 +214,7 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 														<input class="form-control" id="field_title" name="fc_'.$form_element->fc_id.'" '; 
 															foreach($custom_data->result() as $element){
 																if($element->fc_id == $form_element->fc_id){
-																	echo 'value="'.$element->data.'"';
+																	echo 'value="'.htmlspecialchars($element->data).'"';
 																}
 															}
 													echo ' type="text">
@@ -229,7 +229,7 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 													<div><textarea name="fc_'.$form_element->fc_id.'" rows="6" cols="75" style="max-width: 490px">';
 													foreach($custom_data->result() as $element){
 																if($element->fc_id == $form_element->fc_id){
-																	echo $element->data;
+																	echo htmlspecialchars($element->data);
 																}
 															}
 													echo '</textarea></div>';
