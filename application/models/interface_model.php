@@ -21,7 +21,8 @@ class interface_Model  extends CI_Model  {
 		
 		$sql = "SELECT DISTINCT fc.* FROM form_customization fc, form_customization_role fcr
 				WHERE fc.fc_id = fcr.fc_id
-				AND fcr.role_id IN (SELECT role_id FROM room_roles WHERE room_id = ".$room_id.")";
+				AND fcr.role_id IN (SELECT role_id FROM room_roles WHERE room_id = ".$room_id.")
+				ORDER BY priority DESC";
 				
 		return $this->db->query($sql);
 		
@@ -38,7 +39,7 @@ class interface_Model  extends CI_Model  {
 		return $this->db->query($sql);
 	}
 	
-	function add_field($name, $type, $data, $roles, $show_moderator){
+	function add_field($name, $type, $data, $roles, $show_moderator, $priority){
 		if(!is_array($data)) return FALSE;
 		if(!is_array($roles)) return FALSE;
 		
@@ -46,7 +47,8 @@ class interface_Model  extends CI_Model  {
 			'field_name'	=>	$name,
 			'field_type'	=>	$type,
 			'data'			=>	json_encode($data),
-			'show_moderator'=>	$show_moderator
+			'show_moderator'=>	$show_moderator,
+			'priority'		=>	$priority,
 		);
 		
 		$this->db->insert('form_customization', $db_data);
@@ -64,7 +66,7 @@ class interface_Model  extends CI_Model  {
 		return $insert_id;
 	}
 	
-	function edit_field($fc_id, $name, $type, $data, $roles, $show_moderator){
+	function edit_field($fc_id, $name, $type, $data, $roles, $show_moderator, $priority){
 		if(!is_array($data)) return FALSE;
 		if(!is_array($roles)) return FALSE;
 		
@@ -72,7 +74,8 @@ class interface_Model  extends CI_Model  {
 			'field_name'	=>	$name,
 			'field_type'	=>	$type,
 			'data'			=>	json_encode($data),
-			'show_moderator'=>	$show_moderator
+			'show_moderator'=>	$show_moderator,
+			'priority'		=>	$priority,
 		);
 		
 		$this->db->where('fc_id', $fc_id);

@@ -1363,6 +1363,7 @@ class Admin extends CI_Controller {
 				$field_type = $this->input->post('field_type');
 				$show_moderator = $this->input->post('show_moderator');
 				$fc_id = $this->input->post('fc_id');
+				$priority = $this->input->post('priority');
 				
 				$role = $this->input->post('role');
 				
@@ -1377,7 +1378,7 @@ class Admin extends CI_Controller {
 				}
 				
 		
-				$id = $this->interface_model->add_field($field_title, $field_type, $select_field_data, $role, $show_moderator);
+				$id = $this->interface_model->add_field($field_title, $field_type, $select_field_data, $role, $show_moderator, $priority);
 				
 				if(is_numeric($id)){
 					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Field added successfully</div>');
@@ -1432,6 +1433,7 @@ class Admin extends CI_Controller {
 				$field_type = $this->input->post('field_type');
 				$show_moderator = $this->input->post('show_moderator');
 				$fc_id = $this->input->post('fc_id');
+				$priority = $this->input->post('priority');
 				
 				$role = $this->input->post('role');
 				
@@ -1446,7 +1448,7 @@ class Admin extends CI_Controller {
 				}
 				
 			
-				$id = $this->interface_model->edit_field($fc_id, $field_title, $field_type, $select_field_data, $role, $show_moderator);
+				$id = $this->interface_model->edit_field($fc_id, $field_title, $field_type, $select_field_data, $role, $show_moderator, $priority);
 				
 				if(is_numeric($id)){
 					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Field updated successfully</div>');

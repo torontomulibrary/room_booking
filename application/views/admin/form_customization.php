@@ -30,6 +30,7 @@
 				<th>Roles</th>
 				<th>Menu items</th>
 				<th>Show results when Moderating</th>
+				<th>Priority</th>
 				<th>Options</th>
 			</tr>
 		</thead>
@@ -78,6 +79,8 @@
 				</td>
 				
 				<td><?= ($component->show_moderator)? '<span class="glyphicon glyphicon glyphicon-ok"></span>' : '<span class="glyphicon glyphicon-remove"></span>' ?></td>
+				
+				<td><?= $component->priority ?></td>
 				
 				<td>
 					<a href="<?= base_url() ?>admin/form_customization/edit/<?= $component->fc_id ?>">
@@ -140,12 +143,20 @@
 		</select>
 	</div>
   
-    
-  <div class="checkbox">
-    <label>
-      <input type="checkbox" name="show_moderator" <?php if(isset($current) && $current->show_moderator != 0) echo 'checked' ?>> Show results when Moderating
-    </label>
-  </div>
+	<div class="form-group">
+		<label for="priority">Priority (If a user has more then one role, which settings should be used) [Bigger number = higher priority]</label>
+		<select id="priority" class="form-control" name="priority">
+			<?php for($i=0; $i <= 10; $i++): ?>
+				<option value="<?php echo $i; ?>" <?php if(isset($current) && $current->priority == $i) echo 'selected="selected"'; ?>><?php echo $i; ?></option>
+			<?php endfor; ?>
+		</select>
+	</div>
+
+	<div class="checkbox">
+		<label>
+			<input type="checkbox" name="show_moderator" <?php if(isset($current) && $current->show_moderator != 0) echo 'checked' ?>> Show results when Moderating
+		</label>
+	</div>
   
   <?php if(isset($current)): ?><input type="hidden" name="fc_id" value="<?= $current->fc_id ?>" /><?php endif; ?>
   <button type="submit" class="btn btn-default">Submit</button>
