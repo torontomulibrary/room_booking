@@ -54,7 +54,7 @@
 						 
 						foreach($custom_data->result() as $entry){
 							if($entry->fc_id == $field->fc_id){
-								echo '<td>'.$entry->data.'</td>';
+								echo '<td>'.htmlspecialchars($entry->data).'</td>';
 								$match = 1;
 								break;
 							}
