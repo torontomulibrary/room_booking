@@ -28,7 +28,7 @@
 				<th>Field Title</th>
 				<th>Field Type</th>
 				<th>Roles</th>
-				<th>Data</th>
+				<th>Menu items</th>
 				<th>Show results when Moderating</th>
 				<th>Options</th>
 			</tr>
@@ -54,7 +54,28 @@
 					?>
 				</td>
 				
-				<td><?= $component->data ?></td>
+				<td>
+					<?php
+						//echo $component->data;
+						$count = 0;
+						
+						foreach(json_decode($component->data) as $option){
+							if($count === 0){
+								echo '<ul>';
+								$count++;
+							}
+							echo '<li>'.$option.'</li>';
+						}
+						
+						if($count !== 0){
+							echo '</ul>';
+						}
+						else{
+							echo '&nbsp;';
+						}
+						
+					?>
+				</td>
 				
 				<td><?= ($component->show_moderator)? '<span class="glyphicon glyphicon glyphicon-ok"></span>' : '<span class="glyphicon glyphicon-remove"></span>' ?></td>
 				
