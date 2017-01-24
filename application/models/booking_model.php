@@ -886,7 +886,7 @@ class booking_Model  extends CI_Model  {
 	}
 	
 	function count_free_rooms($role_id, $time = 0){
-		if(!is_numeric($role_id)) break;
+		if(!is_numeric($role_id)) return;
 		
 		if($time == 0){
 			//If time not set, assume the next half hour slot
