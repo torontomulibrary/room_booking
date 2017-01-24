@@ -26,6 +26,7 @@ class="js" lang="en">
 			margin: 0 auto;
 			background-color: #ffffff;
 			padding-bottom: 75px;
+			min-height: 700px;
 		}
 		
 		#content_container{
