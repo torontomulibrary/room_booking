@@ -31,7 +31,7 @@
 </head>
 <body>
 	<div data-role="header" >
-		<div><a rel="external" href="<?php echo base_url(); ?>mobile"><img id="logo_left" src="<?php echo base_url(); ?>assets/img/rula_logo.png" height="60" class="" alt="Ryerson Library and Archives" ></a></div>
+		<div><a rel="external" href="<?php echo base_url(); ?>mobile"><img id="logo_left" src="<?php echo SITE_LOGO; ?>" height="60" class="" alt="Site logo" ></a></div>
 		
 		
 		

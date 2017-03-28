@@ -114,7 +114,7 @@
 		
 	</div>
 	
-	<h3 style="text-align: center; font-weight: bold; margin-top: 2em; width: 450px; float: right;">Book a Room -<br> Ryerson University Library</h3>
+	<h3 style="text-align: center; font-weight: bold; margin-top: 2em; width: 450px; float: right;">Book a Room -<br> <?php echo SITE_TITLE; ?></h3>
 	
 	
 	<div class="calendar_container">

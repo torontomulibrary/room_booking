@@ -38,6 +38,9 @@ define('FOPEN_READ_WRITE_CREATE_STRICT',					'x+b');
 
 define('USER_AGENT',										'LibraryBooking/1.0');
 
+define('SITE_TITLE',										'Name goes here');
+define('SITE_LOGO',											'https://ryersonperformance.ca/sites/default/files/schoolofperformancebrandmark-centrewhite.png');
+
 define('DEBUG_MODE',										TRUE);
 define('SITE_ADMIN',										'siteadmin@domain.com');
 define('CONTACT_EMAIL',										'contact@domain.com');
