@@ -36,6 +36,95 @@
 	h3 {
 		font-size: 24px !important;
 	}
+	
+	
+	div#ryerson-content {
+		background-color: #4d4d4d;
+	}
+
+
+
+	#myryersonbox {
+		background-color: #999;
+		display: block;
+		margin-left: 750px;
+		padding: 0.5em 3em;
+	}
+
+
+	a.myryerson {
+		background-color: #666;
+		border: 1px solid #fff !important;
+		color: #fff !important;
+		cursor: pointer;
+		display: table;
+		font-size: 12px;
+		font-weight: bold;
+		height: 20px;
+		padding: 0.3em 2em;
+		text-decoration: none !important;
+	}
+	
+	#top-nav{
+		padding: 0;
+	}
+	
+	
+#top-nav-list a, #top-nav-list a:link, #top-nav-list a:visited {
+    padding: 7px 35px;
+}
+	
+	#top-nav-list {
+		background-color: #404041;
+		display: table;
+		list-style: outside none none;
+		margin: 0;
+		padding: 0;
+	}
+	
+	#top-nav-list .menu-item-search {
+		display: table-cell;
+		padding: 0 1em;
+		text-align: right;
+		vertical-align: middle;
+		width: 100%;
+	}
+
+	#sitesearch {
+		display: block;
+		margin: 0;
+		text-align: left;
+	}
+
+
+	.assistive-text {
+		clip: rect(1px, 1px, 1px, 1px);
+		position: absolute !important;
+	}
+
+
+	#sitesearch input {
+		box-sizing: border-box;
+		vertical-align: middle;
+	}
+
+	#sitesearch #s, #sitesearchbox {
+    height: 27px;
+    padding-left: 7px;
+    padding-right: 2px;
+    width: 100%;
+}
+	
+	
+	#sitesearch .submit {
+		background: #404041 none repeat scroll 0 0;
+		border: 0 none;
+		height: 25px;
+		position: absolute;
+		right: 12px;
+		top: 7px;
+		width: 28px;
+	}
 	</style>
 	
 <!--[if IE 7]>
@@ -52,12 +141,16 @@
 </head>
 <body>
 <div id="page">
+	  <div id="ryerson-content">
+      <span id="myryersonbox"><a class="myryerson" href="http://my.ryerson.ca" data-ga-event="Homepage,QuickPick,Blackboard">my.ryerson.ca</a></span>
+    </div>
+	
 	<header id="branding" role="banner">
             <div id="sitename">
                 <div class="skip-link"><a class="assistive-text" href="##access">Skip to main menu</a></div>
                 <a href="http://library.ryerson.ca/"><img src="<?php echo base_url() ?>assets/template/rula/images/RULA_logo.png" alt="Ryerson University Library &amp; Archives" /></a>
             </div> <!-- end div logo_images -->
-            <div id="askushead"><a href="https://server.iad.liveperson.net/hc/64904228/?cmd=file&file=visitorWantsToChat&site=64904228&SV!skill=Ryerson&LEAppKey=f907f2d9acd64b7f8c00b83bed3c2822&referrer=http%3A//library.ryerson.ca/info/contactus/&bId=16"><img src="http://library.ryerson.ca/wp-content/themes/rula/images/ask_us_libguides_sm.png" alt="Need Help? Ask Us"></a></div>
+            <div id="askushead"><a href="https://server.iad.liveperson.net/hc/64904228/?cmd=file&file=visitorWantsToChat&site=64904228&SV!skill=Ryerson&LEAppKey=f907f2d9acd64b7f8c00b83bed3c2822&referrer=http%3A//library.ryerson.ca/info/contactus/&bId=16"><img src="https://library.ryerson.ca/wp-content/themes/rula_wordpress/images/ask_us_libguides_sm.png" alt="Need Help? Ask Us"></a></div>
  			<div style="clear: both;"></div>
 
 			<nav id="access" role="navigation">
@@ -71,24 +164,18 @@
 						<li id="menu-item-831" class="menu-item"><a title="List of Library Services" href="http://library.ryerson.ca/services/">Services</a></li>
 						<li id="menu-item-446" class="menu-item menu-item-type-post_type menu-item-object-page"><a title="About the Library" href="http://library.ryerson.ca/info/">About Us</a></li>
 						
-						<li id="menu-item-443" class="menu-item menu-item-has-children"><a title="Special and Digital Collections" href="http://library.ryerson.ca/collections/">Collections &#9660</a>
-							<ul class="sub-menu">
-								<li id="menu-item-20" class="menu-item"><a href="http://library.ryerson.ca/asc/">Archives and Special Collections</a></li>
-								<li id="menu-item-442" class="menu-item"><a title="GeoData Maps &amp; Statistics" href="http://library.ryerson.ca/gmdc">GeoData Maps &#038; Statistics</a></li>
-								<li id="menu-item-444" class="menu-item"><a title="Ryerson&#8217;s Institutional Repository" href="http://library.ryerson.ca/collections/digital-commons/">RULA Digital Repository</a></li>
-							</ul>
-						</li>
+						
 						<li class="menu-item menu-item-search">
 							<!-- Search this Site Section -->
-							<form id="sitesearch" role="search" name="sitesearch" method="get" action="http://search.ryerson.ca/search"> 
-								<input type="hidden" name="site" value="Library" /> 
-								<input type="hidden" name="output" value="xml_no_dtd" /> 
-								<input type="hidden" name="client" value="default_frontend" />								
-								<input type="hidden" name="proxystylesheet" value="default_frontend" />
-								<label for="sitesearchbox" class="assistive-text">Search the Library website</label>
-								<input type="search" id="sitesearchbox" name="q" maxlength="255" value="Search the Library Website" onClick="if(this.value=='Search the Library Website') {this.value='';}"/> 
-								<input type="image" src="http://library.ryerson.ca/wp-content/themes/rula/images/search_icon_small.png" alt="Submit Search"  /> 
-							</form> 
+				<form id="sitesearch" role="search" name="sitesearch" method="get" action="https://search.ryerson.ca/search"> 
+                  <input name="site" value="Library" type="hidden"> 
+                  <input name="output" value="xml_no_dtd" type="hidden"> 
+                  <input name="client" value="default_frontend" type="hidden">                
+                  <input name="proxystylesheet" value="default_frontend" type="hidden">
+                  <label for="sitesearchbox" class="assistive-text">Search the Library website</label>
+                  <input id="sitesearchbox" name="q" maxlength="255" value="Search the Library Website" onclick="if(this.value=='Search the Library Website') {this.value='';}" type="search"> 
+                  <input class="submit" src="https://library.ryerson.ca/wp-content/themes/rula_wordpress/images/search_icon_small.png" alt="Submit Search" type="image"> 
+                </form>
 						</li>
 						<li style="clear:both;border:0;"></li>
 					</ul>
@@ -116,7 +203,7 @@
                     <a href="http://www.twitter.com/ryersonlibrary" data-ga-event="Footer,SocialMedia,Twitter"><img src="https://library.ryerson.ca/wp-content/themes/rula_wordpress/images/twitter_icon.png" alt="Twitter" width="16" height="16" /></a> 
                     <a href="http://www.flickr.com/photos/ryersonlibrary" data-ga-event="Footer,SocialMedia,Flickr"><img src="https://library.ryerson.ca/wp-content/themes/rula_wordpress/images/flickr_icon.gif" alt="Flickr" width="16" height="16" /></a> 
                     <a href="http://www.youtube.com/user/ryersonlibrary/videos" data-ga-event="Footer,SocialMedia,Youtube"><img src="https://library.ryerson.ca/wp-content/themes/rula_wordpress/images/youtube_icon.png" alt="YouTube" width="16" height="16" /></a>
-                    <a href="http://pipes.yahoo.com/pipes/pipe.run?_id=46e7ea505e28c621582d37a391b705d6&_render=rss" data-ga-event="Footer,SocialMedia,RSS"><img src="https://library.ryerson.ca/wp-content/themes/rula_wordpress/images/feed_icon.png" alt="RSS Feed" width="16" height="16" /></a> | 
+                    <a href="http://apps.library.ryerson.ca/api/merge/" data-ga-event="Footer,SocialMedia,RSS"><img src="https://library.ryerson.ca/wp-content/themes/rula_wordpress/images/feed_icon.png" alt="RSS Feed" width="16" height="16" /></a> | 
                                     &copy;2015 <a href="http://www.ryerson.ca/" data-ga-event="Footer,SocialMedia,RU"><img src="https://library.ryerson.ca/wp-content/themes/rula_wordpress/images/RUfooter_logo.gif" alt="Ryerson University" width="114" height="20" /></a>
 				</p> 
 			</div>
