@@ -1057,6 +1057,7 @@ class Admin extends CI_Controller {
 						
 						//Send an email
 						$data['name'] = $booking->booker_name;
+						$data['booker_matrix'] = $booking->matrix_id;
 						$data['start'] = $booking->start;
 						$data['end'] = $booking->end;
 						$data['room'] = $room_data;
@@ -1064,9 +1065,9 @@ class Admin extends CI_Controller {
 						$email_content = $this->load->view('email/moderation_approved', $data, TRUE);
 						$this->email->clear();
 						$this->email->set_mailtype('html');
-						$this->email->to($this->session->userdata('username').EMAIL_SUFFIX);
+						$this->email->to($data['booker_matrix'].EMAIL_SUFFIX);
 						$this->email->from(CONTACT_EMAIL);
-						$this->email->subject('Your request is awaiting moderation');
+						$this->email->subject('Your request has been approved');
 						$this->email->message($email_content);
 						$this->email->send();
 					}
@@ -1096,6 +1097,7 @@ class Admin extends CI_Controller {
 						
 						//Send an email
 						$data['name'] = $mod_data->booker_name;
+						$data['booker_matrix'] = $mod_data->matrix_id;
 						$data['start'] = $mod_data->start;
 						$data['end'] = $mod_data->end;
 						$data['room'] = $room_data;
@@ -1103,9 +1105,9 @@ class Admin extends CI_Controller {
 						$email_content = $this->load->view('email/moderation_denied', $data, TRUE);
 						$this->email->clear();
 						$this->email->set_mailtype('html');
-						$this->email->to($this->session->userdata('username').EMAIL_SUFFIX);
+						$this->email->to($data['booker_matrix'].EMAIL_SUFFIX);
 						$this->email->from(CONTACT_EMAIL);
-						$this->email->subject('Your request is awaiting moderation');
+						$this->email->subject('Your request has been denied');
 						$this->email->message($email_content);
 						$this->email->send();
 					}

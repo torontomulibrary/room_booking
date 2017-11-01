@@ -134,7 +134,7 @@ class user_Model  extends CI_Model  {
 	
 	function edit_super_admin($admin_id, $matrix_id){
 		$data = array(
-			'admin_id' => $user_id,
+			'admin_id' => $admin_id,
 			'matrix_id' => $matrix_id
 		);
 		
