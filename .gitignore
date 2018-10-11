@@ -5,6 +5,10 @@ application/config/constants.php
 application/config/database.php
 application/config/email.php
 application/config/cas.php
+application/views/performance_template.php
+application/views/dme_template.php
+assets/template/dme/*
+assets/template/performance/*
 /cache/*
 /temp/*
 !/temp/README.txt

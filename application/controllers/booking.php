@@ -68,7 +68,8 @@ class Booking extends CI_Controller {
 		$this->load->model('hours_model');
 		$this->load->library('calendar'); 
 		
-			
+		//Get the theme to load assets
+		$data['theme'] =  str_replace("_template", "", $this->role_model->get_theme());
 		
 		//Pull in all the rooms the current user is allowed to view!
 		$data['roles'] = $this->role_model->list_roles();
@@ -130,6 +131,9 @@ class Booking extends CI_Controller {
 	function index(){
 		$this->load->model('booking_model');
 		$this->load->model('role_model');
+		
+		//Get the theme to load assets
+		$data['theme'] =  str_replace("_template", "", $this->role_model->get_theme());
 		
 		$data['policy_url'] = $this->role_model->get_policy_url(); 
 		

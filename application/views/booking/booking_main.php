@@ -1,9 +1,11 @@
 
 <?php ob_start();?>
 
-<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/booking_main.css" type="text/css" media="screen" />
+<script src="<?php echo base_url(); ?>assets/js/jquery.js"></script>
+<link rel="stylesheet" href="<?php echo base_url(); ?>assets/template/<?php echo $theme; ?>/css/booking_main.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/jquery.jscrollpane.css" type="text/css" media="screen" />
 <script src="<?php echo base_url(); ?>assets/js/jquery.jscrollpane.min.js"></script>
+
 
 
 
@@ -114,7 +116,7 @@
 		
 	</div>
 	
-	<h3 style="text-align: center; font-weight: bold; margin-top: 2em; width: 450px; float: right;">Book a Room -<br> <?php echo SITE_TITLE; ?></h3>
+	<h3 id="calendar_header" style="text-align: center; font-weight: bold; margin-top: 2em; width: 450px; float: right;"><span>Book a Room -<br> <?php echo SITE_TITLE; ?></span></h3>
 	
 	
 	<div class="calendar_container">
@@ -215,7 +217,7 @@
 							else{
 								$seats = "1 seat";
 							}
-							echo 	'<tr data-buildingid="'.$room->building_id.'" data-seats="'.$room->seats.'" class="room_row"><th class="room_name"><div class="table_cell_height">'.$room->name .' &bull; '.$seats.'</div><div class="room_resources">';
+							echo 	'<tr data-buildingid="'.$room->building_id.'" data-seats="'.$room->seats.'" class="room_row"><th class="room_name"><div class="table_cell_height"><span class="room_name_container">'.$room->name .'</span><span class="room_seat_container"> &bull; '.$seats.'</span></div><div class="room_resources">';
 							
 							foreach($resources[$room->room_id]->result() as $resource){
 								echo '<span class="resource_element" data-resourceid="'.$resource->resource_id.'">'.$resource->name . '</span>';

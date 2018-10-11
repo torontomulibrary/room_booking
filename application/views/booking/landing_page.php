@@ -1,6 +1,6 @@
 <?php ob_start();?>
 
-<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/landing_page.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="<?php echo base_url(); ?>assets/template/<?php echo $theme; ?>/css/landing_page.css" type="text/css" media="screen" />
 
 
 
