@@ -41,18 +41,18 @@ define('USER_AGENT',										'LibraryBooking/1.0');
 define('SITE_TITLE',										'Name goes here');
 define('SITE_LOGO',											'https://ryersonperformance.ca/sites/default/files/schoolofperformancebrandmark-centrewhite.png');
 
-define('DEBUG_MODE',										TRUE);
+define('DEBUG_MODE',										FALSE);
 define('SITE_ADMIN',										'siteadmin@domain.com');
 define('CONTACT_EMAIL',										'contact@domain.com');
 
-define('USE_EXTERNAL_HOURS',								TRUE);
+define('USE_EXTERNAL_HOURS',								FALSE);
 define('EXTERNAL_HOURS_URL',								'https://domain.com/hours_external.cfm');
 
-define('USE_LIBSTAFF_LIST',									TRUE);
+define('USE_LIBSTAFF_LIST',									FALSE);
 define('LIBSTAFF_URL',										'https://domain.com');
 define('EMAIL_SUFFIX',										'@domain.com');
 
-define('USE_ACCESS_CENTRE_LIST',							TRUE);
+define('USE_ACCESS_CENTRE_LIST',							FALSE);
 define('RMS_USERNAME',										'rms_username');
 define('RMS_PASSWORD',										'rms_pass');
 define('RMS_SERVICE',										'https://rms.domain.com');
