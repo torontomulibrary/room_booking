@@ -420,7 +420,7 @@ CREATE TABLE `users` (
 
 INSERT INTO admin values (1, @username);
 INSERT INTO users values (1, @username, @name, 1);
-INSERT INTO roles values (1, 'Example role', 8, 21,'',0,1,'','rula_template.php');
+INSERT INTO roles values (1, 'Example role', 8, 21,'',0,1,'{"conf_email":"awaiting_moderation.php","policy_url":"","sidebar_text":""}','rula_template.php');
 INSERT INTO user_roles values (1,1);
 
 
