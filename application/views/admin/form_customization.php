@@ -144,7 +144,7 @@
 	</div>
   
 	<div class="form-group">
-		<label for="priority">Priority (If a user has more then one role, which settings should be used) [Bigger number = higher priority]</label>
+		<label for="priority">Priority (Bigger numbers will appear first when displaying)</label>
 		<select id="priority" class="form-control" name="priority">
 			<?php for($i=0; $i <= 10; $i++): ?>
 				<option value="<?php echo $i; ?>" <?php if(isset($current) && $current->priority == $i) echo 'selected="selected"'; ?>><?php echo $i; ?></option>
