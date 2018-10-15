@@ -12,3 +12,4 @@ assets/template/performance/*
 /cache/*
 /temp/*
 !/temp/README.txt
+!/cache/README.txt
