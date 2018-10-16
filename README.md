@@ -37,3 +37,13 @@
         1. `TIME_DELAY` - Force users to book at least this far in the future for non-moderated rooms (seconds)
         1. `SEND_MODERATION_ACTION_EMAIL` - `TRUE` if a user will recieve an email notification when their moderated booking has been approved/denied. `FALSE` for no notification
         1. `SEND_MODERATION_REQUEST_CONFIRMATION_EMAIL` - `TRUE` if a user will recieve an email letting them know their booking is awaiting moderation. `FALSE` otherwise
+1. Once configured, the you should be able to open the booking system in your brower. Open the page `<installed path>/admin` to begin configuration of the rooms
+1. Select the "Manage Role Types" option to configure roles in the system. Roles are used to group users, and assign them various properties such as maximum hours per week
+      1. For the "Login Attributes" field, this is compared against the "activeclasses" attribute provided by CAS via SAML. If an attribute matches, the authenticated user will be assigned that role for the duration of their session.
+1. Select the "Manage Buildings" option to create buildings
+      1. Buildings are used as a containers for rooms. They get assigned opeing and closing times, which limits the availble booking times for all of its rooms. Users will also be able to filter by buildings
+      1. The building hours can be set using the "Manage building hours" option (assuming that `EXTERNAL_HOURS_ADMIN` is set to `FALSE`. This option will be hidden if set to `TRUE`
+1. Create room resources using the "Manage Room Resources" option. Room resources are properties that can be assigned to rooms. For example, you might want to create "LCD Screen" or "Whiteboard" as resources available in a room. If desired, these resources can also be filtered on by a person making a booking
+1. Create rooms using the "Manage Rooms" option. 
+      1. Be sure to select a role under "Bookable By" so that the desired users are able to see the room and make bookings
+      1. For "User limit per day", this restricts the room based on the total number of hours a user has already made that day. For example, if a user has already has 3 hours of bookings on a given day, and this setting is limited to 2 hours, then the user will not be able to book this room as they would have exceeded their daily limit
