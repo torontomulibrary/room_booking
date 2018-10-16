@@ -126,7 +126,7 @@
   </div>
   
   <div class="form-group">
-    <label for="max_daily_hours">User limit per day</label>
+    <label for="max_daily_hours">User limit per day (hours)</label>
 	 <input type="text" class="form-control" id="max_daily_hours" placeholder="Enter the user limit per day" name="max_daily_hours" <?php if(isset($current)): ?>value="<?= $current->max_daily_hours ?>" <?php endif; ?>>
   </div>
   
