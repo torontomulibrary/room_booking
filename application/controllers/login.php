@@ -150,12 +150,12 @@ class Login extends CI_Controller {
 		//Does the user have any roles in the system? No roles = no access
 		if(count($roles) === 0){
 			$this->log_model->log_event('login', $this->session->userdata('username'), "Login Denied", null, implode(',', $cas_roles));
-			$this->template->load('rula_template', 'denied');
+			$this->template->load(DEFAULT_TEMPLATE, 'denied');
 			$this->session->sess_destroy();	
 			
 		}
 		else if($this->user_model->is_banned($user_data->userlogin)){
-			$this->template->load('rula_template', 'banned');
+			$this->template->load($this->role_model->get_theme(), 'banned');
 			$this->session->sess_destroy();	
 		}
 		//Successful login
@@ -195,7 +195,7 @@ class Login extends CI_Controller {
 		$this->session->sess_destroy();
 		
 		$this->load->library('cas');
-		$this->cas->logout('http://library.ryerson.ca');
+		$this->cas->logout(base_url());
 		
 		$this->template->load('rula_template', 'booking/book_room_form');
 		

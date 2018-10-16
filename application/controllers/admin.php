@@ -1066,7 +1066,7 @@ class Admin extends CI_Controller {
 						$this->email->clear();
 						$this->email->set_mailtype('html');
 						$this->email->to($data['booker_matrix'].EMAIL_SUFFIX);
-						$this->email->from(CONTACT_EMAIL);
+						$this->email->from(REPLY_EMAIL);
 						$this->email->subject('Your request has been approved');
 						$this->email->message($email_content);
 						$this->email->send();
@@ -1106,7 +1106,7 @@ class Admin extends CI_Controller {
 						$this->email->clear();
 						$this->email->set_mailtype('html');
 						$this->email->to($data['booker_matrix'].EMAIL_SUFFIX);
-						$this->email->from(CONTACT_EMAIL);
+						$this->email->from(REPLY_EMAIL);
 						$this->email->subject('Your request has been denied');
 						$this->email->message($email_content);
 						$this->email->send();

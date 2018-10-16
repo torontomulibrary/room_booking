@@ -22,8 +22,13 @@
         1. `USER_AGENT` - What other servers will see when connecting to external web services
         1. `SITE_TITLE` - Title of the booking system used for mobile interface
         1. `SITE_LOGO` - Image for the header in the mobile interface
+		1. `DEFAULT_TEMPLATE` - Template to be used if user has no roles (and hence, not permitted to use the system)
+		1. `DEFAULT_POLICY_URL` - Policy url to be used if user has no roles (and hence, not permitted to use the system)
         1. `DEBUG_MODE` - Used for troubleshooting (adding the GET request variable `debug` will show debugging information). Recommended to leave set to `FALSE`
-        1. `SITE_ADMIN` - Contact email
+		1. `REPLY_EMAIL` - Used as the FROM address when the system sends out emails
+		1. `CONTACT_EMAIL` - Email to be used on mobile template
+		1. `CONTACT_PHONE` - Telephone number to be used on mobile template		
+        1. `SITE_ADMIN` - Email contact of site administrator
         1. `USE_EXTERNAL_HOURS` - Used to pull building hours from external system. Recommended to be set to `FALSE`
         1. `EXTERNAL_HOURS_URL` - URL to use if `USE_EXTERNAL_HOURS` is set the `TRUE`
         1. `USE_LIBSTAFF_LIST` - Used to pull in an external list of Library staff. Recommended to be set to `FALSE`

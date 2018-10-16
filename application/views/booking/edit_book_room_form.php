@@ -19,7 +19,7 @@
 	for each role. This only appears when not editing/creating new roles
 --->
 
-<h3 style="text-align: center; font-weight: bold">Ryerson University Library Room Booking</h3>
+<h3 style="text-align: center; font-weight: bold"><?php echo SITE_TITLE; ?></h3>
 
 <?php
 //Verify the required fields are present (and the time is a half hour increment (don't let people mess with the URL)

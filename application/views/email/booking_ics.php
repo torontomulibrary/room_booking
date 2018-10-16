@@ -1,6 +1,6 @@
 BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//Ryerson University Library//NONSGML v1.0//EN
+PRODID:-//<?php echo SITE_TITLE; ?>//NONSGML v1.0//EN
 BEGIN:VEVENT
 UID:<?php echo $this->session->userdata('username').EMAIL_SUFFIX. ":". $booking_id. "\n"; ?>
 DTSTAMP:<?php echo date('Ymd\THis\ZO', $start). "\n"; ?>

@@ -290,7 +290,7 @@ class Mobile extends CI_Controller {
 									$this->email->clear();
 									$this->email->set_mailtype('html');
 									$this->email->to($this->session->userdata('username').EMAIL_SUFFIX);
-									$this->email->from(CONTACT_EMAIL);
+									$this->email->from(REPLY_EMAIL);
 									$this->email->subject('Your request is awaiting moderation');
 									$this->email->message($email_content);
 									$this->email->send();

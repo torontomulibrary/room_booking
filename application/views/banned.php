@@ -4,7 +4,7 @@
 
 <?php ob_start();?>
 
-<h3 style="text-align: center; font-weight: bold; margin-bottom: 1em;">Ryerson University Library Room Booking</h3>
+<h3 style="text-align: center; font-weight: bold; margin-bottom: 1em;"><?php echo SITE_TITLE; ?></h3>
 <span style="text-align: center">
 	<p>Your access to the room booking system has been suspended</p>
 

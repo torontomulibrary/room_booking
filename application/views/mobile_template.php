@@ -12,7 +12,7 @@
 <html lang="en-US">
 <!--<![endif]-->
 <head>
-    <title>Room Booking - Ryerson University Library and Archives</title>
+    <title><?php echo SITE_TITLE; ?></title>
     <meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
@@ -45,8 +45,8 @@
 
 	 <div class="footer">
 		 <a rel="external" href="<?php echo base_url(); ?>booking">Full Site</a> | 
-		 <a href="mailto:refdesk@ryerson.ca">refdesk@ryerson.ca</a> | 
-		 <a href="tel:416-979-5055">416-979-5055</a>
+		 <a href="mailto:<?php echo CONTACT_EMAIL; ?>"><?php echo CONTACT_EMAIL; ?></a> | 
+		 <a href="tel:<?php echo CONTACT_PHONE; ?>"><?php echo CONTACT_PHONE; ?></a>
 	 </div>
 	 
 	<script>
