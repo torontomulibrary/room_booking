@@ -84,6 +84,7 @@
 	</div>
 	
 	<div class="form-group">
+		<label for="hours_week">Maximum bookable hours per week</label>
 		<input class="form-control" type="text" id="hours_week" name="hours_week" value="<?php if(isset($current)) echo ltrim($current->hours_per_week, '0') ?>" />
 	</div>
 	
