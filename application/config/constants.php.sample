@@ -43,13 +43,13 @@ define('SITE_LOGO',											'https://domain.com/assets/images/logo.png');
 
 //Defaults if user has no roles
 define('DEFAULT_TEMPLATE',									'rula_template');
-define('DEFAULT_POLICY_URL'									'https://domain.com/room-booking-policy/');
+define('DEFAULT_POLICY_URL',								'https://domain.com/room-booking-policy/');
 
 define('DEBUG_MODE',										FALSE);
 define('SITE_ADMIN',										'siteadmin@domain.com');
 define('REPLY_EMAIL',										'contact@domain.com'); //Used as the "FROM" address when sending emails
 define('CONTACT_EMAIL',										'contact@domain.com');
-define('CONTACT_PHONE'										'416-555-5555');
+define('CONTACT_PHONE',										'416-555-5555');
 
 define('USE_EXTERNAL_HOURS',								FALSE);
 define('EXTERNAL_HOURS_URL',								'https://domain.com/hours_external.cfm');
