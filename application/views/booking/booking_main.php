@@ -1,7 +1,6 @@
 
 <?php ob_start();?>
 
-<script src="<?php echo base_url(); ?>assets/js/jquery.js"></script>
 <link rel="stylesheet" href="<?php echo base_url(); ?>assets/template/<?php echo $theme; ?>/css/booking_main.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/jquery.jscrollpane.css" type="text/css" media="screen" />
 <script src="<?php echo base_url(); ?>assets/js/jquery.jscrollpane.min.js"></script>
@@ -485,9 +484,13 @@
 		$('#footer_scrollbar').scrollLeft($(scroll_position).scrollLeft());
 	});
 	
-	$('#filter_container').jScrollPane({
+	$(document).ready(function () {
+		$('#filter_container').jScrollPane({
 			horizontalDragMinWidth: 70,
 			horizontalDragMaxWidth: 70
+		});
+		
+		
 	});
 	
 	<?php

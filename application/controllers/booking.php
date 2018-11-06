@@ -160,6 +160,9 @@ class Booking extends CI_Controller {
 	
 	function book_room(){
 		$this->load->model('booking_model');
+		$this->load->model('role_model');
+		
+		$data['theme'] =  str_replace("_template", "", $this->role_model->get_theme());
 		
 		//User is NOT allowed to make bookings in this room. Redirect to base url
 		if(!$this->booking_model->is_allowed($this->input->get('room_id'))){
@@ -174,7 +177,6 @@ class Booking extends CI_Controller {
 			$this->load->model('hours_model');
 			$this->load->model('resource_model');
 			$this->load->model('building_model');
-			$this->load->model('role_model');
 			$this->load->model('interface_model');
 			
 			$data['interface'] = $this->interface_model->get_fields($this->input->get('room_id'));

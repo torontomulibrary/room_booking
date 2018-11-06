@@ -1,0 +1,156 @@
+/* RyersonU Library Sitewide CSS
+Last Modified by: CN on Mar 25, 2013 */
+
+/*** Content ***/
+/* Global Overrides */
+.entry-content iframe {
+  margin: 0;
+  border: none;
+  overflow: hidden;
+}
+
+.inc-height {
+  line-height: 1.5em;
+}
+
+/* images without borders */
+img[class*="wp-image-"].noborder, #content .gallery .gallery-icon {
+  border: 0;
+}
+
+/* Override for book banner */
+
+#titles-wrap {
+  opacity: 0.9;
+}
+
+/* Form fields styling */
+.req {
+  font-size: 125%;
+  color: red;
+}
+
+.alignfields label,
+.alignfields input {
+  display: inline-block;
+}
+.alignfields label {
+  width: 200px;
+  vertical-align: top;
+}
+.alignfields input[type="text"] {
+  margin: 2px 0;
+}
+.alignfields .column {
+  padding: 0;
+}
+
+/* For auto generated 2 column layouts */
+.auto-two-columns {
+  -moz-column-count: 2;
+  -webkit-column-count: 2;
+  column-count: 2;
+}
+
+/* For 2 Column layouts */
+.column {
+  float: left;
+  padding: 0 1%;
+}
+.full {
+  width: 97.5%;
+}
+.half {
+  width: 47.5%;
+}
+.wide {
+  width: 64%;
+}
+.narrow {
+  width: 31%;
+}
+.clearfix {
+  overflow: auto;
+}
+/* column left border */
+.leftborder {
+  border-left: 1px dotted #CCC;
+}
+.leftpadding {
+  padding: 0 0 0 2%;
+}
+/* For Announcements */
+#announce {
+  background: #FEFBF4;
+  border: 2px solid #D50202;
+  padding: 0.5em;
+}
+
+/* Used in Collection Development Policy */
+.upper-roman {
+  list-style-type: upper-roman;
+}
+
+/* For Database Description pages */
+#concurrents {
+  border: 2px #F37626 solid;
+  width: 50%;
+  padding: 0.5em;
+}
+
+/* For Database by Subjects Page */
+.entry-content iframe[src^="http://ryerson.scholarsportal.info"] {
+  height: 40px;
+  margin-bottom: -15px;
+}
+
+/* New Books */
+#newbooksb {
+  max-width: 100%;
+  max-height: 175px;
+  overflow: hidden;
+}
+#newbooksb table {
+  margin: 0 auto;
+}
+
+/* Blog */
+#secondary #linkcat-189,#secondary #polls-widget-2 {
+  margin-bottom:.4em;
+  padding-bottom:1.2em;
+  border-bottom:1px solid #D9D9D9;
+}
+#secondary hr {
+  background-color:#D9D9D9;
+  color:#D9D9D9;
+}
+#secondary #polls-widget-2 {
+  border-top:1px solid #D9D9D9;
+}
+
+/* Global Navigation Increase Padding for this site only */
+#top-nav-list a,
+#top-nav-list a:link,
+#top-nav-list a:visited {
+  padding: 7px 35px;
+}
+
+
+@media (max-width: 40.5em) { /* approx 650px, force single column */
+  .auto-two-columns {
+  -moz-column-count: 1;
+  -webkit-column-count: 1;
+  column-count: 1;
+  }
+  .column {
+    padding: 0 2% !important;
+  }
+  .half,
+  .wide,
+  .narrow {
+    width: 95%;
+  }
+  .leftborder {
+    border-left: none;
+  }
+}
