@@ -131,7 +131,7 @@
 <div style="clear:both"></div>
 
 
-<div class="booking_container">
+<div class="booking_container" id="booking_container">
 
 	<?php
 		//Figure out of any limits were reached
@@ -184,7 +184,7 @@
 							
 						<?php
 							//Create the top row listing the times as table headers
-							echo '<tr><th><div class="table_cell_height">&nbsp;</div></th>';
+							echo '<tr><th><div class="table_cell_height">Name</div></th>';
 							
 							$tStart = mktime(0,0,0) + round((($hours['min'] * 24) * 60 * 60)); 
 							
@@ -216,7 +216,8 @@
 							else{
 								$seats = "1 seat";
 							}
-							echo 	'<tr data-buildingid="'.$room->building_id.'" data-seats="'.$room->seats.'" class="room_row"><th class="room_name"><div class="table_cell_height"><span class="room_name_container">'.$room->name .'</span><span class="room_seat_container"> &bull; '.$seats.'</span></div><div class="room_resources">';
+							echo 	'<tr data-buildingid="'.$room->building_id.'" data-seats="'.$room->seats.'" class="room_row">';
+							echo	'<th class="room_name"><div class="table_cell_height"><span class="room_name_container">'.$room->name .'</span><span class="room_seat_container"> &bull; '.$seats.'</span></div><div class="room_resources">';
 							
 							foreach($resources[$room->room_id]->result() as $resource){
 								echo '<span class="resource_element" data-resourceid="'.$resource->resource_id.'">'.$resource->name . '</span>';

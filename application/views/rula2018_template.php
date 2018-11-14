@@ -12,12 +12,11 @@
 
 <link rel="stylesheet" id="font-awesome-style-css" href="<?php echo base_url(); ?>assets/template/rula2018/css/font-awesome.css" type="text/css" media="all">
 <link rel="stylesheet" id="bootstrap-style-css" href="<?php echo base_url(); ?>assets/template/rula2018/css/bootstrap.css" type="text/css" media="all">
+
 <link rel="stylesheet" id="ryerson-web-style-css" href="<?php echo base_url(); ?>assets/template/rula2018/css/style.css" type="text/css" media="all">
 
-
-<link rel="stylesheet" id="rula-subpages-navigation-style-css" href="<?php echo base_url(); ?>assets/template/rula2018/css/rula-subpages-navigation.css" type="text/css" media="all">
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-
+<script type="text/javascript" src="<?php echo base_url(); ?>assets/template/rula2018/js/bootstrap.min.js"></script>
 
 
 	<style type="text/css">	
@@ -27,7 +26,7 @@
 			padding: 0 2em;
 			padding-bottom: 1em;
 			background-color: #f9f9f9;
-			
+			min-height: 700px;
 		}
 	</style>
 		
@@ -38,8 +37,8 @@
 <body class="page-template-default page ">
 
   
-    <a class="assistive-text btn" href="#main-navigation">Skip to main menu</a>
-    <a class="assistive-text btn" href="#main">Skip to content</a>
+    <a class="assistive-text btn" href="#app_links">Skip to main menu</a>
+    <a class="assistive-text btn" href="#booking_container">Skip to content</a>
 
   <header class="global-header-top">
   <div class="container">

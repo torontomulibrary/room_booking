@@ -69,7 +69,9 @@ a, a:visited, a:hover, a:active {
 	
 }
 
-
+.month_arrow_container{
+	background-color: #f27935;
+}
 
 
 .table_calendar .month_year{
@@ -81,7 +83,7 @@ a, a:visited, a:hover, a:active {
 	height: 70px;
 	line-height: 70px;
 	position: relative;
-	top: -2px;
+	/*top: -2px;*/
 	font-family: 'Open Sans', sans-serif;
 	font-size:30px;
 	font-weight: normal;

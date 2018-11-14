@@ -18,8 +18,29 @@ class Calendar {
 		 
 		$output = "";
 		$output .= '<table class="table_calendar" cellpadding="0">';
-		$output .= '<tr><th colspan="7"><div class="month_year" ><a class="month_arrow" style="float: left; " href="'. base_url() .'booking/booking_main?month=' . date("Ym", strtotime("-1 month", $date)) .'"><img src="'.base_url().'assets/img/Book-Room-Icon5.png" width="50" alt="Previous Month" /></a>'. strtoupper(date('F Y', $date)) .'<a style="float:right;" class="month_arrow" href="'. base_url() .'booking/booking_main?month=' . date("Ym", strtotime("+1 month", $date)) .'"><img src="'.base_url().'assets/img/Book-Room-Icon4.png" width="50" alt="Next Month" /></a></div></th></tr>';
-		$output .= "<tr><th>SUN</th><th>MON</th><th>TUE</th><th>WED</th><th>THU</th><th>FRI</th><th>SAT</th></tr>";
+		$output .= '<caption>'.strtoupper(date('F Y', $date)).'</caption>';
+		
+		//Month name with next/previous arrows
+		$output .= '<tr>
+						<td colspan="1" class="month_arrow_container">
+							
+								<a class="month_arrow" style="float: left; " href="'. base_url() .'booking/booking_main?month=' . date("Ym", strtotime("-1 month", $date)) .'">
+									<img src="'.base_url().'assets/img/Book-Room-Icon5.png" width="50" alt="Previous Month" />
+								</a> 
+						</td>
+						<th colspan="5" class="month_year">'.
+							strtoupper(date('F Y', $date)) .
+						'</th>
+						<td colspan="1" class="month_arrow_container">
+							<a style="float:right;" class="month_arrow" href="'. base_url() .'booking/booking_main?month=' . date("Ym", strtotime("+1 month", $date)) .'">
+									<img src="'.base_url().'assets/img/Book-Room-Icon4.png" width="50" alt="Next Month" />
+								</a>
+							
+						</td>
+					</tr>';
+		
+		//Sun-Sat table headers
+		$output .= '<tr><th scope="colgroup">SUN</th><th scope="colgroup">MON</th><th scope="colgroup">TUE</th><th scope="colgroup">WED</th><th scope="colgroup">THU</th><th scope="colgroup">FRI</th><th scope="colgroup">SAT</th></tr>';
 		$output .= "<tr>";
 		 
 		for($i = 1; $i <= $offset; $i++){

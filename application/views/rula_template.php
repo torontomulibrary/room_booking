@@ -15,14 +15,14 @@
     <title>Room Booking - Ryerson University Library and Archives</title>
     <meta charset="UTF-8">
 	
-	<link href="<?= base_url() ?>assets/css/bootstrap.min.css" rel="stylesheet">
+	<link href="<?php echo base_url(); ?>assets/css/bootstrap.min.css" rel="stylesheet">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-	<script src="<?= base_url() ?>assets/js/bootstrap.min.js"></script>   
+	<script src="<?php echo base_url(); ?>assets/js/bootstrap.min.js"></script>   
 
-	<link rel="icon" href="<?php echo base_url()?>assets/template/rula/images/favicon-rula.ico" type="image/ico"/>
-    <link rel="apple-touch-icon" href="<?php echo base_url()?>assets/template/rula/images/home-icon.png" type="image/png"/>
-    <link rel="stylesheet" href="<?php echo base_url()?>assets/template/rula/css/standard_style.css" type="text/css" media="screen" />
-    <link rel="stylesheet" href="<?php echo base_url()?>assets/template/rula/css/standard_print.css" type="text/css" media="print" />
+	<link rel="icon" href="<?php echo base_url(); ?>assets/template/rula/images/favicon-rula.ico" type="image/ico"/>
+    <link rel="apple-touch-icon" href="<?php echo base_url(); ?>assets/template/rula/images/home-icon.png" type="image/png"/>
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/template/rula/css/standard_style.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/template/rula/css/standard_print.css" type="text/css" media="print" />
 	
 	<style>
 	header *{
@@ -131,9 +131,9 @@
 <link rel="stylesheet" type="text/css" media="all" href="css/standard_style_ie7.css" />
 <![endif]-->
 <!--[if lt IE 9]>
-<script src="<?php echo base_url()?>assets/template/rula/js/html5shiv.js"></script>
-<script src="<?php echo base_url()?>assets/template/rula/js/html5shiv-printshiv.js"></script>
-<script src="<?php echo base_url()?>assets/template/rula/js/respond.min.js"></script>
+<script src="<?php echo base_url(); ?>assets/template/rula/js/html5shiv.js"></script>
+<script src="<?php echo base_url(); ?>assets/template/rula/js/html5shiv-printshiv.js"></script>
+<script src="<?php echo base_url(); ?>assets/template/rula/js/respond.min.js"></script>
 <![endif]-->
 
 <?php if(isset($headers)) echo $headers; ?>
