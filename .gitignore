@@ -13,3 +13,4 @@ assets/template/performance/*
 /temp/*
 !/temp/README.txt
 !/cache/README.txt
+.htaccess
