@@ -27,7 +27,6 @@
 				
 				<th>Role Name</th>
 				<th>Hours per Week</th>
-				<th>Booking Window</th>
 				<th>Login Attributes</th>
 				<th>Hide User Names for Booked Rooms</th>
 				<th>Site Theme</th>
@@ -89,7 +88,6 @@
 	</div>
 	
 	<div class="form-group">
-		<label for="booking_window">How far in the future a booking can be made (days)</label>
 		<input class="form-control" type="text" id="booking_window" name="booking_window" value="<?php if(isset($current)) echo ltrim($current->booking_window, '0') ?>" />
 	</div>
 	

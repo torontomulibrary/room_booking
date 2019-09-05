@@ -29,7 +29,7 @@
 				<th>Building</th>
 				<th>Seats</th>
 				<th>Bookable by</th>
-				<th>User limit per day</th>
+				<th>Max daily hours bookable by user</th>
 				<th>Requires Moderation</th>
 				<th>Active</th>
 				<th>Options</th>
@@ -126,7 +126,7 @@
   </div>
   
   <div class="form-group">
-    <label for="max_daily_hours">User limit per day (hours)</label>
+    <label for="max_daily_hours">Max daily hours bookable by user</label>
 	 <input type="text" class="form-control" id="max_daily_hours" placeholder="Enter the user limit per day" name="max_daily_hours" <?php if(isset($current)): ?>value="<?= $current->max_daily_hours ?>" <?php endif; ?>>
   </div>
   
