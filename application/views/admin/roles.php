@@ -27,6 +27,7 @@
 				
 				<th>Role Name</th>
 				<th>Hours per Week</th>
+				<th>Days in advance a booking can be made</th>
 				<th>Login Attributes</th>
 				<th>Hide User Names for Booked Rooms</th>
 				<th>Site Theme</th>
@@ -88,6 +89,7 @@
 	</div>
 	
 	<div class="form-group">
+		<label for="booking_window">How many days in advance can a booking be made</label>
 		<input class="form-control" type="text" id="booking_window" name="booking_window" value="<?php if(isset($current)) echo ltrim($current->booking_window, '0') ?>" />
 	</div>
 	
