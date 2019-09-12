@@ -469,24 +469,24 @@
 <script type="text/javascript" src="<?php echo base_url(); ?>assets/js/booking_main.js" /></script>
 
 <script>
-	$('#test').css('width', $('.booking_table').first().width() + 180);
+	jQuery('#test').css('width', jQuery('.booking_table').first().width() + 180);
 	
-	$('#footer_scrollbar').on('scroll', function(){
+	jQuery('#footer_scrollbar').on('scroll', function(){
 		var scroll_position = this;
 		
-		$('.table-wrapper').each(function(){
-			$(this).scrollLeft($(scroll_position).scrollLeft());
+		jQuery('.table-wrapper').each(function(){
+			jQuery(this).scrollLeft(jQuery(scroll_position).scrollLeft());
 		});
 	});
 	
-	$('.table-wrapper').on('scroll', function(){
+	jQuery('.table-wrapper').on('scroll', function(){
 		var scroll_position = this;
 		
-		$('#footer_scrollbar').scrollLeft($(scroll_position).scrollLeft());
+		jQuery('#footer_scrollbar').scrollLeft(jQuery(scroll_position).scrollLeft());
 	});
 	
-	$(document).ready(function () {
-		$('#filter_container').jScrollPane({
+	jQuery(document).ready(function () {
+		jQuery('#filter_container').jScrollPane({
 			horizontalDragMinWidth: 70,
 			horizontalDragMaxWidth: 70
 		});
@@ -502,7 +502,7 @@
 		if($scroll < 0) $scroll = 0;
 	?>
 	var scroll_amount = <?php echo $scroll; ?>;
-	$('#footer_scrollbar').scrollLeft(scroll_amount);
+	jQuery('#footer_scrollbar').scrollLeft(scroll_amount);
 	
 	<?php endif; ?>
 	

@@ -200,7 +200,7 @@ if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot'))
 
 		
 		<script type="text/javascript">
-			$('#cancel_button').on('click',function(){
+			jQuery('#cancel_button').on('click',function(){
 				window.location = "<?php echo base_url() . 'booking/booking_main?month='. date('Ym',$this->input->get('slot')) . '&date='.date('Ymd',$this->input->get('slot')); ?>";
 			});
 		</script>
