@@ -35,6 +35,8 @@ class Login extends CI_Controller {
 		$this->load->model('role_model');
 		$this->load->model('log_model');
 		
+	
+		
 		$roles = array();
 		
 		//Force the user to log in
@@ -52,8 +54,6 @@ class Login extends CI_Controller {
 		
 		$this->session->set_userdata('username', $user_data->userlogin);
 		$this->session->set_userdata('cas_active_classes', $this->cas->getAttribute('activeclasses'));
-		
-		
 		
 		//------------Load Users from existing groups--------------------
 		$cas_roles = $this->cas->getAttribute('activeclasses');
@@ -111,6 +111,23 @@ class Login extends CI_Controller {
 					}					
 				}				
 			}
+			
+			if(USE_STUDENT_FACULTY_SERVICE){
+				//$studentNumber = '500898862';
+				$studentNumber = $this->cas->getAttribute('studentnumber');
+				
+				if(strlen($studentNumber) > 0){
+					if(in_array("fcs_member", $role_attributes)){
+						if( $this->user_model->is_fcs_member($studentNumber)){
+							$object = new stdClass();
+							$object->role_id = $role->role_id;
+							$object->name = $role->name;
+							$roles[] = $object;
+						}					
+					}
+				}
+			}
+		
 		}			
 		
 		$this->session->set_userdata('name', $this->cas->getAttribute('firstname') . ' ' . $this->cas->getAttribute('lastname'));

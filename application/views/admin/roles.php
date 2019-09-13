@@ -104,6 +104,10 @@
 		<?php if(USE_LIBSTAFF_LIST === TRUE): ?>
 			<span style="display: block; margin-top: 0.5em; padding-left: 2em; font-size: 0.9em">For special Library staff role, please use the attribute: <span style="font-weight: bold; font-style: italic;">libstaff</span></span>
 		<?php endif; ?>
+		
+		<?php if(USE_STUDENT_FACULTY_SERVICE === TRUE): ?>
+			<span style="display: block; margin-top: 0.5em; padding-left: 2em; font-size: 0.9em">For Faculty of Community Services, please use the attribute: <span style="font-weight: bold; font-style: italic;">fcs_member</span></span>
+		<?php endif; ?>
 	</div>
 	
 	<hr />

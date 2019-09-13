@@ -258,6 +258,61 @@ class user_Model  extends CI_Model  {
 		
 	}
 	
+	function is_fcs_member($studentNumber){
+		require_once(APPPATH.'libraries/PbeWithMd5AndDes.php');
+		require_once(APPPATH.'libraries/PkcsKeyGenerator.php');
+		require_once(APPPATH.'libraries/DesEncryptor.php');
+		
+		//Prepare the student ID
+		$date = date('mdYHis');
+		
+		$raw_string = $date . $studentNumber;
+	
+		//Encrypt it!
+		$crypt = PbeWithMd5AndDes::encrypt($raw_string, STUDENT_FACULTY_SERVICE_KEY, STUDENT_FACULTY_SERVICE_IV, 20, 1);
+		
+		//Prepare the request
+		$opts = array(
+		  'http'=>array(
+			'ignore_errors' => true,
+			'method'=>	"POST",
+			'header'=> 	"Content-Type: application/xml\r\n".
+						"Authorization: Basic ". base64_encode(STUDENT_FACULTY_SERVICE_USERNAME.":".STUDENT_FACULTY_SERVICE_PASSWORD)."\r\n",
+			'content'=>	'<?xml version="1.0"?>'."\n".
+						'<RU_STD_CAREER_REQUEST xmlns="http://xmlns.ryerson.ca/ps/sas/schemas/RU_STD_CAREER_REQUEST.V1">'."\n".
+						'<STUDENT_ID>'.implode(unpack("H*", $crypt)).'</STUDENT_ID>'."\n".
+						'</RU_STD_CAREER_REQUEST>',
+			'timeout'=>	60,
+			)
+		);
+		
+		$context = stream_context_create($opts);
+		$file = file_get_contents(STUDENT_FACULTY_SERVICE_URL, false, $context);
+		
+		if($file !== FALSE && strstr($http_response_header[0],"HTTP/1.1 200")){
+			$careers = new SimpleXMLElement($file);
+			
+			//Check for errors with a 200 status. These will be XML with containing "<RU_STD_CAREER_REQUEST_FAULT>"
+			if(isset($careers->IS_FAULT)){
+				//Error, write to log?
+				return FALSE;
+			}
+			else{
+				//Else good response. Iterate all CAREERS, as a person can have multiple. Stop once the ACADEMIC_GROUP "CS" is found
+				foreach ($careers->CAREERS->CAREER as $career) {
+				   if($career->ACADEMIC_GROUP == "CS") return TRUE;
+				}
+			}
+
+			return FALSE;
+		}
+		else{
+			//Server response was not a 200 status. A error occured
+			//Error, write to log?
+			return FALSE;
+		}
+	}
+	
 	function is_access_center($username){
 		$response = array();
 		

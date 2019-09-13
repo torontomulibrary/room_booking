@@ -54,6 +54,13 @@ define('CONTACT_PHONE',										'416-555-5555');
 define('USE_EXTERNAL_HOURS',								FALSE);
 define('EXTERNAL_HOURS_URL',								'https://domain.com/hours_external.cfm');
 
+define('USE_STUDENT_FACULTY_SERVICE',						FALSE);
+define('STUDENT_FACULTY_SERVICE_URL',						'https://domain.com');
+define('STUDENT_FACULTY_SERVICE_USERNAME',					'fs_username');
+define('STUDENT_FACULTY_SERVICE_PASSWORD',					'fs_password');
+define('STUDENT_FACULTY_SERVICE_KEY',						'enc_key');
+define('STUDENT_FACULTY_SERVICE_SALT',						'0000000000000000');
+
 define('USE_LIBSTAFF_LIST',									FALSE);
 define('LIBSTAFF_URL',										'https://domain.com');
 define('EMAIL_SUFFIX',										'@domain.com');
