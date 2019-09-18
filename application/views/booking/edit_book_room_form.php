@@ -24,7 +24,7 @@
 <?php
 //Verify the required fields are present (and the time is a half hour increment (don't let people mess with the URL)
 //Also make sure the user is allowed to book this room, and that the room is not closed
-if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('booking_id'))): ?>
+if($this->input->get('booking_id') === NULL || !is_numeric($this->input->get('booking_id'))): ?>
 	<div class="alert alert-danger" role="alert">An Error has occurred. </div>
 <?php else: ?>	
 		<?php $room_data = $room['room_data']->row(); ?>
@@ -111,7 +111,7 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 										
 											
 											//If there is another booking ahead of this, do not allow for overlap
-											if($next_booking->num_rows > 0 && $next_booking->row()->start != null && $end_time > strtotime($next_booking->row()->start)){
+											if($next_booking->num_rows() > 0 && $next_booking->row()->start != null && $end_time > strtotime($next_booking->row()->start)){
 											
 													$end_time = strtotime($next_booking->row()->start);
 													
@@ -294,14 +294,14 @@ if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('b
 
 			
 		<script>
-			$('#confirm-delete').on('show.bs.modal', function(e) {
-				$(this).find('.danger').attr('href', "<?php echo base_url() . 'booking/delete_booking?booking_id='.$this->input->get('booking_id');?>");
+			jQuery('#confirm-delete').on('show.bs.modal', function(e) {
+				jQuery(this).find('.danger').attr('href', "<?php echo base_url() . 'booking/delete_booking?booking_id='.$this->input->get('booking_id');?>");
 			})
 		</script>
 
 		
 		<script type="text/javascript">
-			$('#cancel_button').on('click',function(){
+			jQuery('#cancel_button').on('click',function(){
 				window.location = "<?php echo base_url() . 'booking/booking_main?month='. date('Ym',strtotime($booking->start)) . '&date='.date('Ymd',strtotime($booking->start)); ?>";
 			});
 		</script>

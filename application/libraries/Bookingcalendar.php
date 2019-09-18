@@ -1,6 +1,6 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class Calendar {
+class Bookingcalendar {
 	function drawCalendar($month = null, $year = null, $selected_day = null, $days_allowed = null) {
 		if($month === null || $year === null){
 			$month = date('n');

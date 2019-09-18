@@ -12,13 +12,13 @@
 
 
 <?php ob_start();?>
-	<?php if($this->session->flashdata('notice') !== FALSE): ?><div class="alert alert-notice" role="alert"><?php print_message('Notice', $this->session->flashdata('notice')); ?></div><?php endif; ?>
-	<?php if($this->session->flashdata('warning') !== FALSE): ?><div class="alert alert-warning" role="alert"><?php print_message('Warning', $this->session->flashdata('warning')); ?></div><?php endif; ?>
-	<?php if($this->session->flashdata('success') !== FALSE): ?><div class="alert alert-success" role="alert"><?php print_message('Success', $this->session->flashdata('success')); ?></div><?php endif; ?>
-	<?php if($this->session->flashdata('danger') !== FALSE): ?><div class="alert alert-danger" role="alert"><?php print_message('Error', $this->session->flashdata('danger')); ?></div><?php endif; ?>
+	<?php if($this->session->flashdata('notice') !== NULL): ?><div class="alert alert-notice" role="alert"><?php print_message('Notice', $this->session->flashdata('notice')); ?></div><?php endif; ?>
+	<?php if($this->session->flashdata('warning') !== NULL): ?><div class="alert alert-warning" role="alert"><?php print_message('Warning', $this->session->flashdata('warning')); ?></div><?php endif; ?>
+	<?php if($this->session->flashdata('success') !== NULL): ?><div class="alert alert-success" role="alert"><?php print_message('Success', $this->session->flashdata('success')); ?></div><?php endif; ?>
+	<?php if($this->session->flashdata('danger') !== NULL): ?><div class="alert alert-danger" role="alert"><?php print_message('Error', $this->session->flashdata('danger')); ?></div><?php endif; ?>
 		
 	<form method="GET" id="date_form"  action="book_room">
-	<?php if($this->input->get('selected_date') === FALSE): ?>
+	<?php if($this->input->get('selected_date') === NULL): ?>
 			<input id="date" type="hidden" name="selected_date" value="">
 			<div id="cal_container"></div>
 	<?php else: ?>
@@ -27,7 +27,7 @@
 	
 		
 		
-	<?php if($this->input->get('selected_date') !== FALSE): ?>
+	<?php if($this->input->get('selected_date') !== NULL): ?>
 			
 		<?php
 			//Make sure the user can book this far in the future
@@ -82,7 +82,7 @@
 				$tNow = $tStart;
 
 				while($tNow <= $tEnd){
-					if($this->input->get('set_time') !== FALSE && $tNow == $this->input->get('set_time')){
+					if($this->input->get('set_time') !== NULL && $tNow == $this->input->get('set_time')){
 						echo '<option value="'.$tNow.'" selected="selected">'.date("g:iA",$tNow).'</option>';
 					}
 					else{
@@ -104,7 +104,7 @@
 	</form>
 
 
-	<?php if($this->input->get('selected_date') !== FALSE && $this->input->get('set_time') !== FALSE): ?>
+	<?php if($this->input->get('selected_date') !== NULL && $this->input->get('set_time') !== NULL): ?>
 	
 		<?php if($this->input->get('set_time') > time()): ?>
 		
@@ -230,7 +230,7 @@
 
 	<script src="<?php echo base_url(); ?>assets/datepicker/external/jquery-ui/jquery-ui.min.js"></script>
 	
-	<?php if($this->input->get('selected_date') === FALSE): ?>
+	<?php if($this->input->get('selected_date') === NULL): ?>
 	<script>
 	$(function() {
 		$( "#cal_container" ).datepicker({

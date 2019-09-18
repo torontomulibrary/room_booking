@@ -13,10 +13,10 @@ class Api extends CI_Controller {
 	**/
 	 
 	
-	function Api(){
+	function __construct(){
 		parent::__construct();
 		
-		if($this->input->get('debug') !== false) $this->output->enable_profiler(DEBUG_MODE);
+		if($this->input->get('debug') !== NULL) $this->output->enable_profiler(DEBUG_MODE);
 	}
 
 	
@@ -35,7 +35,7 @@ class Api extends CI_Controller {
 		
 		$requested_room = $this->uri->segment(3); 
 		
-		if($requested_room === FALSE){
+		if($requested_room === NULL){
 			echo '[]';
 			return;
 		}

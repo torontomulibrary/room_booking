@@ -13,7 +13,7 @@ class Login extends CI_Controller {
 	**/
 	 
 	//$this->template->load(template, view, vars) 
-	function Login(){
+	function __construct(){
 		parent::__construct();
 		
 		//If site constant is set to debug, enable the profiler (gives analytics for page load). 

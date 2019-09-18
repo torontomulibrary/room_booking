@@ -665,11 +665,11 @@ class booking_Model  extends CI_Model  {
 	}
 	
 	function add_block_booking($reason, $start, $end, $rooms, $permissions){
-		$this->load->library('calendar');
+		$this->load->library('bookingcalendar');
 		
 		//Check for valid input formats
 		if(!is_array($rooms)) return FALSE;
-		if(!$this->calendar->isValidDateTimeString($start, 'Y-m-d G:i') || !$this->calendar->isValidDateTimeString($end, 'Y-m-d G:i'))return FALSE;		
+		if(!$this->bookingcalendar->isValidDateTimeString($start, 'Y-m-d G:i') || !$this->bookingcalendar->isValidDateTimeString($end, 'Y-m-d G:i'))return FALSE;		
 		
 		//Make sure the end is always after the start
 		$dt_start = date_create($start);
@@ -700,12 +700,12 @@ class booking_Model  extends CI_Model  {
 	}
 	
 	function add_recurring_booking($reason, $start, $end, $start_time, $end_time, $rooms, $permissions, $repeat_interval){
-		$this->load->library('calendar');
+		$this->load->library('bookingcalendar');
 		
 		//Check for valid input formats
 		if(!is_array($rooms)) return FALSE;
 		if(!is_numeric($repeat_interval)) return FALSE;
-		if(!$this->calendar->isValidDateTimeString($start, 'Y-m-d') || !$this->calendar->isValidDateTimeString($end, 'Y-m-d')) return FALSE;		
+		if(!$this->bookingcalendar->isValidDateTimeString($start, 'Y-m-d') || !$this->bookingcalendar->isValidDateTimeString($end, 'Y-m-d')) return FALSE;		
 		
 		//Make sure the end is always after the start
 		$dt_start = date_create($start);
@@ -744,11 +744,11 @@ class booking_Model  extends CI_Model  {
 	}
 	
 	function edit_block_booking($reason, $start, $end, $rooms, $permissions, $id){
-		$this->load->library('calendar');
+		$this->load->library('bookingcalendar');
 		
 	
 		if(!is_array($rooms)) return FALSE;
-		if(!$this->calendar->isValidDateTimeString($start, 'Y-m-d G:i') || !$this->calendar->isValidDateTimeString($end, 'Y-m-d G:i'))return FALSE;		
+		if(!$this->bookingcalendar->isValidDateTimeString($start, 'Y-m-d G:i') || !$this->bookingcalendar->isValidDateTimeString($end, 'Y-m-d G:i'))return FALSE;		
 		//Make sure the end is always after the start
 		$dt_start = date_create($start);
 		$dt_end = date_create($end);
@@ -784,11 +784,11 @@ class booking_Model  extends CI_Model  {
 	function edit_recurring_booking($reason, $start, $end, $start_time, $end_time, $rooms, $permissions, $repeat_interval, $id){
 	
 		
-		$this->load->library('calendar');
+		$this->load->library('bookingcalendar');
 		
 	
 		if(!is_array($rooms)) return FALSE;
-		if(!$this->calendar->isValidDateTimeString($start, 'Y-m-d') || !$this->calendar->isValidDateTimeString($end, 'Y-m-d'))return FALSE;		
+		if(!$this->bookingcalendar->isValidDateTimeString($start, 'Y-m-d') || !$this->bookingcalendar->isValidDateTimeString($end, 'Y-m-d'))return FALSE;		
 		//Make sure the end is always after the start
 		$dt_start = date_create($start);
 		$dt_end = date_create($end);

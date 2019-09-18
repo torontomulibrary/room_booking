@@ -13,7 +13,7 @@ class Admin extends CI_Controller {
 	**/
 	 
 	//$this->template->load(template, view, vars) 
-	function Admin(){
+	function __construct(){
 		parent::__construct();
 		
 		//Check for existing login
@@ -36,7 +36,7 @@ class Admin extends CI_Controller {
 	
 		//If site constant is set to debug, enable the profiler (gives analytics for page load). 
 		//DO NOT USE ON LIVE SITE
-		if($this->input->get('debug') !== false) $this->output->enable_profiler(DEBUG_MODE);
+		if($this->input->get('debug') !== NULL) $this->output->enable_profiler(DEBUG_MODE);
 	}
 
 	
@@ -433,7 +433,7 @@ class Admin extends CI_Controller {
 			$requires_moderation = $this->input->post('requires_moderation');
 			
 			//If no resources are selected, create an empty array
-			if($resources === false) $resources = array();
+			if($resources === NULL) $resources = array();
 			
 			
 			$id = $this->room_model->edit_room($room_id, $building, $room, $seats, $roles, $active, $resources, $max_daily_hours, $notes, $requires_moderation);
@@ -810,7 +810,7 @@ class Admin extends CI_Controller {
 					$rooms = $this->input->post('rooms');
 					$permissions = $this->input->post('permissions'); 
 					
-					if($permissions === false) $permissions = array();
+					if($permissions === NULL) $permissions = array();
 					
 					$status = $this->booking_model->add_block_booking($reason,$start,$end, $rooms, $permissions);
 					
@@ -870,7 +870,7 @@ class Admin extends CI_Controller {
 					$id = $this->input->post('block_booking_id');
 					$permissions = $this->input->post('permissions'); 
 					
-					if($permissions === false) $permissions = array();
+					if($permissions === NULL) $permissions = array();
 					
 					$status = $this->booking_model->edit_block_booking($reason,$start,$end, $rooms, $permissions, $id);
 					
@@ -914,7 +914,7 @@ class Admin extends CI_Controller {
 				$permissions = $this->input->post('permissions'); 
 				$repeat_interval = $this->input->post('repeat_interval'); 
 				
-				if($permissions === false) $permissions = array();
+				if($permissions === NULL) $permissions = array();
 				
 				$status = $this->booking_model->add_recurring_booking($reason, $start, $end, $start_time, $end_time, $rooms, $permissions, $repeat_interval);
 				
@@ -976,7 +976,7 @@ class Admin extends CI_Controller {
 				$repeat_interval = $this->input->post('repeat_interval'); 
 				$id = $this->input->post('block_booking_id');
 				
-				if($permissions === false) $permissions = array();
+				if($permissions === NULL) $permissions = array();
 				
 				$status = $this->booking_model->edit_recurring_booking($reason, $start, $end, $start_time, $end_time, $rooms, $permissions, $repeat_interval, $id);
 				
@@ -1036,7 +1036,7 @@ class Admin extends CI_Controller {
 		$this->load->model('booking_model');
 		
 		if($this->uri->segment(3) === 'approve'){
-			if($this->uri->segment(4) !== FALSE && is_numeric($this->uri->segment(4))){
+			if($this->uri->segment(4) !== NULL && is_numeric($this->uri->segment(4))){
 				$ret_val = $this->booking_model->moderator_approve($this->uri->segment(4));
 				
 				if($ret_val === FALSE){
@@ -1081,7 +1081,7 @@ class Admin extends CI_Controller {
 			
 		}
 		else if($this->uri->segment(3) === 'deny'){
-			if($this->uri->segment(4) !== FALSE && is_numeric($this->uri->segment(4))){
+			if($this->uri->segment(4) !== NULL && is_numeric($this->uri->segment(4))){
 				//Save the data first, in order to be able to populate the email
 				$mod_data = $this->booking_model->load_moderation_entry($this->uri->segment(4))->row();
 				
@@ -1148,21 +1148,21 @@ class Admin extends CI_Controller {
 		$data['roles'] = $this->role_model->list_roles();
 		
 		//Refine by buildings
-		if($this->input->get('building') !== FALSE && is_numeric($this->input->get('building'))){
+		if($this->input->get('building') !== NULL && is_numeric($this->input->get('building'))){
 			$building_id = $this->input->get('building');
 		}
 		else{
 			$building_id = null;
 		}
 		
-		if($this->input->get('room') !== FALSE && is_numeric($this->input->get('room'))){
+		if($this->input->get('room') !== NULL && is_numeric($this->input->get('room'))){
 			$room_id = $this->input->get('room');
 		}
 		else{
 			$room_id = null;
 		}
 		
-		if($this->input->get('role') !== FALSE && is_numeric($this->input->get('role'))){
+		if($this->input->get('role') !== NULL && is_numeric($this->input->get('role'))){
 			$role_id = $this->input->get('role');
 		}
 		else{
@@ -1171,7 +1171,7 @@ class Admin extends CI_Controller {
 		
 		
 		//Refine by start/end times
-		if($this->input->get('start_date') !== FALSE && strlen($this->input->get('start_date')) > 0 && $this->input->get('end_date') !== FALSE && strlen($this->input->get('end_date')) > 0){
+		if($this->input->get('start_date') !== NULL && strlen($this->input->get('start_date')) > 0 && $this->input->get('end_date') !== NULL && strlen($this->input->get('end_date')) > 0){
 			$start_time = strtotime($this->input->get('start_date'));
 			$end_time = strtotime($this->input->get('end_date'))+ ((24*60*60)-1); //Add a day (minus a second) to get as late as possible
 		}
@@ -1226,12 +1226,12 @@ class Admin extends CI_Controller {
 			$this->load->model('log_model');
 			
 			if($this->uri->segment(3) === "delete"){
-				if($this->uri->segment(4) !== false){
+				if($this->uri->segment(4) !== NULL){
 					$this->log_model->delete_log($this->uri->segment(4));
 				}
 				redirect('admin/error_logs');
 			}
-			elseif($this->uri->segment(3) !== false){
+			elseif($this->uri->segment(3) !== NULL){
 				$data['log_data'] = $this->log_model->get_log($this->uri->segment(3));
 			}
 			else{
@@ -1254,7 +1254,7 @@ class Admin extends CI_Controller {
 		
 		$data['rooms'] = $this->room_model->list_rooms();
 		
-		if($this->input->post('username') !== FALSE){
+		if($this->input->post('username') !== NULL){
 			$data['upcoming_user_bookings'] = $this->booking_model->get_upcoming_bookings($this->input->post('username'));
 			$data['current_user_bookings'] = $this->booking_model->get_current_bookings($this->input->post('username'));
 			$data['past_user_bookings'] = $this->booking_model->get_previous_bookings($this->input->post('username'), 100);
@@ -1262,7 +1262,7 @@ class Admin extends CI_Controller {
 			$data['username_mode'] = TRUE;
 		}
 		
-		else if($this->input->post('fullname') !== FALSE){
+		else if($this->input->post('fullname') !== NULL){
 			if(strlen($this->input->post('fullname')) > 3){  //Prevent massive lists of results
 				$data['fullname_bookings'] = $this->booking_model->get_bookings_by_name($this->input->post('fullname'));
 				$data['searched'] = $this->input->post('fullname');
@@ -1270,8 +1270,8 @@ class Admin extends CI_Controller {
 			}
 		}
 		
-		else if($this->input->post('room') !== FALSE){
-			$this->load->library('calendar');
+		else if($this->input->post('room') !== NULL){
+			$this->load->library('bookingcalendar');
 			
 			$start = $this->input->post('start');
 			$end = $this->input->post('end');
@@ -1279,10 +1279,10 @@ class Admin extends CI_Controller {
 			
 			if(is_array($this->input->post('room'))){
 				//If Dates aren't valid or set, default to 'today'
-				if($start === FALSE || !$this->calendar->isValidDateTimeString($start, 'Y-m-d')){
+				if($start === NULL || !$this->bookingcalendar->isValidDateTimeString($start, 'Y-m-d')){
 					$start = date('Y-m-d');
 				}
-				if($end === FALSE || !$this->calendar->isValidDateTimeString($end, 'Y-m-d')){
+				if($end === NULL || !$this->bookingcalendar->isValidDateTimeString($end, 'Y-m-d')){
 					$end = date('Y-m-d');
 				}
 				if(strtotime($start) > strtotime($end)){

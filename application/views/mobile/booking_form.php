@@ -71,7 +71,7 @@
 						$end_time = $start_time + (($room_data->max_daily_hours - $limits['day_used'])*60*60 ); 
 						
 						//If there is another booking ahead of this, do not allow for overlap
-						if($next_booking->num_rows > 0 && $next_booking->row()->start != null && $end_time > strtotime($next_booking->row()->start)){
+						if($next_booking->num_rows() > 0 && $next_booking->row()->start != null && $end_time > strtotime($next_booking->row()->start)){
 						
 								$end_time = strtotime($next_booking->row()->start);
 								

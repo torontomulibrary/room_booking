@@ -26,10 +26,10 @@
 
 
 <!--- Show warnings or notices --->
-<?php if($this->session->flashdata('notice') !== FALSE): ?><div class="alert alert-danger" role="alert"><?php echo $this->session->flashdata('notice'); ?></div><?php endif; ?>
-<?php if($this->session->flashdata('warning') !== FALSE): ?><div class="alert alert-danger" role="alert"><?php echo $this->session->flashdata('warning'); ?></div><?php endif; ?>
-<?php if($this->session->flashdata('success') !== FALSE): ?><div class="alert alert-success" role="alert"><?php echo $this->session->flashdata('success'); ?></div><?php endif; ?>
-<?php if($this->session->flashdata('danger') !== FALSE): ?><div class="alert alert-danger" role="alert"><?php echo $this->session->flashdata('danger'); ?></div><?php endif; ?>
+<?php if($this->session->flashdata('notice') !== NULL): ?><div class="alert alert-danger" role="alert"><?php echo $this->session->flashdata('notice'); ?></div><?php endif; ?>
+<?php if($this->session->flashdata('warning') !== NULL): ?><div class="alert alert-danger" role="alert"><?php echo $this->session->flashdata('warning'); ?></div><?php endif; ?>
+<?php if($this->session->flashdata('success') !== NULL): ?><div class="alert alert-success" role="alert"><?php echo $this->session->flashdata('success'); ?></div><?php endif; ?>
+<?php if($this->session->flashdata('danger') !== NULL): ?><div class="alert alert-danger" role="alert"><?php echo $this->session->flashdata('danger'); ?></div><?php endif; ?>
 
 <div id="top_content">
 	<div id="top_left">
@@ -125,7 +125,7 @@
 	</div>
 </div>
 
-<?php if($this->input->get('date') !== FALSE): ?>
+<?php if($this->input->get('date') !== NULL): ?>
 
 
 <div style="clear:both"></div>

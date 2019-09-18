@@ -10,7 +10,7 @@ a, a:visited, a:hover, a:active {
 
 
 .alert{
-	margin-top: 1.5em;
+/*	margin-top: 1.5em;*/
 }
 
 .center{
@@ -190,7 +190,7 @@ tr.room_row > td{
 	overflow: hidden;
 	text-overflow: ellipsis;
 	font-size: 1em;
-	width: 9em;
+	width: 10em;
 	margin: 0 auto;
 	
 }

@@ -21,10 +21,10 @@
 
 
 <!--- Show warnings or notices --->
-<?php if($this->session->flashdata('notice') !== FALSE): ?><div class="alert alert-danger" role="alert"><?php echo $this->session->flashdata('notice'); ?></div><?php endif; ?>
-<?php if($this->session->flashdata('warning') !== FALSE): ?><div class="alert alert-danger" role="alert"><?php echo $this->session->flashdata('warning'); ?></div><?php endif; ?>
-<?php if($this->session->flashdata('success') !== FALSE): ?><div class="alert alert-success" role="alert"><?php echo $this->session->flashdata('success'); ?></div><?php endif; ?>
-<?php if($this->session->flashdata('danger') !== FALSE): ?><div class="alert alert-danger" role="alert"><?php echo $this->session->flashdata('danger'); ?></div><?php endif; ?>
+<?php if($this->session->flashdata('notice') !== NULL): ?><div class="alert alert-danger" role="alert"><?php echo $this->session->flashdata('notice'); ?></div><?php endif; ?>
+<?php if($this->session->flashdata('warning') !== NULL): ?><div class="alert alert-danger" role="alert"><?php echo $this->session->flashdata('warning'); ?></div><?php endif; ?>
+<?php if($this->session->flashdata('success') !== NULL): ?><div class="alert alert-success" role="alert"><?php echo $this->session->flashdata('success'); ?></div><?php endif; ?>
+<?php if($this->session->flashdata('danger') !== NULL): ?><div class="alert alert-danger" role="alert"><?php echo $this->session->flashdata('danger'); ?></div><?php endif; ?>
 
 <div id="top_content">
 	
@@ -69,7 +69,7 @@
 
 
 <div class="booking_container">
-	<?php if($current->num_rows > 0): ?>
+	<?php if($current->num_rows() > 0): ?>
 		<div class="role_title">Current Bookings</div>
 		<div class="table-wrapper">
 		
@@ -96,7 +96,7 @@
 	
 	<div class="role_title">Upcoming Bookings</div>
 	<div class="table-wrapper">
-		<?php if($upcoming->num_rows > 0): ?>
+		<?php if($upcoming->num_rows() > 0): ?>
 		<table class="booking_table" style="width: 100%; border-collapse: initial;" cellspacing="0">
 			<thead></thead>
 			<tbody>
@@ -136,7 +136,7 @@
 		
 	<div class="role_title">Previous Bookings</div>
 	<div class="table-wrapper">
-		<?php if($previous->num_rows > 0): ?>
+		<?php if($previous->num_rows() > 0): ?>
 		<table class="booking_table" style="width: 100%; border-collapse: initial;" cellspacing="0">
 			<thead></thead>
 			<tbody>

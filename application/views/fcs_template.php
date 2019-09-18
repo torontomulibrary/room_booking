@@ -9,12 +9,15 @@
     <meta name="keywords" content="" />
     <meta name="description" content="" />
     <title>Room Booking - Faculty of Community Services - Ryerson University</title>
+
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/template/fcs/fcs_assets/clientlibs.css" type="text/css" />
-    <script type="text/javascript" src="<?php echo base_url(); ?>assets/template/fcs/fcs_assets/clientlibs.js"></script>
+
+	<script type="text/javascript" src="<?php echo base_url(); ?>assets/template/fcs/fcs_assets/clientlibs.js"></script>
     <script type="text/javascript">
                 //var $theme = jQuery.noConflict();
         
 </script>
+
 <script type="text/javascript" src="<?php echo base_url(); ?>assets/template/fcs/js/bootstrap.min.js"></script>
 <link rel="stylesheet" id="bootstrap-style-css" href="<?php echo base_url(); ?>assets/template/fcs/css/bootstrap.css" type="text/css" media="all">
 

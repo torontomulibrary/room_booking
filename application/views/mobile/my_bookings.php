@@ -13,7 +13,7 @@
 <div id="search_results">
 	
 	<?php if($bookings->num_rows() > 0): ?>
-	<h3>You have <?php echo $bookings->num_rows(); ?> upcoming booking<?php if($bookings->num_rows > 1) echo 's'; ?></h3>
+	<h3>You have <?php echo $bookings->num_rows(); ?> upcoming booking<?php if($bookings->num_rows() > 1) echo 's'; ?></h3>
 
 	<ul data-role="listview" data-inset="true">
 		

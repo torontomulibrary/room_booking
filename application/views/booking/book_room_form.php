@@ -23,7 +23,7 @@
 <?php 
 //Verify the required fields are present (and the time is a half hour increment (don't let people mess with the URL)
 //Also make sure the user is allowed to book this room, and that the room is not closed
-if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot')) || $this->input->get('room_id') === FALSE || !is_numeric($this->input->get('room_id')) || ($this->input->get('slot') % 1800) !== 0): ?>
+if($this->input->get('slot') === NULL || !is_numeric($this->input->get('slot')) || $this->input->get('room_id') === NULL || !is_numeric($this->input->get('room_id')) || ($this->input->get('slot') % 1800) !== 0): ?>
 	<div class="alert alert-danger" role="alert">An Error has occurred. </div>
 <?php else: ?>	
 		<?php $room_data = $room['room_data']->row(); ?>
@@ -70,7 +70,7 @@ if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot'))
 									$end_time = $start_time + (($room_data->max_daily_hours - $limits['day_used'])*60*60 ); 
 									
 									//If there is another booking ahead of this, do not allow for overlap
-									if($next_booking->num_rows > 0 && $next_booking->row()->start != null && $end_time > strtotime($next_booking->row()->start)){
+									if($next_booking->num_rows() > 0 && $next_booking->row()->start != null && $end_time > strtotime($next_booking->row()->start)){
 									
 											$end_time = strtotime($next_booking->row()->start);
 											

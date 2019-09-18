@@ -22,7 +22,7 @@ class building_Model  extends CI_Model  {
 		$this->db->where('building_id', $building_id);
 		$data['building_data'] = $this->db->get('buildings');
 		
-		if($data['building_data']->num_rows > 0){
+		if($data['building_data']->num_rows() > 0){
 			return $data;
 		}
 		else{

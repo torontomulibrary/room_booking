@@ -105,7 +105,7 @@ class room_Model  extends CI_Model  {
 		$data['room_data'] = $this->db->get('rooms',1);
 		
 		//Get the room_id
-		if($data['room_data']->num_rows > 0){
+		if($data['room_data']->num_rows() > 0){
 			$temp_result = $data['room_data']->row();
 			$id = $temp_result->room_id;
 		}

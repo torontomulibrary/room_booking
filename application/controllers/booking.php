@@ -13,7 +13,7 @@ class Booking extends CI_Controller {
 	**/
 	 
 	//$this->template->load(template, view, vars) 
-	function Booking(){
+	function __construct(){
 		parent::__construct();
 		
 		$this->load->library('cas');
@@ -41,14 +41,14 @@ class Booking extends CI_Controller {
 	
 		//If site constant is set to debug, enable the profiler (gives analytics for page load). 
 		//DO NOT USE ON LIVE SITE
-		if($this->input->get('debug') !== false) $this->output->enable_profiler(DEBUG_MODE);
+		if($this->input->get('debug') !== NULL) $this->output->enable_profiler(DEBUG_MODE);
 		//$this->output->enable_profiler(DEBUG_MODE);
 	}
 
 	
 	public function booking_main(){
 		//Default to today if no date is selected
-		if($this->input->get('month') === FALSE && $this->input->get('date') === FALSE){
+		if($this->input->get('month') === NULL && $this->input->get('date') === NULL){
 			
 			//Keep flashdata if redirecting to "today"
 			foreach($this->session->all_userdata() as $key => $val){
@@ -66,7 +66,7 @@ class Booking extends CI_Controller {
 		$this->load->model('booking_model');
 		$this->load->model('resource_model');
 		$this->load->model('hours_model');
-		$this->load->library('calendar'); 
+		$this->load->library('bookingCalendar'); 
 		
 		//Get the theme to load assets
 		$data['theme'] =  str_replace("_template", "", $this->role_model->get_theme());
@@ -91,19 +91,21 @@ class Booking extends CI_Controller {
 		}
 		
 		//Generate the calendar needed
-		if($this->input->get('month') !== false){
-			if($this->input->get('date') !== false){
+		if($this->input->get('month') !== NULL){
+			if($this->input->get('date') !== NULL){
 				
 				
 				//Return all bookings for the day (as an associative array for easy retrieval) 
 				$bookings = $this->booking_model->get_bookings($this->input->get('date', TRUE));
 				
-				foreach($bookings->result() as $booking){
-					$data['bookings'][$booking->room_id][strtotime($booking->start)] = $booking; 
+				if($bookings !== FALSE){
+					foreach($bookings->result() as $booking){
+						$data['bookings'][$booking->room_id][strtotime($booking->start)] = $booking; 
+					}
 				}
 				
 				$current_month = date_parse_from_format('Ymd', $this->input->get('date', TRUE));
-				$data['calendar'] = $this->calendar->drawCalendar( $current_month['month'], $current_month['year'], $current_month['day']);
+				$data['calendar'] = $this->bookingcalendar->drawCalendar( $current_month['month'], $current_month['year'], $current_month['day']);
 				
 				//Load the hours for the selected date
 				$data['hours'] = $this->hours_model->getAllHours(mktime(0,0,0, $current_month['month'],$current_month['day'],$current_month['year']));
@@ -117,11 +119,11 @@ class Booking extends CI_Controller {
 			}
 			else{
 				$current_month = date_parse_from_format('Ym', $this->input->get('month', TRUE));
-				$data['calendar'] = $this->calendar->drawCalendar( $current_month['month'], $current_month['year'] );
+				$data['calendar'] = $this->bookingcalendar->drawCalendar( $current_month['month'], $current_month['year'] );
 			}
 		}
 		else{
-			$data['calendar'] = $this->calendar->drawCalendar();
+			$data['calendar'] = $this->bookingcalendar->drawCalendar();
 		}
 		
 		
@@ -169,7 +171,7 @@ class Booking extends CI_Controller {
 			redirect(base_url());
 		}
 		
-		if($this->input->get('slot') === FALSE || !is_numeric($this->input->get('slot')) || $this->input->get('room_id') === FALSE || !is_numeric($this->input->get('room_id'))){
+		if($this->input->get('slot') === NULL || !is_numeric($this->input->get('slot')) || $this->input->get('room_id') === NULL || !is_numeric($this->input->get('room_id'))){
 			//Bad data, do something
 		}
 		else{
@@ -245,10 +247,10 @@ class Booking extends CI_Controller {
 				}
 				else{
 					//Try to make the booking
-					
-					//Is this booking an edit?
-					if($this->input->post('booking_id') !== FALSE && is_numeric($this->input->post('booking_id'))){
 						
+					//Is this booking an edit?
+					if($this->input->post('booking_id') !== NULL && is_numeric($this->input->post('booking_id'))){
+					
 						//Check if user was allowed to make this booking
 						$data['booking'] = $this->booking_model->get_booking($this->input->post('booking_id'));
 						
@@ -400,17 +402,18 @@ class Booking extends CI_Controller {
 		$this->load->model('booking_model');
 		$this->load->model('interface_model');
 			
+		
+		
+		
+		if($this->input->get('booking_id') === NULL || !is_numeric($this->input->get('booking_id'))){
 			
-		
-		
-		if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('booking_id'))){
 			$this->session->set_flashdata('warning', "An error has occured. ");
 			redirect(base_url().'booking/booking_main');
 		}
 		
 		$booking_data = $this->booking_model->get_booking($this->input->get('booking_id'));
 		
-		if($booking_data->num_rows == 0){
+		if($booking_data->num_rows() == 0){
 			$this->session->set_flashdata('warning', "An error has occured.");
 			redirect(base_url().'booking/booking_main');
 		}
@@ -498,7 +501,7 @@ class Booking extends CI_Controller {
 		$booking_data = $this->booking_model->get_booking($this->input->get('booking_id'));
 		$data['booking'] = $booking_data->row();
 		
-		if($data['booking'] === FALSE || $booking_data->num_rows == 0){
+		if($data['booking'] === FALSE || $booking_data->num_rows() == 0){
 			$this->session->set_flashdata('warning', "An error has occured. The booking has not been deleted");
 			redirect(base_url().'booking/booking_main');
 		}

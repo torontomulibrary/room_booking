@@ -154,7 +154,7 @@ class hours_Model  extends CI_Model  {
 			//Convert the external ID into the building id
 			else{
 				$building = $this->building_model->get_by_external_id($location->LOCATION_ID);
-				if($building->num_rows === 0) continue;
+				if($building->num_rows() === 0) continue;
 				else $building_id = $building->row()->building_id;
 			}
 			
@@ -208,10 +208,10 @@ class hours_Model  extends CI_Model  {
 	}
 	
 	function add_closure($building_id, $date){
-		$this->load->library('calendar');
+		$this->load->library('bookingcalendar');
 		
 		//Validate the date string
-		if(!$this->calendar->isValidDateTimeString($date, 'Y-m-d')) return FALSE;		
+		if(!$this->bookingcalendar->isValidDateTimeString($date, 'Y-m-d')) return FALSE;		
 		
 		$data = array(
 			'building_id' => $building_id,
@@ -251,14 +251,14 @@ class hours_Model  extends CI_Model  {
 	}
 	
 	function add_hours($building_id, $start_date, $end_date, $hours_data){
-		$this->load->library('calendar');
+		$this->load->library('bookingcalendar');
 		
 		//Validate all the inputs
 		if(!is_numeric($building_id)) return 'Invalid Building ID';
 		
 		//Start/End dates are formatted correctly
-		if(!$this->calendar->isValidDateTimeString($start_date, 'Y-m-d')) return 'Invalid Start Date';		
-		if(!$this->calendar->isValidDateTimeString($end_date, 'Y-m-d')) return 'Invalid End Date';
+		if(!$this->bookingcalendar->isValidDateTimeString($start_date, 'Y-m-d')) return 'Invalid Start Date';		
+		if(!$this->bookingcalendar->isValidDateTimeString($end_date, 'Y-m-d')) return 'Invalid End Date';
 		
 		//Make sure an entry doesn't already exist with conflicting dates
 		$other_hours = $this->get_hours($building_id, true);
@@ -279,7 +279,7 @@ class hours_Model  extends CI_Model  {
 		
 		//All times are formatted correctly
 		foreach($hours_data as $entry){
-			if($entry !== "24:00" && !$this->calendar->isValidDateTimeString($entry, 'H:i')) return 'Time format of '.$entry.' is not valid';		
+			if($entry !== "24:00" && !$this->bookingcalendar->isValidDateTimeString($entry, 'H:i')) return 'Time format of '.$entry.' is not valid';		
 		}
 		
 		//Make sure the start time is not later then the end time

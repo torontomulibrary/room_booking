@@ -39,7 +39,7 @@
 
 	<?php 
 		//Prepare a string to neatly display the report window
-		if($this->input->get('start_date') !== FALSE && strlen($this->input->get('start_date')) > 0 && $this->input->get('end_date') !== FALSE && strlen($this->input->get('end_date')) > 0){
+		if($this->input->get('start_date') !== NULL && strlen($this->input->get('start_date')) > 0 && $this->input->get('end_date') !== NULL && strlen($this->input->get('end_date')) > 0){
 			$date_str = date('F j, Y', strtotime($this->input->get('start_date'))) . " - ". date('F j, Y', strtotime($this->input->get('end_date')));
 		}
 		else{
@@ -54,13 +54,13 @@
 		<div class="form-group">
 			<label for="start_date" class="col-sm-1 ">Start Date</label>
 			<div class="col-sm-2">
-				<input type="text" class="form-control" id="start_date" name="start_date" <?php if($this->input->get('start_date') !== false) echo 'value="'.$this->input->get('start_date').'" '; ?> placeholder="">
+				<input type="text" class="form-control" id="start_date" name="start_date" <?php if($this->input->get('start_date') !== NULL) echo 'value="'.$this->input->get('start_date').'" '; ?> placeholder="">
 			</div>
 		</div>
 		<div class="form-group">
 			<label for="end_date" class="col-sm-1 ">End Date</label>
 			<div class="col-sm-2">
-				<input type="text" class="form-control" id="end_date" name="end_date" <?php if($this->input->get('end_date') !== false) echo 'value="'.$this->input->get('end_date').'" '; ?> placeholder="">
+				<input type="text" class="form-control" id="end_date" name="end_date" <?php if($this->input->get('end_date') !== NULL) echo 'value="'.$this->input->get('end_date').'" '; ?> placeholder="">
 			</div>
 		</div>
 		

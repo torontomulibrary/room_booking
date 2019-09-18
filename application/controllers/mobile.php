@@ -13,7 +13,7 @@ class Mobile extends CI_Controller {
 	**/
 	 
 	//$this->template->load(template, view, vars) 
-	function Mobile(){
+	function __construct(){
 		parent::__construct();
 		
 		$this->load->library('cas');
@@ -34,7 +34,7 @@ class Mobile extends CI_Controller {
 		
 		//If site constant is set to debug, enable the profiler (gives analytics for page load). 
 		//DO NOT USE ON LIVE SITE
-		if($this->input->get('debug') !== false) $this->output->enable_profiler(DEBUG_MODE);
+		if($this->input->get('debug') !== NULL) $this->output->enable_profiler(DEBUG_MODE);
 	}
 
 	
@@ -113,13 +113,13 @@ class Mobile extends CI_Controller {
 		
 		$data['roles'] = $this->role_model->list_roles();
 		
-		if($this->input->get('selected_date') !== FALSE && strtotime($this->input->get('selected_date')) !== FALSE){
+		if($this->input->get('selected_date') !== NULL && strtotime($this->input->get('selected_date')) !== NULL){
 			$data['hours'] = $this->hours_model->getAllHours(strtotime($this->input->get('selected_date')));
 		}		
 		
 		
 		
-		if($this->input->get('selected_date') !== FALSE && $this->input->get('set_time') !== FALSE){
+		if($this->input->get('selected_date') !== NULL && $this->input->get('set_time') !== NULL){
 			
 			$data['limits'] = $this->booking_model->remaining_hours($this->session->userdata('username'), $this->input->get('set_time'));
 			
@@ -178,14 +178,14 @@ class Mobile extends CI_Controller {
 		$this->load->model('interface_model');
 		
 		
-		if($this->input->get('booking_id') === FALSE || !is_numeric($this->input->get('booking_id'))){
+		if($this->input->get('booking_id') === NULL || !is_numeric($this->input->get('booking_id'))){
 			$this->session->set_flashdata('warning', "An error has occured. ");
 			redirect(base_url().'mobile');
 		}
 		
 		$booking_data = $this->booking_model->get_booking($this->input->get('booking_id'));
 		
-		if($booking_data->num_rows == 0){
+		if($booking_data->num_rows() == 0){
 			$this->session->set_flashdata('warning', "An error has occured.");
 			redirect(base_url().'mobile');
 		}
@@ -381,7 +381,7 @@ class Mobile extends CI_Controller {
 		$booking_data = $this->booking_model->get_booking($this->input->get('booking_id'));
 		$data['booking'] = $booking_data->row();
 		
-		if($data['booking'] === FALSE || $booking_data->num_rows == 0){
+		if($data['booking'] === FALSE || $booking_data->num_rows() == 0){
 			$this->session->set_flashdata('warning', "An error has occured. The booking has not been deleted");
 			redirect(base_url() . 'mobile');
 		}
