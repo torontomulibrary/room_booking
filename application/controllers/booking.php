@@ -66,7 +66,7 @@ class Booking extends CI_Controller {
 		$this->load->model('booking_model');
 		$this->load->model('resource_model');
 		$this->load->model('hours_model');
-		$this->load->library('bookingCalendar'); 
+		$this->load->library('bookingcalendar'); 
 		
 		//Get the theme to load assets
 		$data['theme'] =  str_replace("_template", "", $this->role_model->get_theme());
