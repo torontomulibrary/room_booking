@@ -17,6 +17,9 @@ function cas_show_config_error(){
 class Cas {
 
 	public function __construct(){
+		$_SERVER['HTTPS'] = 'on';
+		$_SERVER['SERVER_PORT'] = 443;
+		
 		if (!function_exists('curl_init')){
 			show_error('<strong>ERROR:</strong> You need to install the PHP module
 				<strong><a href="http://php.net/curl">curl</a></strong> to be able
