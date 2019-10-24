@@ -1,0 +1,71 @@
+.form_left{
+	
+	color: #BB1111;
+	width: 200px;
+	display: inline-block;
+	font-weight: bold;
+	height: 30px;
+}
+
+.form_right{
+	
+	color: #000000;
+	width: 200px;
+	height: 30px;
+	display: inline-block;
+}
+
+.form_label{
+	margin-top: 2em;
+	color: #BB1111;
+	width: 200px;
+	display: inline-block;
+	font-weight: bold;
+
+}
+
+#page_title{
+	color: #777777;
+}
+
+.form_buttons_container{
+	float: right;
+	margin-top: 1em;
+}
+
+.form_buttons_container input[type="button"], .form_buttons_container input[type="submit"] {
+	border-radius: 0px;
+	padding: 0.4em 1em;
+	margin: 0.3em;
+	color: #FFFFFF;
+}
+
+#submit_button, #delete_button{
+	background-color: #BB1111;
+	border: 1px solid #881111;
+}
+
+#cancel_button{
+	background-color: #000000;
+	border: 1px solid #000000;
+}
+
+#date_left{
+	font-size: 70px;
+	display: block;
+	margin: 40px auto;
+	text-align: center;
+}
+
+#month_left{
+	font-size: 25px;
+	clear:both;
+	display: block;
+	margin: 0 auto;
+	text-align: center;
+}
+
+div.row{
+	max-width:1000px;
+	margin-left: 0;
+}

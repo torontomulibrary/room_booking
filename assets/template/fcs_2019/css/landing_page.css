@@ -1,0 +1,134 @@
+#container{
+	margin: 0 auto;
+	padding-top: 2em;
+	width: 850px;
+	
+}
+
+#left_container{
+	float: left;
+	width: 400px;
+	margin-right: 3em;
+	display:inline;
+	height: 600px;
+	
+}
+
+#right_container{
+	float: right;
+	width: 400px;
+	height: 600px;
+	display:inline;
+	text-align: center;
+	
+}
+
+#book_room a{
+	margin-bottom: 0 !important;
+	
+}
+
+#calendar_icon a{
+	border-radius: 50%;
+	background-color: #f27935;
+	width: 190px;
+	height: 190px;
+	line-height: 190px;
+	margin: 0 auto;
+	box-shadow: 6px 6px 5px #888888;
+}
+
+#calendar_icon{
+	padding: 2em 0em;
+	margin-bottom: 1em;
+	background-color: #ffffff;
+}
+
+#usage_title {
+	display: block;
+	color: #ffffff;
+	text-align: center;
+	margin-bottom: 0;
+	min-height: 3em;
+	line-height: 3em;
+	font-size: 20px;
+}
+
+#usage_graphic{
+	display: block;
+	color: #ffffff;
+	background-color: #ffffff;
+	
+	margin-bottom: 0;
+	min-height: 3em;
+	line-height: 3em;
+	font-size: 20px;
+	height: 485px;
+	padding-top: 2em;
+	
+	
+}
+
+#text_wrapper{
+	display: block;
+	height: 200px;
+	text-align: center;
+	background-image: url(../../../img/Book-Room-Icon1.png) ;
+	background-size: 200px 200px;
+	background-repeat: no-repeat;
+	background-position:center center;
+	padding: 25px;
+}
+
+#used_hours{
+	font-size: 78px;
+	line-height: 25px;
+	display:block;
+	clear:both;
+	 
+}
+
+#remaining{
+	color: #323a45;
+	font-size: 22px;
+	line-height: 28px;
+	margin-top: 1em;
+	font-weight: normal;
+}
+
+.remaining_number{
+	color: #f27935;
+	
+	font-weight: bold;
+}
+
+.nav_link a{
+	text-decoration: none;
+	display: block;
+	color: #ffffff;
+	text-align: center;
+	margin-bottom: 20px;
+	min-height: 3em;
+	line-height: 3em;
+	font-size: 20px;
+}
+
+.orange{
+	background-color: #f27935;
+}
+
+.grey{
+	background-color: #ededed;
+}
+
+.aqua{
+	background-color: #1fbba6;
+}
+
+.dark{
+	background-color: #323a45;
+}
+
+.blue{
+	background-color: #14b9d6;
+}

@@ -1,0 +1,79 @@
+/*** ACCENT CUSTOM STYLES ***/
+/*  Variables */
+/*  Primary Colors */
+.res-local-header-wrapper {
+  background-color: #BFBF00;
+}
+.res-local-header .site-heading a {
+  color: #000000;
+}
+.resButtons .res-buttons .style1 .row .row-height .outside-full-height .inside-full-height,
+.resButtons .res-buttons .style1 .row .row-height .outside-full-height a {
+  background-color: #BFBF00;
+  color: #000000;
+  border: none;
+}
+.resTable table.table.table-bordered th,
+.resTable table.table.table-striped th {
+  background-color: #BFBF00;
+  color: #000000;
+}
+.resImageText .thumbnail .overlayText {
+  background-color: #BFBF00;
+  color: #000000;
+}
+.resImageText .thumbnail a .overlayText {
+  color: #000000;
+}
+.nav-tabs > li {
+  background-color: #BFBF00;
+}
+.nav > li > a:focus,
+.nav > li > a:hover {
+  background-color: #BFBF00;
+  border: 1px solid #BFBF00;
+}
+.nav-tabs > li a {
+  color: #000000;
+}
+.resBiography .bioDisplay2 .bioInside .bioStrip .bioStripItemContainer .bioStripItem {
+  background-color: #BFBF00;
+  color: #000000;
+}
+.resBiography .bioDisplay2 .bioInside .bioStrip .bioStripItemContainer .bioStripItem a {
+  color: #000000;
+}
+.resAnnouncement .infoContainer.style1 {
+  background-color: #BFBF00;
+  color: #000000;
+}
+.resAnnouncement .infoContainer.style1 a {
+  color: #000000;
+}
+/*  Secondary Colors */
+.resButtons .res-buttons .row .row-height .outside-full-height .inside-full-height {
+  background-color: #004C9B;
+  border-color: #004C9B;
+}
+.resButtons .res-buttons .row .row-height .outside-full-height a {
+  color: #ffffff;
+}
+.resAnnouncement .infoContainer.style2 {
+  border: 3px solid #004C9B;
+}
+.resFullWidthColour .res-fullwidth {
+  color: #ffffff;
+  background-color: #004C9B;
+}
+.optionalButton {
+  border-color: #004C9B;
+}
+.optionalButton:hover {
+  border-color: #004C9B;
+  background-color: #004C9B;
+}
+optionalButton .btn:hover,
+.optionalButton .btn-default:hover,
+.optionalButton .btn-block:hover {
+  color: #ffffff;
+}
