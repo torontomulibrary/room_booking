@@ -50,13 +50,11 @@ class Booking extends CI_Controller {
 		//Default to today if no date is selected
 		if($this->input->get('month') === NULL && $this->input->get('date') === NULL){
 			
-			//Keep flashdata if redirecting to "today"
-			foreach($this->session->all_userdata() as $key => $val){
-			  if(strpos($key,'flash:old:') > -1){ // key is flashdata
-				$item = substr($key , strlen('flash:old:'));
-				$this->session->keep_flashdata($item);
-			  }
-			}
+			//keep_flashdata() doesn't seem to want to work, so this is basically the same thing
+			$this->session->set_flashdata('warning', $this->session->flashdata('warning'));
+			$this->session->set_flashdata('success', $this->session->flashdata('success'));
+			$this->session->set_flashdata('danger', $this->session->flashdata('danger'));
+			$this->session->set_flashdata('notice', $this->session->flashdata('notice'));
 			
 			redirect(base_url() . 'booking/booking_main?month='. date('Ym') .'&date='. date('Ymd'));
 		}
@@ -388,7 +386,7 @@ class Booking extends CI_Controller {
 				}
 			}
 			else{
-				$this->session->set_flashdata('danger', "You do not have permissions to book this room");
+				$this->session->set_flashdata('danger', "You do not have permissions to book this room"); echo 'no permissions'; die();
 				redirect(base_url() . 'booking/booking_main?month='.date('Ym', $start_time).'&date='.date('Ymd',$start_time));
 			}
 		}
@@ -401,8 +399,9 @@ class Booking extends CI_Controller {
 	function edit_booking(){
 		$this->load->model('booking_model');
 		$this->load->model('interface_model');
+		$this->load->model('role_model');
 			
-		
+		$data['theme'] =  str_replace("_template", "", $this->role_model->get_theme());
 		
 		
 		if($this->input->get('booking_id') === NULL || !is_numeric($this->input->get('booking_id'))){

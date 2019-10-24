@@ -228,6 +228,7 @@ class role_Model  extends CI_Model  {
 						//Gather roles from session rather then database (since students etc.. are not whitelisted)
 						$roles = array();
 						
+						if(count($this->session->userdata('roles')) === 0 || $this->session->userdata('roles') === NULL) return DEFAULT_TEMPLATE;
 						foreach($this->session->userdata('roles') as $role){
 							if(is_numeric($role->role_id)) $roles[] = $role->role_id;
 						}
@@ -302,6 +303,7 @@ class role_Model  extends CI_Model  {
 						//Gather roles from session rather then database (since students etc.. are not whitelisted)
 						$roles = array();
 						
+						if(count($this->session->userdata('roles')) === 0 || $this->session->userdata('roles') === NULL) return DEFAULT_TEMPLATE;
 						foreach($this->session->userdata('roles') as $role){
 							if(is_numeric($role->role_id)) $roles[] = $role->role_id;
 						}

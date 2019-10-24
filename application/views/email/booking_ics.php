@@ -6,7 +6,7 @@ UID:<?php echo $this->session->userdata('username').EMAIL_SUFFIX. ":". $booking_
 DTSTAMP:<?php echo date('Ymd\THis\ZO', $start). "\n"; ?>
 DTSTART:<?php echo date('Ymd\THis\ZO', $start). "\n"; ?>
 DTEND:<?php echo date('Ymd\THis\ZO', $end). "\n"; ?>
-SUMMARY: Library Room Booking
+SUMMARY: <?php echo SITE_TITLE; ?> Booking
 LOCATION: <?php echo $room. "\n"; ?>
 END:VEVENT
 END:VCALENDAR

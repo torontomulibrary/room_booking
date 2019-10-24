@@ -14,3 +14,5 @@ assets/template/performance/*
 !/temp/README.txt
 !/cache/README.txt
 .htaccess
+
+application/libraries/Cas.php

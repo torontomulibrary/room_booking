@@ -287,7 +287,7 @@ class user_Model  extends CI_Model  {
 		);
 		
 		$context = stream_context_create($opts);
-		$file = file_get_contents(STUDENT_FACULTY_SERVICE_URL, false, $context);
+		$file = @file_get_contents(STUDENT_FACULTY_SERVICE_URL, false, $context);
 		
 		if($file !== FALSE && strstr($http_response_header[0],"HTTP/1.1 200")){
 			$careers = new SimpleXMLElement($file);

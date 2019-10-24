@@ -2,7 +2,7 @@
 
 <?php ob_start();?>
 
-<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/booking_form.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="<?php echo base_url(); ?>assets/template/<?php echo $theme; ?>/css/booking_form.css" type="text/css" media="screen" />
 
 
 

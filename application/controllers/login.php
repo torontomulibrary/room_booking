@@ -25,7 +25,7 @@ class Login extends CI_Controller {
 
 	
 	public function index(){
-		$this->load->view('rula_template');
+		$this->load->view(DEFAULT_TEMPLATE);
 	}
 	
 	//Login the current user. Redirect back to $url if set
@@ -168,12 +168,12 @@ class Login extends CI_Controller {
 		if(count($roles) === 0){
 			$this->log_model->log_event('login', $this->session->userdata('username'), "Login Denied", null, implode(',', $cas_roles));
 			$this->template->load(DEFAULT_TEMPLATE, 'denied');
-			$this->session->sess_destroy();	
+			//$this->session->sess_destroy();	
 			
 		}
 		else if($this->user_model->is_banned($user_data->userlogin)){
 			$this->template->load($this->role_model->get_theme(), 'banned');
-			$this->session->sess_destroy();	
+			//$this->session->sess_destroy();	
 		}
 		//Successful login
 		else{
@@ -207,14 +207,17 @@ class Login extends CI_Controller {
 	
 	function logout(){
 		$this->load->model('log_model');
-		$this->log_model->log_event('desktop', $this->session->userdata('username'), "Logout");
+		
+		//If the session has timed out, prevent an error if they click the logout button
+		if($this->session->userdata('username') !== NULL)
+			$this->log_model->log_event('desktop', $this->session->userdata('username'), "Logout");
 		
 		$this->session->sess_destroy();
 		
 		$this->load->library('cas');
 		$this->cas->logout(base_url());
 		
-		$this->template->load('rula_template', 'booking/book_room_form');
+		$this->template->load(DEFAULT_TEMPLATE, 'booking/book_room_form');
 		
 		
 	}
