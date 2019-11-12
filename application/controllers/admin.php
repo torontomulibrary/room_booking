@@ -17,7 +17,7 @@ class Admin extends CI_Controller {
 		parent::__construct();
 		
 		//Check for existing login
-		if(!strlen($this->session->userdata('username')) > 0){
+		if($this->session->userdata('username') === NULL){
 			$this->session->set_flashdata('origin', current_url());
 			redirect('login/login_user');
 		}

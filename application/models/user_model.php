@@ -295,20 +295,21 @@ class user_Model  extends CI_Model  {
 			//Check for errors with a 200 status. These will be XML with containing "<RU_STD_CAREER_REQUEST_FAULT>"
 			if(isset($careers->IS_FAULT)){
 				//Error, write to log?
-				return FALSE;
+				log_message('error', 'FCS XML Data had a fault\n\n' . $file);
 			}
 			else{
 				//Else good response. Iterate all CAREERS, as a person can have multiple. Stop once the ACADEMIC_GROUP "CS" is found
 				foreach ($careers->CAREERS->CAREER as $career) {
-				   if($career->ACADEMIC_GROUP == "CS") return TRUE;
+				   if($career->ACADEMIC_GROUP == "CS"){
+					   return TRUE;
+				   }
 				}
 			}
-
 			return FALSE;
 		}
 		else{
 			//Server response was not a 200 status. A error occured
-			//Error, write to log?
+			log_message('error', 'FCS XML returned non HTTP/200 status');
 			return FALSE;
 		}
 	}

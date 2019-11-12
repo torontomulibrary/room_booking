@@ -168,12 +168,14 @@ class Login extends CI_Controller {
 		if(count($roles) === 0){
 			$this->log_model->log_event('login', $this->session->userdata('username'), "Login Denied", null, implode(',', $cas_roles));
 			$this->template->load(DEFAULT_TEMPLATE, 'denied');
-			//$this->session->sess_destroy();	
+			$this->session->sess_destroy();	
+			return;
 			
 		}
 		else if($this->user_model->is_banned($user_data->userlogin)){
 			$this->template->load($this->role_model->get_theme(), 'banned');
-			//$this->session->sess_destroy();	
+			$this->session->sess_destroy();	
+			return;
 		}
 		//Successful login
 		else{

@@ -114,6 +114,8 @@ class booking_Model  extends CI_Model  {
 		//Pull down the hours limit (the maximum a users group of roles allows for. Eg, if user is library staff & undergrad, they can book longer then a normal undergrad for all rooms
 		$sql = "SELECT MAX(r.hours_per_week) AS hours_per_week FROM roles r WHERE r.role_id IN ";
 		
+		$roles = array();
+		
 		foreach($this->session->userdata('roles') as $role){
 			if(is_numeric($role->role_id)) $roles[] = $role->role_id;
 		}
