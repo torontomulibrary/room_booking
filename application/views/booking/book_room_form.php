@@ -18,7 +18,7 @@
 	Create a table listing all of the existing roles, and options available
 	for each role. This only appears when not editing/creating new roles
 --->
-<h3 style="text-align: center; font-weight: bold">Book a Room</h3>
+<h3 style="text-align: center; font-weight: bold"><?php echo phrase("Book a Room"); ?></h3>
 
 <?php 
 //Verify the required fields are present (and the time is a half hour increment (don't let people mess with the URL)
@@ -50,7 +50,7 @@ if($this->input->get('slot') === NULL || !is_numeric($this->input->get('slot')) 
 						<div class="form_right"><?php echo date('l M d, Y', $this->input->get('slot'));?></div><br>
 						
 						<div class="form_left">Where</div>
-						<div class="form_right"><?php echo $room_data->name;?> (<?php echo $room_data->seats; echo ($room_data->seats>1)? ' seats': ' seat'?>)</div>
+						<div class="form_right"><?php echo $room_data->name;?> <span id="res_num_seats">(<?php echo $room_data->seats; echo ($room_data->seats>1)? ' seats': ' seat'?>)<span></div>
 					<br>
 						
 						
@@ -111,7 +111,7 @@ if($this->input->get('slot') === NULL || !is_numeric($this->input->get('slot')) 
 						
 						<br><br>
 						
-						<div class="form_left">Room Features</div><div style="clear:both"></div>
+						<div class="form_left"><?php echo phrase("Room Features");?></div><div style="clear:both"></div>
 						
 						<div class="">
 							<ul>
@@ -172,7 +172,7 @@ if($this->input->get('slot') === NULL || !is_numeric($this->input->get('slot')) 
 						
 						
 						<div class="form_buttons_container">
-							<input id="submit_button" type="submit" value="Book Room" /><input type="button" id="cancel_button" value="Cancel" />
+							<input id="submit_button" type="submit" value="<?php echo phrase("Book Room"); ?>" /><input type="button" id="cancel_button" value="Cancel" />
 						</div>
 					
 						<input type="hidden" name="slot" value="<?php echo $this->input->get('slot'); ?>" />
@@ -189,7 +189,7 @@ if($this->input->get('slot') === NULL || !is_numeric($this->input->get('slot')) 
 				<h4>You are able to</h4>
 				<ul>
 					<li>You have booked <strong><?php echo $limits['day_used']; ?> hours</strong> today</li>
-					<li>Book <strong><?php echo $limits['week_remaining']; ?> hours</strong> in the study rooms this week</li>  
+					<li>Book <strong><?php echo $limits['week_remaining']; ?> hours</strong> <?php echo phrase("in the study rooms this week");?></li>  
 				</ul>
 
 			</div>

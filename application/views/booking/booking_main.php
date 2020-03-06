@@ -38,7 +38,7 @@
 				<?php if($this->session->userdata('admin') || $this->session->userdata('super_admin')): ?>
 				<li><a href="<?php echo base_url(); ?>admin">Administrator View</a></li>
 				<?php endif; ?>
-				<li><a class="selected" href="<?php echo current_url(); ?>">BOOK A ROOM</a></li>
+				<li><a class="selected" href="<?php echo current_url(); ?>"><?php echo phrase("BOOK A ROOM");?></a></li>
 				<li><a href="<?php echo base_url(); ?>booking/">MAIN PAGE</a></li>
 				<li><a href="<?php echo base_url(); ?>booking/my_bookings/">MY BOOKINGS</a></li>
 				<li><a href="<?php echo base_url(); ?>mobile/">MOBILE</a></li>
@@ -458,7 +458,7 @@
 </div>
 
 <div id="privacy">
-	<strong>Privacy Statement:</strong>  The Study Room Booking module collects only the minimum amount of information from users necessary to book a room - this includes name and email address. This information is stored on a secure site, and will not be used for any other purpose.
+	<strong>Privacy Statement:</strong>  <?php echo phrase("The Study Room Booking module collects only the minimum amount of information from users necessary to book a room - this includes name and email address. This information is stored on a secure site, and will not be used for any other purpose."); ?>
 </div>
 
 	<!-- bottom scrollbar -->
