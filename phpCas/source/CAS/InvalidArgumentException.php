@@ -17,9 +17,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- *  PHP Version 5
+ * PHP Version 5
  *
- * @file     CAS.php
+ * @file     CAS/InvalidArgumentException.php
  * @category Authentication
  * @package  PhpCAS
  * @author   Adam Franco <afranco@middlebury.edu>
@@ -27,4 +27,20 @@
  * @link     https://wiki.jasig.org/display/CASC/phpCAS
  */
 
-require_once dirname(__FILE__).'/source/CAS.php';
+/**
+ * Exception that denotes invalid arguments were passed.
+ *
+ * @class    CAS_InvalidArgumentException
+ * @category Authentication
+ * @package  PhpCAS
+ * @author   Adam Franco <afranco@middlebury.edu>
+ * @license  http://www.apache.org/licenses/LICENSE-2.0  Apache License 2.0
+ * @link     https://wiki.jasig.org/display/CASC/phpCAS
+ */
+class CAS_InvalidArgumentException
+extends InvalidArgumentException
+implements CAS_Exception
+{
+
+}
+?>

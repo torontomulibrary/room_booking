@@ -38,14 +38,11 @@ define('FOPEN_READ_WRITE_CREATE_STRICT',					'x+b');
 
 define('USER_AGENT',										'LibraryBooking/1.0');
 
-define('SITE_TITLE',										'Name goes here');
-define('SITE_LOGO',											'https://domain.com/assets/images/logo.png');
 
 //Defaults if user has no roles
 define('DEFAULT_TEMPLATE',									'rula_template');
 define('DEFAULT_POLICY_URL',								'https://domain.com/room-booking-policy/');
 
-define('DEBUG_MODE',										FALSE);
 define('SITE_ADMIN',										'siteadmin@domain.com');
 define('REPLY_EMAIL',										'contact@domain.com'); //Used as the "FROM" address when sending emails
 define('CONTACT_EMAIL',										'contact@domain.com');
@@ -80,6 +77,7 @@ define('TIME_DELAY',										0); //No delay
 define('SEND_MODERATION_ACTION_EMAIL',						TRUE);
 define('SEND_MODERATION_REQUEST_CONFIRMATION_EMAIL',		TRUE);
 
+define('IMAGE_DIR', 'uploads');
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
