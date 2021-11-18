@@ -39,12 +39,13 @@ class interface_Model  extends CI_Model  {
 		return $this->db->query($sql);
 	}
 	
-	function add_field($name, $type, $data, $roles, $show_moderator, $priority){
+	function add_field($name, $desc, $type, $data, $roles, $show_moderator, $priority){
 		if(!is_array($data)) return FALSE;
 		if(!is_array($roles)) return FALSE;
 		
 		$db_data = array(
 			'field_name'	=>	$name,
+			'field_desc'	=>	$desc,
 			'field_type'	=>	$type,
 			'data'			=>	json_encode($data),
 			'show_moderator'=>	$show_moderator,
@@ -66,12 +67,13 @@ class interface_Model  extends CI_Model  {
 		return $insert_id;
 	}
 	
-	function edit_field($fc_id, $name, $type, $data, $roles, $show_moderator, $priority){
+	function edit_field($fc_id, $name, $desc, $type, $data, $roles, $show_moderator, $priority){
 		if(!is_array($data)) return FALSE;
 		if(!is_array($roles)) return FALSE;
 		
 		$db_data = array(
 			'field_name'	=>	$name,
+			'field_desc'	=>	$desc,
 			'field_type'	=>	$type,
 			'data'			=>	json_encode($data),
 			'show_moderator'=>	$show_moderator,

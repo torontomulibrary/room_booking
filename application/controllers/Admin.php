@@ -35,8 +35,7 @@ class Admin extends CI_Controller {
 		
 	
 		//If site constant is set to debug, enable the profiler (gives analytics for page load). 
-		//DO NOT USE ON LIVE SITE
-		if($this->input->get('debug') !== NULL) $this->output->enable_profiler(DEBUG_MODE);
+		if($this->input->get('debug') !== NULL) $this->output->enable_profiler($this->settings_model->check_debug());
 	}
 
 	
@@ -369,10 +368,11 @@ class Admin extends CI_Controller {
 			$max_daily_hours = $this->input->post('max_daily_hours');
 			$notes = $this->input->post('notes');
 			$requires_moderation = $this->input->post('requires_moderation');
+			$minimum_slot = $this->input->post('minimum_slot');
 			
 			
 			
-			$id = $this->room_model->add_room($building, $room, $seats, $role, $active, $resources, $max_daily_hours, $notes, $requires_moderation);
+			$id = $this->room_model->add_room($building, $room, $seats, $role, $active, $resources, $max_daily_hours, $notes, $requires_moderation, $minimum_slot);
 			
 			if(is_numeric($id)){
 				$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Room added successfully</div>');
@@ -431,12 +431,13 @@ class Admin extends CI_Controller {
 			$max_daily_hours = $this->input->post('max_daily_hours');
 			$notes = $this->input->post('notes');
 			$requires_moderation = $this->input->post('requires_moderation');
+			$minimum_slot = $this->input->post('minimum_slot');
 			
 			//If no resources are selected, create an empty array
 			if($resources === NULL) $resources = array();
 			
 			
-			$id = $this->room_model->edit_room($room_id, $building, $room, $seats, $roles, $active, $resources, $max_daily_hours, $notes, $requires_moderation);
+			$id = $this->room_model->edit_room($room_id, $building, $room, $seats, $roles, $active, $resources, $max_daily_hours, $notes, $requires_moderation, $minimum_slot);
 
 			$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The room has been updated</div>');
 			$this->db->cache_delete_all();
@@ -715,82 +716,148 @@ class Admin extends CI_Controller {
 		//Deny access if user is not super admin
 		if(!$this->session->userdata('super_admin')){
 			$this->template->load('admin_template', 'admin/denied');
+			return;
 		}
-		else{
-			$this->load->model('resource_model');
-			
-			if($this->uri->segment(3) === 'add'){
-				$name = $this->input->post('room_resource_name');
-				$desc = $this->input->post('resource_desc');
-				$filter = $this->input->post('filter');
-				
-				$id = $this->resource_model->add_room_resource($name, $desc, $filter);
-				
-				
-				if(is_numeric($id)){
-					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Resource added successfully</div>');
-					$this->db->cache_delete_all();
-					redirect('admin/room_resources');
-				}
-				else{
-					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. Data may not have been added</div>');
-					$this->db->cache_delete_all();
-					redirect('admin/room_resources');
-				}
-			}
-			
-			//Set variable so the view loads the form, rather then list out existing 
-			else if ($this->uri->segment(3) === 'new'){
-				$data['new'] = true;
-			}
-			
-			else if ($this->uri->segment(3) === 'delete'){
-				if(!is_numeric($this->uri->segment(4))){
-					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. The resource was not deleted</div>');
+
+		$this->load->model('resource_model');
+		$this->load->helper('form');
+		$this->load->library('form_validation');
+		$this->uploadPath = IMAGE_DIR;
+
+		$data = $resData = array();
+		
+		switch($this->uri->segment(3)) {
+			case 'edit':
+				$id = $this->uri->segment(4);
+				$con = array('resource_id' => $id);
+				$resData = $this->resource_model->list_resources($con);
+				$prevImage = $resData['image'];
+				$data['title'] = 'Edit room resource';
+				$data['action'] = 'Edit';
+
+			case 'add':
+				// If update request is submitted
+				if($this->input->post('resSubmit')){
+					// Form field validation rules
+					$this->form_validation->set_rules('image', 'image filename', 'callback_file_check');
 					
-					redirect('admin/room_resources');
-				}
-				
-				$this->resource_model->delete_resource($this->uri->segment(4));
-				$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Resource deleted successfully</div>');
-				$this->db->cache_delete_all(); //Delete all cache to take care of foreign keys
-				redirect('admin/room_resources');
-			}
-			else if ($this->uri->segment(3) === 'edit'){
-				if(!is_numeric($this->uri->segment(4))){
-					$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">An error occurred. Unable to edit</div>');
-					redirect('admin/room_resources');
-				}
-				else{
-					$data['current_resource'] = $this->resource_model->get_resource($this->uri->segment(4));
+					// Prepare gallery data
+					$resData = array(
+						'name' => $this->input->post('name'),
+						'desc' => $this->input->post('desc'),
+						'can_filter' => $this->input->post('can_filter'),
+					);
 					
-					if($data['current_resource']->num_rows() === 0){
-						$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Invalid resource ID</div>');
-						$this->db->cache_delete_all(); //Delete all cache to take care of foreign keys
-						redirect('admin/room_resources');
+					// Validate submitted form data
+					if($this->form_validation->run() == true){
+						// Upload image file to the server
+						if(!empty($_FILES['image']['name'])){
+							$imageName = $_FILES['image']['name'];
+							
+							// File upload configuration
+							$config['upload_path'] = $this->uploadPath;
+							$config['allowed_types'] = 'jpg|jpeg|png|gif';
+							
+							// Load and initialize upload library
+							$this->load->library('upload', $config);
+							$this->upload->initialize($config);
+							
+							// Upload file to server
+							if($this->upload->do_upload('image')){
+								// Uploaded file data
+								$fileData = $this->upload->data();
+								$resData['image'] = $fileData['file_name'];
+								
+								// Remove old file from the server if specified.
+								if(!empty($prevImage)){
+									@unlink($this->uploadPath.$prevImage);
+								}
+							}else{
+								$error = $this->upload->display_errors();
+							}
+						}
+						
+						if(empty($error)){
+							// Update image data
+							$update = $this->resource_model->update($resData, $id);
+							
+							if($update){
+								$this->session->set_userdata('success_msg', 'Image has been updated successfully.');
+								redirect('room_resources');
+							}else{
+								$error = 'Some problems occurred, please try again.';
+							}
+						}
+						
+						$data['error_msg'] = $error;
 					}
 				}
-			}
-			
-			else if ($this->uri->segment(3) === 'update'){
-				$id = $this->input->post('room_resource_id');
-				$name = $this->input->post('room_resource_name');
-				$desc = $this->input->post('resource_desc');
-				$filter = $this->input->post('filter');
+
+				$data['resource'] = $resData;
+				if(!array_key_exists('title', $data)){
+					$data['title'] = 'Add room resource';
+				}
+				if(!array_key_exists('action', $data)){
+					$data['action'] = 'Add';
+				}
 				
-				$id = $this->resource_model->edit_resource($id, $name, $desc, $filter);
-				
-				$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">The resource has been updated</div>');
-				$this->db->cache_delete_all();
-				redirect('admin/room_resources');
-			}
-			
-			
-			$data['resources'] = $this->resource_model->list_resources();
-			
-			$this->template->load('admin_template', 'admin/room_resources', $data);
+				// Load the edit page view
+				$this->template->load('admin_template', 'admin/room_resources', $data);
+				return;
+
+			case 'delete':
+				// Check whether id is not empty
+				if($id){
+					$con = array('resource_id' => $id);
+					$imgData = $this->resource_model->getRows($con);
+					
+					// Delete gallery data
+					$delete = $this->resource_model->delete_resource($id);
+					
+					if($delete){
+						// Remove file from the server
+						if(!empty($imgData['image'])){
+							@unlink($this->uploadPath.$imgData['image']);
+						}
+						
+						$this->session->set_userdata('success_msg', 'Image has been removed successfully.');
+					}else{
+						$this->session->set_userdata('error_msg', 'Some problems occurred, please try again.');
+					}
+				}
+		
+				redirect('room_resources');
+				return;
 		}
+	
+		$data = array();
+    
+		// Get messages from the session
+		if($this->session->userdata('success_msg')){
+			$data['success_msg'] = $this->session->userdata('success_msg');
+			$this->session->unset_userdata('success_msg');
+		}
+		if($this->session->userdata('error_msg')){
+			$data['error_msg'] = $this->session->userdata('error_msg');
+			$this->session->unset_userdata('error_msg');
+		}
+		
+		$data['resources'] = $this->resource_model->list_resources();
+		$data['title'] = 'Room Resources';
+		$data['action'] = 'List';
+		
+		// Load the list page view
+		$this->template->load('admin_template', 'admin/room_resources', $data);
 	}
+	
+	public function file_check($str){ 
+		if(empty($_FILES['image']['name'])){ 
+				$this->form_validation->set_message('file_check', 'Select an image file to upload.'); 
+				return FALSE; 
+		}else{ 
+				return TRUE; 
+		} 
+	} 
 	
 	function block_booking(){
 
@@ -1362,6 +1429,7 @@ class Admin extends CI_Controller {
 			
 			if($this->uri->segment(3) === 'add'){
 				$field_title = $this->input->post('field_title');
+				$field_desc = $this->input->post('field_desc');
 				$field_type = $this->input->post('field_type');
 				$show_moderator = $this->input->post('show_moderator');
 				$fc_id = $this->input->post('fc_id');
@@ -1380,7 +1448,7 @@ class Admin extends CI_Controller {
 				}
 				
 		
-				$id = $this->interface_model->add_field($field_title, $field_type, $select_field_data, $role, $show_moderator, $priority);
+				$id = $this->interface_model->add_field($field_title, $field_desc, $field_type, $select_field_data, $role, $show_moderator, $priority);
 				
 				if(is_numeric($id)){
 					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Field added successfully</div>');
@@ -1432,6 +1500,7 @@ class Admin extends CI_Controller {
 			
 			else if ($this->uri->segment(3) === 'update'){
 				$field_title = $this->input->post('field_title');
+				$field_desc = $this->input->post('field_desc');
 				$field_type = $this->input->post('field_type');
 				$show_moderator = $this->input->post('show_moderator');
 				$fc_id = $this->input->post('fc_id');
@@ -1450,7 +1519,7 @@ class Admin extends CI_Controller {
 				}
 				
 			
-				$id = $this->interface_model->edit_field($fc_id, $field_title, $field_type, $select_field_data, $role, $show_moderator, $priority);
+				$id = $this->interface_model->edit_field($fc_id, $field_title, $field_desc, $field_type, $select_field_data, $role, $show_moderator, $priority);
 				
 				if(is_numeric($id)){
 					$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Field updated successfully</div>');
@@ -1470,6 +1539,47 @@ class Admin extends CI_Controller {
 		}
 		
 		
+		
+		
+	}
+	
+	function global_settings(){
+		if(!$this->session->userdata('super_admin')){
+			$this->template->load('admin_template', 'admin/denied');
+		}
+		else{
+			if ($this->uri->segment(3) === 'update'){
+				$form_data = array(
+					'site_title' => $this->input->post('site_title'),
+					'debug_mode' => $this->input->post('debug_mode'),
+					'site_logo' => $this->input->post('site_logo'),
+					'advance_start' => $this->input->post('advance_start'),
+					'allow_booking_overlap' => $this->input->post('allow_booking_overlap'),
+					'global_message' => $this->input->post('global_message'),
+				);
+				
+				$form_data['debug_mode'] = ($form_data['debug_mode'] === 'on')? 1 : 0;
+				$form_data['advance_start'] = ($form_data['advance_start'] === 'on')? 1 : 0;
+				$form_data['allow_booking_overlap'] = ($form_data['allow_booking_overlap'] === 'on')? 1 : 0;
+				
+				$this->settings_model->save_settings($form_data);
+				
+				redirect('admin/global_settings');
+				
+			}
+			else{
+
+				$this->load->model('role_model');
+				
+				$data = array();
+				$data['roles'] = $this->role_model->list_roles();
+				$data['permissions'] = $this->role_model->get_permissions();
+				$data['settings'] = $this->settings_model->get_all_settings_array();
+
+				
+				$this->template->load('admin_template', 'admin/global_settings', $data);
+			}
+		}
 		
 		
 	}

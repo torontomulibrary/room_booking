@@ -3,8 +3,27 @@
 <?php ob_start();?>
 
 <link rel="stylesheet" href="<?php echo base_url(); ?>assets/template/<?php echo $theme; ?>/css/booking_form.css" type="text/css" media="screen" />
+<script src="<?php echo base_url(); ?>assets/js/jquery.validate-1.19.2.min.js"></script>
 
-
+<style>
+	.form-checkbox {
+		width: 1.25em;
+		height: 1.25em;
+	}
+	.form-check-group {
+		border: 1px solid white;
+		border-radius: 4px;
+		padding: 4px;
+	}
+	.form-check-group.error {
+		border-color: darkred;
+	}
+	.form-check-group .error {
+		color: darkred;
+		font-weight: 400;
+		font-size: 0.95em;
+	}
+</style>
 
 <?php $head = ob_get_contents();ob_end_clean();$this->template->set('headers', $head);?>
 
@@ -44,7 +63,7 @@ if($this->input->get('slot') === NULL || !is_numeric($this->input->get('slot')) 
 					<div class="alert alert-danger" role="alert">You have already booked the maximum allowable time for today</div>
 				<?php else: ?>
 				
-					<form action="<?php echo base_url()?>booking/submit" method="post" autocomplete="off">
+					<form id="bookingForm" action="<?php echo base_url()?>booking/submit" method="post" autocomplete="off">
 					
 						<div class="form_left">When</div>
 						<div class="form_right"><?php echo date('l M d, Y', $this->input->get('slot'));?></div><br>
@@ -64,7 +83,32 @@ if($this->input->get('slot') === NULL || !is_numeric($this->input->get('slot')) 
 								
 									$max_per_day = $room_data->max_daily_hours - $limits['day_used'];
 									$max_per_week = $limits['week_remaining'];
-									$start_time = $this->input->get('slot') + (30*60); //Start at the starting time + 30 minutes as the first slot to book
+									
+									//We need to check if the booking start has been advanced (or not)
+									if($settings['advance_start']){
+										//Get the opening hours
+										foreach ($hours as $building_open_time){
+											if($building_open_time->LOCATION_ID == $room_data->building_id){
+												$open_time = $building_open_time->STARTTIME * 24;
+												break;
+											}
+											
+										}
+										$booking_date_ts = mktime(0,0,0, date('n',$this->input->get('slot')),date('j',$this->input->get('slot')),date('Y',$this->input->get('slot')));
+										$slot_offset = ($this->input->get('slot') - ($booking_date_ts + $open_time*60*60)) % ($room_data->minimum_slot*60);
+										
+
+										if($slot_offset == 0){
+											$start_time = $this->input->get('slot') + ($room_data->minimum_slot*60); //Start at the starting time + the rooms interval minutes as the first slot to book
+										}
+										else{
+											$start_time = $this->input->get('slot') + ($room_data->minimum_slot*60) - $slot_offset;
+										}
+									}
+									else{
+										$start_time = $this->input->get('slot') + ($room_data->minimum_slot*60); //Start at the starting time + the rooms interval minutes as the first slot to book
+									}
+									
 									
 									//Figure out the end time. It's either the users max allowed booking time, or midnight
 									$end_time = $start_time + (($room_data->max_daily_hours - $limits['day_used'])*60*60 ); 
@@ -87,20 +131,26 @@ if($this->input->get('slot') === NULL || !is_numeric($this->input->get('slot')) 
 									}
 									
 									$slot = $start_time;
-									while($slot <= $end_time){
-										if($max_per_day <= 0 || $max_per_week <= 0) break;
-										
-										//Check for block bookings
-										if($this->booking_model->is_block_booked($slot, $slot, $this->input->get('room_id'))){
+									
+									if($slot > $end_time){
+										echo '<option value="'.$end_time.'">'.date('g:ia', $end_time).' (EST)</option>';
+									}
+									else{
+										while($slot <= $end_time){
+											if($max_per_day <= 0 || $max_per_week <= 0) break;
+											
+											//Check for block bookings
+											if($this->booking_model->is_block_booked($slot, $slot, $this->input->get('room_id'))){
+												echo '<option value="'.$slot.'">'.date('g:ia', $slot).' (EST)</option>';
+												break;
+											}
+											
 											echo '<option value="'.$slot.'">'.date('g:ia', $slot).' (EST)</option>';
-											break;
+											
+											$slot += $room_data->minimum_slot*60;
+											$max_per_day -= 0.5;
+											$max_per_week -= 0.5;
 										}
-										
-										echo '<option value="'.$slot.'">'.date('g:ia', $slot).' (EST)</option>';
-										
-										$slot += 30*60;
-										$max_per_day -= 0.5;
-										$max_per_week -= 0.5;
 									}
 								?>
 							</select> 
@@ -120,6 +170,10 @@ if($this->input->get('slot') === NULL || !is_numeric($this->input->get('slot')) 
 									
 									foreach($resources->result() as $resource){
 										echo '<li>'.$resource->name.'</li>';
+										
+										if($resource->image != ''){
+											echo '<img src="'.base_url(IMAGE_DIR.$resource->image).'">';
+										}
 									}
 								?>
 							</ul>
@@ -137,6 +191,7 @@ if($this->input->get('slot') === NULL || !is_numeric($this->input->get('slot')) 
 						<div class="form_left">Additional Info</div><div style="clear:both"></div>
 						<div><textarea name="comment" rows="6" cols="75" style="max-width: 490px"></textarea></div>
 						-->
+
 						<?php
 							foreach($interface->result() as $form_element){
 								if($form_element->field_type === "select"){
@@ -165,6 +220,43 @@ if($this->input->get('slot') === NULL || !is_numeric($this->input->get('slot')) 
 											<div><textarea name="fc_'.$form_element->fc_id.'" rows="6" cols="75" style="max-width: 490px"></textarea></div>';
 									
 									
+								}
+
+								elseif($form_element->field_type === "check") {
+									switch($form_element->field_name) {
+										case "cov19-1":
+											echo '<div style="margin-top: 1em" class="form_left">'
+													.phrase("Informed Consent").'</div><div style="clear:both">
+												</div>
+												<p>
+													While Ryerson University (the “University”) has put in place reasonable measures to reduce the spread of COVID-19, the University cannot guarantee that any individual 
+													using the University’s facilities, or participating in activities organized by the University, whether on-campus or off-campus (including student internships and placements)
+													(collectively, the “Activities”) will not become infected with COVID-19. Prior to participation, all participants in the Activities are required to complete the COVID-19
+													<a href="https://www.ryerson.ca/covid-19/health-screening-reporting-cases/health-screening/student-health-screening/">Health Screening</a> prior to coming to campus each day. 
+													Health Screening can be accessed via the <a href="https://www.ryerson.ca/community-safety-security/ryersonsafe/ryersonsafe-mobile-app/">RyersonSafe</a> mobile app or via 
+													<a href="https://ryerson.apparmor.com/WebApp/default.aspx?menu=Start%20Health%20Screening">web browser</a> if you do not have the RyersonSafe app on your mobile phone.
+												</p>
+												<p>
+													If I am unable to confirm or agree with all the statements below I understand I will not be able to make a Library study space booking at this time.
+												</p>
+												<p>	
+													PLEASE NOTE: Completion of form is for a single (one day only) student booking time.  Student bookings are only available up to one week in advance. 
+													Please contact <a href="mailto:access@ryerson.ca">access@ryerson.ca</a> for any cancellation required.
+												</p>';
+										break;
+										/*case "cov19-3":
+											echo '<p>I certify that:</p>';
+										break;
+										case "cov19-11":
+											echo '<p>In consideration of the University permitting me to use the Facilities I agree: </p>';
+										break;
+										*/
+									}
+									echo '<div class="form-group form-check-group">
+											<input aria-label="Consent item" class="form-check-input form-checkbox" required data-msg="You must agree before continuing." id="fc_'.$form_element->fc_id.'" name="fc_'.$form_element->fc_id.'" type="checkbox">
+											<span class="form-check-label">'.$form_element->field_desc.'</span>
+											<div style="clear:both"></div>
+										</div>';
 								}
 								
 							}
@@ -197,7 +289,24 @@ if($this->input->get('slot') === NULL || !is_numeric($this->input->get('slot')) 
 		</div>
 		  
 		 
-
+		<script type="text/javascript">
+			jQuery("#bookingForm").validate({
+				submitHandler: function(form) {
+					form.submit();
+				},
+				errorPlacement: function(error, el) {
+					el.parent().append(error);
+				},
+				highlight: function(element, errorClass, validClass) {
+					jQuery(element).addClass(errorClass).removeClass(validClass);
+					jQuery(element).parent().addClass(errorClass).removeClass(validClass);
+				},
+				unhighlight: function(element, errorClass, validClass) {
+					jQuery(element).removeClass(errorClass).addClass(validClass);
+					jQuery(element).parent().removeClass(errorClass).addClass(validClass);
+				}
+			});
+		</script>
 		
 		<script type="text/javascript">
 			jQuery('#cancel_button').on('click',function(){

@@ -8,7 +8,7 @@
 	$output['resources'] = array();
 	
 	
-	foreach($resources->result() as $resource){
+	foreach($resources as $resource){
 		$output['resources'][] = $resource;
 	}
 	

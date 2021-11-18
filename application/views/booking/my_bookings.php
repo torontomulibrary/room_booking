@@ -36,7 +36,7 @@
 				<?php if($this->session->userdata('admin') || $this->session->userdata('super_admin')): ?>
 				<li><a href="<?php echo base_url(); ?>admin">Administrator View</a></li>
 				<?php endif; ?>
-				<li><a  href="<?php echo base_url(); ?>booking/booking_main">BOOK A ROOM</a></li>
+				<li><a  href="<?php echo base_url(); ?>booking/booking_main"><?php echo phrase("BOOK A ROOM"); ?></a></li>
 				<li><a href="<?php echo base_url(); ?>booking/">MAIN PAGE</a></li>
 				<li><a class="selected" href="<?php echo base_url(); ?>booking/my_bookings/">MY BOOKINGS</a></li>
 				<li><a class="" href="<?php echo base_url(); ?>mobile/">MOBILE</a></li>

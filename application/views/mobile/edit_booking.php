@@ -45,8 +45,8 @@
 				
 				<span class="detail_label">Room Features</span>
 				<span style="display: inline-block; float: left">
-					<?php foreach($resources->result() as $resource): ?>
-						<?php echo $resource->name; ?><br />
+					<?php foreach($resources as $resource): ?>
+						<?php //echo $resource->name; ?><br />
 					<?php endforeach; ?>
 					
 					
@@ -60,6 +60,10 @@
 
 			<?php
 				foreach($interface->result() as $form_element){
+					if($form_element->field_type === 'check'){
+						continue;
+					}
+
 					echo '	<span class="detail_label">'.$form_element->field_name.'</span>';
 							
 					foreach($custom_data->result() as $element){

@@ -1238,4 +1238,30 @@ class booking_Model  extends CI_Model  {
 		
 		return FALSE;
 	}
+	
+	function has_overlap($matrix_id, $new_booking_start, $new_booking_end){
+		//Get all of the users bookings from today
+		$sql = "SELECT * from bookings where matrix_id = ". $this->db->escape($matrix_id) ." and start > ".$this->db->escape(date('Y-m-d'));
+		
+		$this->db->cache_off();
+		$query = $this->db->query($sql);
+		$this->db->cache_on();
+		
+		
+		foreach($query->result() as $booking){
+			//started before this, ends after this start
+			if((strtotime($booking->start) < $new_booking_start) && (strtotime($booking->end) > $new_booking_start)) return true;
+			
+			//started same as this
+			if(strtotime($booking->start) == $new_booking_start) return true;
+						
+			//started after this, but before this ends
+			if((strtotime($booking->start) > $new_booking_start) && ($new_booking_end >= strtotime($booking->end))) return true;
+		}
+		
+		return false;
+		
+		
+		
+	}
 }

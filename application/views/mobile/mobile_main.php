@@ -12,13 +12,20 @@
 	<?php if($this->session->flashdata('success') !== NULL): ?><div class="alert alert-success" role="alert"><?php print_message('Success', $this->session->flashdata('success')); ?></div><?php endif; ?>
 	<?php if($this->session->flashdata('danger') !== NULL): ?><div class="alert alert-danger" role="alert"><?php print_message('Error', $this->session->flashdata('danger')); ?></div><?php endif; ?>
 	
+	<?php 
+		//Show the site message (if not empty
+		if(trim($settings['global_message']) !== ''){
+			echo '<div class="alert alert-danger" role="alert">'. trim($settings['global_message']) . '</div>';
+
+		}
+	?>
 	
 
 	<ul data-role="listview" data-inset="true">
 
 		<li><a rel="" href="<?php echo base_url(); ?>mobile/my_bookings">My Bookings</a></li>
-		<li><a rel="" href="<?php echo base_url(); ?>mobile/book_room">Book a Study Room</a></li>
-		<li><a rel="" href="<?php echo base_url(); ?>mobile/next_available">View Room Availability<br />(Within the next 3 hours)</a></li>
+		<li><a rel="" href="<?php echo base_url(); ?>mobile/book_room"><?php echo phrase('Book a Study Room'); ?></a></li>
+		<li id="view_room_avail"><a rel="" href="<?php echo base_url(); ?>mobile/next_available">View Room Availability<br />(Within the next 3 hours)</a></li>
 	</ul>
 
 

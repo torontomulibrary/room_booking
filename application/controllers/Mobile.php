@@ -33,23 +33,30 @@ class Mobile extends CI_Controller {
 		
 		
 		//If site constant is set to debug, enable the profiler (gives analytics for page load). 
-		//DO NOT USE ON LIVE SITE
-		if($this->input->get('debug') !== NULL) $this->output->enable_profiler(DEBUG_MODE);
+		if($this->input->get('debug') !== NULL) $this->output->enable_profiler($this->settings_model->check_debug());	
 	}
 
 	
 	public function index(){
 		$this->load->model('role_model');
 		
+		$data['theme'] =  str_replace("_template", "", $this->role_model->get_theme());
+		
 		$data['policy_url'] = $this->role_model->get_policy_url(); 
+		$data['settings'] = $this->settings_model->get_all_settings_array();
+
 		$this->template->load('mobile_template', 'mobile/mobile_main', $data);
 	}
 	
 	function my_bookings(){
 		$this->load->model('booking_model');
+		$this->load->model('role_model');
+		
+		$data['theme'] =  str_replace("_template", "", $this->role_model->get_theme());
 		
 		$data['bookings'] = $this->booking_model->get_upcoming_bookings($this->session->userdata('username'));
-		
+		$data['settings'] = $this->settings_model->get_all_settings_array();
+
 		$this->template->load('mobile_template', 'mobile/my_bookings', $data);
 	}
 	
@@ -61,6 +68,7 @@ class Mobile extends CI_Controller {
 			
 		$data = array();
 		$data['roles'] = $this->role_model->list_roles();
+		$data['theme'] =  str_replace("_template", "", $this->role_model->get_theme());
 		
 		$booking_data = array();
 		
@@ -98,7 +106,7 @@ class Mobile extends CI_Controller {
 			
 			$time += 1800; //Add 30mins to the time;
 		}
-		
+		$data['settings'] = $this->settings_model->get_all_settings_array();
 		$this->template->load('mobile_template', 'mobile/next_booking', $data);
 	}
 	
@@ -112,6 +120,7 @@ class Mobile extends CI_Controller {
 		$data = array();
 		
 		$data['roles'] = $this->role_model->list_roles();
+		$data['theme'] =  str_replace("_template", "", $this->role_model->get_theme());
 		
 		if($this->input->get('selected_date') !== NULL && strtotime($this->input->get('selected_date')) !== NULL){
 			$data['hours'] = $this->hours_model->getAllHours(strtotime($this->input->get('selected_date')));
@@ -146,7 +155,7 @@ class Mobile extends CI_Controller {
 				$data['bookings'][$booking->room_id][strtotime($booking->start)] = $booking; 
 			}
 		}
-		
+		$data['settings'] = $this->settings_model->get_all_settings_array();
 		$this->template->load('mobile_template', 'mobile/book_room', $data);
 	}
 	
@@ -169,6 +178,7 @@ class Mobile extends CI_Controller {
 		$data['building'] = $this->building_model->load_building($data['room']['room_data']->row()->building_id);
 		$data['next_booking'] = $this->booking_model->next_booking($this->input->get('slot'), $this->input->get('room_id'));
 		$data['hours'] = $this->hours_model->getAllHours(mktime(0,0,0, date('n',$this->input->get('slot')),date('j',$this->input->get('slot')),date('Y',$this->input->get('slot'))));
+		$data['settings'] = $this->settings_model->get_all_settings_array();
 		
 		$this->template->load('mobile_template', 'mobile/booking_form', $data);
 	}
@@ -217,6 +227,7 @@ class Mobile extends CI_Controller {
 		$data['custom_data'] = $this->booking_model->get_custom_fields_data($this->input->get('booking_id'));
 		$data['vars'] = $data;
 		
+		$data['settings'] = $this->settings_model->get_all_settings_array();
 		$this->template->load('mobile_template', 'mobile/edit_booking', $data);
 		
 		
@@ -334,7 +345,7 @@ class Mobile extends CI_Controller {
 						$data['start'] = $start_time;
 						$data['end'] = $finish_time;
 						$data['room'] = $room;
-						
+						$data['settings'] = $this->settings_model->get_all_settings_array();
 						$this->booking_model->generate_ics($id);
 						
 						//Load in the email template

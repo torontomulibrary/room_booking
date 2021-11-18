@@ -92,18 +92,21 @@
 						
 						<?php $count++; ?>
 					<?php endforeach; ?>
-					
-					<?php foreach($resources_filter->result() as $resource): ?>
+
+					<?php if(!empty($resources_filter)):
+						foreach($resources_filter as $resource): ?>
 						<?php if($count > 0 && $count % $num_rows == 0):?></div><div class="filter_row"><?php endif; ?>
 						
 						<label>
-							<input type="checkbox" class="resource_checkbox filter_checkbox" name="resource[]" value="<?php echo $resource->resource_id ?>">
-							<span></span><?php echo $resource->name; ?> 
+							<input type="checkbox" class="resource_checkbox filter_checkbox" name="resource[]" value="<?php echo $resource['resource_id'] ?>">
+							<span></span><?php echo $resource['name']; ?> 
 						</label>
 						<br>
 						 
 						<?php $count++; ?>
-					<?php endforeach; ?>
+					<?php endforeach; 
+						endif;
+					?>
 					
 					</div>
 				</form>
@@ -115,7 +118,7 @@
 		
 	</div>
 	
-	<h3 id="calendar_header" style="text-align: center; font-weight: bold; margin-top: 2em; width: 450px; float: right;"><span>Book a Room -<br> <?php echo SITE_TITLE; ?></span></h3>
+	<h3 id="calendar_header" style="text-align: center; font-weight: bold; margin-top: 2em; width: 450px; float: right;"><span><?php echo phrase("Book a Room"); ?> -<br> <?php echo $settings['site_title']; ?></span></h3>
 	
 	
 	<div class="calendar_container">
@@ -150,7 +153,15 @@
 		}
 		
 		if($disabled_rooms){
-			echo '<div class="alert alert-danger" role="alert">Some rooms may not be available because you have reached your maximum daily/weekly limits</div>';
+			echo '<div class="alert alert-danger" role="alert">'. phrase('Some rooms may not be available because you have reached your maximum daily/weekly limits') . '</div>';
+		}
+	?>
+	
+	<?php 
+		//Show the site message (if not empty
+		if(trim($settings['global_message']) !== ''){
+			echo '<div class="alert alert-danger" role="alert">'. trim($settings['global_message']) . '</div>';
+
 		}
 	?>
 	
@@ -209,6 +220,7 @@
 						//Get all the rooms for this role
 						
 						foreach($rooms[$role->role_id] as $room){
+							
 							//Create left-hand column showing room name (and hidden room features used for filtering (seats, whiteboard, computer, etc..))
 							if($room->seats > 1){
 								$seats = $room->seats . " seats";
@@ -259,6 +271,7 @@
 							}
 							$tEnd =  mktime(0,0,0,$date_raw['month'], $date_raw['day'], $date_raw['year']) + (($hours[$room->building_id]->ENDTIME * 24) * 60 * 60) - 1800; 
 							$tNow = $tStart;
+
 
 							while($tNow <= $tEnd && $hours[$room->building_id]->ISOPEN == true && $hours[$room->building_id]->HASCLOSURE == false){
 								$end_row = false;
@@ -373,28 +386,65 @@
 								
 								//End block bookings
 								
+								//Calculate how many 30-minute slots are needed for this room
+								$free_slot_width = $room->minimum_slot / 30;
+								
+								$next_booking = null;
+									
+								
+								//Check if bookings existing between tNow & tNow + minimum slot (this is possible with rolling start times)
+								if(isset($bookings[$room->room_id])){
+									foreach ($bookings[$room->room_id] as $booking){
+										
+										$booking_duration = strtotime($booking->end) - strtotime($booking->start);
+										$booking_offset = strtotime($booking->start) - $tNow;
+										
+										if($tNow + 60*$room->minimum_slot > strtotime($booking->start) && strtotime($booking->start) >= $tNow && (strtotime($booking->end) <= ($tNow + $booking_duration + $booking_offset))){
+											$next_booking = $booking;
+											break;
+										}
+									}
+									
+									
+								}
+
 								//Check for bookings
-								if(isset($bookings[$room->room_id][$tNow])){
-									//Calculate how long this booking is for, and offset counter by that much
-									$diff = round(abs(strtotime($bookings[$room->room_id][$tNow]->end) - strtotime($bookings[$room->room_id][$tNow]->start)) / 60,2);
-									
-									$booker_username = $bookings[$room->room_id][$tNow]->matrix_id;
-									$booker_name = $bookings[$room->room_id][$tNow]->booker_name;
-									
-									//If this is your booking, or you are admin, show who booked it
-									if($booker_username == $this->session->userdata('username')){
-										echo '<td colspan="'.($diff/30) .'" class="my_booked_cell booking_cell"><div class="table_cell_height"><a href="'.base_url().'booking/edit_booking?booking_id='.$bookings[$room->room_id][$tNow]->booking_id.'">'.$booker_name.'</a></div></td>';
-									}
-									else if($this->session->userdata('super_admin') == TRUE || $this->session->userdata('admin')){
-										echo '<td colspan="'.($diff/30) .'" class="booked_cell booking_cell"><div class="table_cell_height"><a href="'.base_url().'booking/edit_booking?booking_id='.$bookings[$room->room_id][$tNow]->booking_id.'">'.$booker_name.'</a></div></td>';
-									}
-									else if($role->is_private == FALSE){
-										echo '<td colspan="'.($diff/30) .'" class="booked_cell booking_cell"><div class="table_cell_height">'.$booker_name.'</div></td>';
+								if(isset($next_booking) && $next_booking !== null){
+									if($tNow == strtotime($next_booking->start)){
+										//Calculate how long this booking is for, and offset counter by that much
+										$diff = round(abs(strtotime($next_booking->end) - strtotime($next_booking->start)) / 60,2);
+										
+										$booker_username = $next_booking->matrix_id;
+										$booker_name = $next_booking->booker_name;
+										
+										//If this is your booking, or you are admin, show who booked it
+										if($booker_username == $this->session->userdata('username')){
+											echo '<td colspan="'.($diff/30) .'" class="my_booked_cell booking_cell"><div class="table_cell_height"><a href="'.base_url().'booking/edit_booking?booking_id='.$next_booking->booking_id.'">'.$booker_name.'</a></div></td>';
+										}
+										else if($this->session->userdata('super_admin') == TRUE || $this->session->userdata('admin')){
+											echo '<td colspan="'.($diff/30) .'" class="booked_cell booking_cell"><div class="table_cell_height"><a href="'.base_url().'booking/edit_booking?booking_id='.$bookings[$room->room_id][$tNow]->booking_id.'">'.$booker_name.'</a></div></td>';
+										}
+										else if($role->is_private == FALSE){
+											echo '<td colspan="'.($diff/30) .'" class="booked_cell booking_cell"><div class="table_cell_height">'.$booker_name.'</div></td>';
+										}
+										else{
+											echo '<td colspan="'.($diff/30) .'" class="booked_cell booking_cell"><div class="table_cell_height">Booked</div></td>';
+										}
+										
+											$tNow += 60 * $diff ; //Add "diff" minutes
 									}
 									else{
-										echo '<td colspan="'.($diff/30) .'" class="booked_cell booking_cell"><div class="table_cell_height">Booked</div></td>';
+										//Start time was rolled over
+										
+										
+										//Calculate the difference between tNow and next_booking->start and create a placeholder
+										$placeholder_slots = (strtotime($next_booking->start) - $tNow) / 60 /30;
+										
+										echo '<td colspan="'. $placeholder_slots .'" class="not_avail booking_cell bleh"><div class="table_cell_height">'. date('g:iA', $tNow). '</div></td>';
+										$tNow += ($placeholder_slots) * 30 * 60; 
 									}
-									$tNow += 60 * $diff ; //Add "diff" minutes
+									
+									
 									
 								}
 								else{
@@ -403,28 +453,121 @@
 									'room_id='. $room->room_id,
 									);
 									$uri = implode($uri, '&amp;');
+
+									
 								
 									//Check to see if the date is in the past
 									if($room->requires_moderation && (time()+ MODERATION_TIME_DELAY > $tNow)){ 
-										echo '<td class="not_avail booking_cell"><div class="table_cell_height">'.date("g:iA",$tNow).'</div></td>';
+										echo '<td colspan="'. $free_slot_width.'" class="not_avail booking_cell"><div class="table_cell_height">'.date("g:iA",$tNow).'</div></td>';
 									}
 									else if(!$room->requires_moderation && (time()+ TIME_DELAY > $tNow)){ 
-										echo '<td class="not_avail booking_cell"><div class="table_cell_height">'.date("g:iA",$tNow).'</div></td>';
+										if($settings['advance_start'] == true && date('Y-m-d', $tNow) == date('Y-m-d')){
+											//Need to check to make sure it is in the middle of a slot. Otherwise do nothing
+											if($tNow + $room->minimum_slot*60 > time()){
+
+												//Calculate slots from $tNow until current time
+												$past_slots = ceil((time() - $tNow) / 60 / 30);
+												
+												//Output disabled slot from tNow to current time
+												echo '<td colspan="'. $past_slots.'" class="not_avail booking_cell"><div class="table_cell_height">' . date("g:iA",$tNow).'</div></td>';
+												
+												
+												//Calculate avail slot from current time to remainder of free_slot_width
+												$new_slot_width = $free_slot_width - $past_slots;
+												$new_start_time = $tNow + (30*$past_slots * 60);
+												
+												//Create new URI
+												$uri = array(
+														'slot='.mktime(date('H',$new_start_time), date('i', $new_start_time),0, $date_raw['month'], $date_raw['day'], $date_raw['year']), //From the timeslot as the given time & date
+														'room_id='. $room->room_id,
+													);
+												$uri = implode($uri, '&amp;');
+												
+												if($new_slot_width > 0){
+													echo '<td colspan="'. $new_slot_width.'" class="room_free booking_cell"><div class="table_cell_height"><a class="" href="'. base_url() . 'booking/book_room?' . $uri . '">'.date("g:iA",$new_start_time).'</a></div></td>';
+												}
+											}
+											else{
+												echo '<td colspan="'. $free_slot_width.'" class="not_avail booking_cell"><div class="table_cell_height">'.date("g:iA",$tNow).'</div></td>';
+											}
+											
+										}
+										else{
+											echo '<td colspan="'. $free_slot_width.'" class="not_avail booking_cell"><div class="table_cell_height">'.date("g:iA",$tNow).'</div></td>';
+										}
+										
 									}
 									
 									//If too far in the future (past the roles booking window)
 									else if($tNow > (mktime(0,0,0, date("n"), date("j")+1)+($role->booking_window*24*60*60)) ){
-										echo '<td class="not_avail booking_cell"><div class="table_cell_height">'.date("g:iA",$tNow).'</div></td>';
+										echo '<td colspan="'. $free_slot_width.'" class="not_avail booking_cell"><div class="table_cell_height">'.date("g:iA",$tNow).'</div></td>';
 									}
 									//If there are not enough hours for the day/week to make a booking
 									else if($limits['day_used'] >= $room->max_daily_hours || $limits['week_remaining'] <= 0){
-											echo '<td class="not_avail booking_cell"><div class="table_cell_height">'.date("g:iA",$tNow).'</div></td>';
+											echo '<td colspan="'. $free_slot_width.'" class="not_avail booking_cell"><div class="table_cell_height">'.date("g:iA",$tNow).'</div></td>';
 									}
 									else{
-										echo '<td class="room_free booking_cell"><div class="table_cell_height"><a class="" href="'. base_url() . 'booking/book_room?' . $uri . '">'.date("g:iA",$tNow).'</a></div></td>';
+										$overlap_found = false;
+										
+										//Make sure it doesn't overlap an upcoming block booking or recurring booking
+										foreach($block_bookings as $block_booking){
+											//If block booking is in the future           AND     (now + slot) passes the block booking start
+											
+											//MAKE SURE THE BOOKING INCLUDES THIS ROOM!!!!!!!
+											if(array_key_exists($room->room_id, $block_booking['room'])){
+												if(strtotime($block_booking['start']) > $tNow && ($tNow + ($room->minimum_slot*60) > strtotime($block_booking['start']) )){
+													echo '<td colspan="'. $free_slot_width.'" class="closed booking_cell"><div class="table_cell_height">Unavailable</div></td>';
+													$overlap_found = true;
+													break;
+												}
+											}
+										}
+										
+										foreach($recurring_bookings as $recurring_booking){
+											if(!(round(($tNow - strtotime($recurring_booking['start']))/(60*60*24)) % $recurring_booking['repeat_interval'] === 0)){
+												continue;
+											}
+											else{
+												//Make sure the recurring booking has started (and isn't just upcoming)
+												if($recurring_booking['start'] > date("Y-m-d G:i:s",mktime(date("G", strtotime($recurring_booking['start'])),date("i", strtotime($recurring_booking['start'])),0, $date_raw['month'], $date_raw['day'], $date_raw['year']))){
+													continue;
+												}
+												
+												$recurring_booking['start'] = date("Y-m-d G:i:s",mktime(date("G", strtotime($recurring_booking['start'])),date("i", strtotime($recurring_booking['start'])),0, $date_raw['month'], $date_raw['day'], $date_raw['year']));
+												$recurring_booking['end'] =  date("Y-m-d G:i:s",mktime(date("G", strtotime($recurring_booking['end'])),date("i", strtotime($recurring_booking['end'])),0, $date_raw['month'], $date_raw['day'], $date_raw['year']));
+												
+											}
+											
+											//MAKE SURE THE BOOKING INCLUDES THIS ROOM!!!!!!!
+											if(array_key_exists($room->room_id, $recurring_booking['room'])){
+											
+												if(strtotime($recurring_booking['start']) > $tNow && ($tNow + ($room->minimum_slot*60) > strtotime($recurring_booking['start']) )){
+													echo '<td colspan="'. $free_slot_width.'" class="closed booking_cell"><div class="table_cell_height">Unavailable</div></td>';
+													$overlap_found = true;
+													break;
+												}
+											}
+										}
+										
+										
+										//Make sure there is enough space for this slot before the end of the day
+										if($tNow + ($room->minimum_slot*60) > ($tEnd + (30*60))){
+											
+											//Calculute the number of slots until $tEnd
+											$slots_until_end = ($tEnd - $tNow +(30*60))/(30*60);
+
+											echo '<td colspan="'. $slots_until_end.'" class="room_free booking_cell"><div class="table_cell_height"><a class="" href="'. base_url() . 'booking/book_room?' . $uri . '">'.date("g:iA",$tNow).'</a></div></td>';
+											$overlap_found = true;
+											
+										}
+										
+										
+										if(!$overlap_found){
+											echo '<td colspan="'. $free_slot_width.'" class="room_free booking_cell"><div class="table_cell_height"><a class="" href="'. base_url() . 'booking/book_room?' . $uri . '">'.date("g:iA",$tNow).'</a></div></td>';
+										}
 									}
 									
-									$tNow += 60 * 30; //Add 30 minutes
+									$tNow += 60 * $room->minimum_slot; //Add the length of the admin-defined timeslot
 									
 								}
 							}

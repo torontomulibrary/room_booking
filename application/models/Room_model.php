@@ -10,7 +10,7 @@ class room_Model  extends CI_Model  {
     function list_rooms($exclude_inactive = false){
 		//Only show roles you are a member of, unless user is a super admin 
 		if( !$this->session->userdata('super_admin')){
-			$query = "select distinct r.room_id, r.max_daily_hours, r.building_id, r.name, r.seats, r.is_active, r.requires_moderation, b.name as building, b.external_id
+			$query = "select distinct r.room_id, r.max_daily_hours, r.building_id, r.name, r.seats, r.is_active, r.requires_moderation, r.minimum_slot, b.name as building, b.external_id
 				from rooms r, buildings b, room_roles rr, roles ro
 				where r.building_id = b.building_id
 				and rr.room_id = r.room_id  
@@ -43,7 +43,7 @@ class room_Model  extends CI_Model  {
 	function list_admin_rooms($exclude_inactive = false){
 		//Only show roles you are a member of, unless user is a super admin 
 		if( !$this->session->userdata('super_admin')){
-			$query = "select distinct r.room_id, r.max_daily_hours, r.building_id, r.name, r.seats, r.is_active, r.requires_moderation, b.name as building, b.external_id
+			$query = "select distinct r.room_id, r.max_daily_hours, r.building_id, r.name, r.seats, r.is_active, r.requires_moderation, r.minimum_slot, b.name as building, b.external_id
 				from rooms r, buildings b, room_roles rr, roles ro
 				where r.building_id = b.building_id
 				and rr.room_id = r.room_id  
@@ -54,7 +54,7 @@ class room_Model  extends CI_Model  {
 		}
 		else{
 			return $this->db->query("
-				SELECT DISTINCT r.room_id, r.max_daily_hours, r.building_id, r.name, r.seats, r.is_active, r.requires_moderation, b.name AS building, b.external_id
+				SELECT DISTINCT r.room_id, r.max_daily_hours, r.building_id, r.name, r.seats, r.is_active, r.requires_moderation, r.minimum_slot, b.name AS building, b.external_id
 				FROM rooms r, buildings b
 				WHERE r.building_id = b.building_id 
 				order by building asc, r.name asc
@@ -66,7 +66,7 @@ class room_Model  extends CI_Model  {
 	function list_rooms_by_role($role, $exclude_inactive = false){
 		if(!is_numeric($role)) return false;
 		
-		$sql =  "select distinct r.room_id, r.max_daily_hours, r.building_id, r.name, r.seats, r.is_active, r.requires_moderation, b.name as building, b.external_id
+		$sql =  "select distinct r.room_id, r.max_daily_hours, r.building_id, r.name, r.seats, r.is_active, r.requires_moderation, r.minimum_slot, b.name as building, b.external_id
                 from rooms r, buildings b, room_roles rr, roles ro
                 where r.building_id = b.building_id
                 and rr.room_id = r.room_id  
@@ -125,7 +125,7 @@ class room_Model  extends CI_Model  {
 		return $data;
 	}
 	
-	function add_room($building_id, $name, $seats, $roles, $active, $resources, $max_daily_hours, $notes, $requires_moderation){
+	function add_room($building_id, $name, $seats, $roles, $active, $resources, $max_daily_hours, $notes, $requires_moderation, $minimum_slot){
 		if($active === 'on'){
 			$active = TRUE;
 		}
@@ -149,6 +149,7 @@ class room_Model  extends CI_Model  {
 			'max_daily_hours' => $max_daily_hours,
 			'notes' => $notes,
 			'requires_moderation' => $requires_moderation,
+			'minimum_slot' => $minimum_slot,
 		);
 		
 		$this->db->insert('rooms', $data); 
@@ -162,7 +163,7 @@ class room_Model  extends CI_Model  {
 		return $id;
 	}
 	
-	function edit_room($room_id, $building_id, $name, $seats, $roles, $active, $resources, $max_daily_hours, $notes, $requires_moderation){
+	function edit_room($room_id, $building_id, $name, $seats, $roles, $active, $resources, $max_daily_hours, $notes, $requires_moderation, $minimum_slot){
 		if($active === 'on'){
 			$active = TRUE;
 		}
@@ -185,6 +186,7 @@ class room_Model  extends CI_Model  {
 			'max_daily_hours' => $max_daily_hours,	
 			'notes' => $notes,	
 			'requires_moderation' => $requires_moderation,	
+			'minimum_slot' => $minimum_slot,	
 		);
 		
 		$this->db->where('room_id', $room_id); 

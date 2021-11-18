@@ -19,7 +19,7 @@
 	for each role. This only appears when not editing/creating new roles
 --->
 
-<h3 style="text-align: center; font-weight: bold"><?php echo SITE_TITLE; ?></h3>
+<h3 style="text-align: center; font-weight: bold"><?php echo $settings['site_title']; ?></h3>
 
 <?php
 //Verify the required fields are present (and the time is a half hour increment (don't let people mess with the URL)
@@ -104,7 +104,32 @@ if($this->input->get('booking_id') === NULL || !is_numeric($this->input->get('bo
 											$max_per_day = $room_data->max_daily_hours - $limits['day_used'] + ((strtotime($booking->end) - strtotime($booking->start)) /60 / 60);
 											
 											$max_per_week = $limits['week_remaining'] + ((strtotime($booking->end) - strtotime($booking->start)) /60 / 60);
-											$start_time = strtotime($booking->start) + (30*60); //Start at the starting time + 30 minutes as the first slot to book
+											
+											//We need to check if the booking start has been advanced (or not)
+											if($settings['advance_start']){
+												//Get the opening hours
+												foreach ($hours as $building_open_time){
+													if($building_open_time->LOCATION_ID == $room_data->building_id){
+														$open_time = $building_open_time->STARTTIME * 24;
+														break;
+													}
+													
+												}
+												$booking_date_ts = mktime(0,0,0, date('n',strtotime($booking->start)),date('j',strtotime($booking->start)),date('Y',strtotime($booking->start)));
+												$slot_offset = (strtotime($booking->start) - ($booking_date_ts + $open_time*60*60)) % ($room_data->minimum_slot*60);
+												
+
+												if($slot_offset == 0){
+													$start_time = strtotime($booking->start) + ($room_data->minimum_slot*60); //Start at the starting time + the rooms interval minutes as the first slot to book
+												}
+												else{
+													$start_time = strtotime($booking->start) + ($room_data->minimum_slot*60) - $slot_offset;
+												}
+											}
+											else{
+												$start_time = strtotime($booking->start) + ($room_data->minimum_slot*60); //Start at the starting time + the rooms interval minutes as the first slot to book
+											}
+											
 											
 											//Figure out the end time. It's either the users max allowed booking time, or midnight
 											$end_time = $start_time + $max_per_day * 60*60;
@@ -131,27 +156,33 @@ if($this->input->get('booking_id') === NULL || !is_numeric($this->input->get('bo
 											
 											
 											$slot = $start_time;
-											while($slot <= $end_time){
-												if($max_per_day <= 0 || $max_per_week <= 0) break;
-												
-												//Check for block bookings
-												if($this->booking_model->is_block_booked($slot, $slot, $booking->room_id)){
-													echo '<option value="'.$slot.'">'.date('g:ia', $slot).' (EST)</option>';
-													break;
+											
+											if($slot > $end_time){
+												echo '<option value="'.$end_time.'">'.date('g:ia', $end_time).' (EST)</option>';
+											}
+											else{
+												while($slot <= $end_time){
+													if($max_per_day <= 0 || $max_per_week <= 0) break;
+													
+													//Check for block bookings
+													if($this->booking_model->is_block_booked($slot, $slot, $booking->room_id)){
+														echo '<option value="'.$slot.'">'.date('g:ia', $slot).' (EST)</option>';
+														break;
+													}
+													
+													
+													
+													if($slot == strtotime($booking->end)){
+														echo '<option value="'.$slot.'" selected="selected">'.date('g:ia', $slot).' (EST)</option>';
+													}
+													else{
+														echo '<option value="'.$slot.'">'.date('g:ia', $slot).' (EST)</option>';
+													}
+													
+													$slot += $room_data->minimum_slot*60;
+													$max_per_day -= 0.5;
+													$max_per_week -= 0.5;
 												}
-												
-												
-												
-												if($slot == strtotime($booking->end)){
-													echo '<option value="'.$slot.'" selected="selected">'.date('g:ia', $slot).' (EST)</option>';
-												}
-												else{
-													echo '<option value="'.$slot.'">'.date('g:ia', $slot).' (EST)</option>';
-												}
-												
-												$slot += 30*60;
-												$max_per_day -= 0.5;
-												$max_per_week -= 0.5;
 											}
 										?>
 									</select> 
@@ -171,6 +202,7 @@ if($this->input->get('booking_id') === NULL || !is_numeric($this->input->get('bo
 											
 											foreach($resources->result() as $resource){
 												echo '<li>'.$resource->name.'</li>';
+												echo '<img src="'.base_url(IMAGE_DIR.$resource->image).'">';
 											}
 										?>
 									</ul>

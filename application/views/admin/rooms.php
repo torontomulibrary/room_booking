@@ -30,6 +30,7 @@
 				<th>Seats</th>
 				<th>Bookable by</th>
 				<th>Max daily hours bookable by user</th>
+				<th>Time Slot Intervals</th>
 				<th>Requires Moderation</th>
 				<th>Active</th>
 				<th>Options</th>
@@ -38,6 +39,7 @@
 		<tbody>
 			<?php foreach($rooms->result() as $room): ?>
 			<tr>
+				
 				<td><?= $room->name ?></td>
 				<td><?= $room->building ?></td>
 				<td><?= $room->seats ?></td>
@@ -54,6 +56,8 @@
 				</td>
 				
 				<td><?= $room->max_daily_hours ?></td>
+				
+				<td><?php echo $room->minimum_slot; ?> minutes</td>
 				
 				<td><?= ($room->requires_moderation)? '<span class="glyphicon glyphicon glyphicon-ok"></span>' : '<span class="glyphicon glyphicon-remove"></span>' ?></td>
 				
@@ -115,14 +119,23 @@
   <div class="form-group">
     <label for="resources">Resources</label>
 	<select multiple id="resources" class="form-control" name="resources[]" size="20">
-		<?php foreach($resources->result() as $resource): ?>
-			<option value="<?= $resource->resource_id ?>" <?php if(isset($current_room) && in_array($resource->resource_id, $current_room['room_resources'])):?>selected="selected"<?php endif; ?>><?= $resource->name ?></option>
+		<?php foreach($resources as $resource): ?>
+			<option value="<?= $resource['resource_id'] ?>" <?php if(isset($current_room) && in_array($resource['resource_id'], $current_room['room_resources'])):?>selected="selected"<?php endif; ?>><?= $resource['name']; ?></option>
 		<?php endforeach; ?>
 	</select>
   </div>
   <div class="form-group">
     <label for="seats">Number of Seats</label>
 	 <input type="text" class="form-control" id="seats" placeholder="Enter the number of seats" name="seats" <?php if(isset($current)): ?>value="<?= $current->seats ?>" <?php endif; ?>>
+  </div>
+  
+    <div class="form-group">
+    <label for="minimum_slot">Time Slot Intervals</label>
+    <select id="minimum_slot" class="form-control" name="minimum_slot">
+		<?php for($i=30; $i<=1440; $i=$i+30): ?>
+		<option value="<?= $i; ?>" <?php if(isset($current) && $i == $current->minimum_slot):?>selected="selected"<?php endif; ?>><?= $i; ?> minutes</option>
+		<?php endfor; ?>
+	</select>
   </div>
   
   <div class="form-group">

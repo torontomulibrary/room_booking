@@ -7,88 +7,133 @@
 
 <?= $this->session->flashdata('message'); ?>
 
+<?php if($action === 'Add' || $action === 'Edit'): ?>
+	
+<!--- 
+	Display new/edit form.
+	Depending on which feature was selected, the form may be pre-populated
+--->
+<div class="container">
+	<h2><?php echo $title; ?></h2>
+	<hr>
+	
+	<!-- Display status message -->
+	<?php if(!empty($error_msg)){ ?>
+	<div class="col-xs-12">
+		<div class="alert alert-danger"><?php echo $error_msg; ?></div>
+	</div>
+	<?php } ?>
+	
+	<div class="row">
+		<div class="col-md-6">
+			<form method="post" action="" enctype="multipart/form-data">
+				<div class="form-group">
+					<label>Name:</label>
+					<input type="text" name="name" class="form-control" placeholder="Enter name" value="<?php echo !empty($resource['name'])?$resource['name']:''; ?>" >
+					<?php echo form_error('name','<p class="help-block text-danger">','</p>'); ?>
+				</div>
+				<div class="form-group">
+					<label>Description:</label>
+					<input type="text" name="desc" class="form-control" placeholder="Enter description" value="<?php echo !empty($resource['desc'])?$resource['desc']:''; ?>" >
+					<?php echo form_error('desc','<p class="help-block text-danger">','</p>'); ?>
+				</div>
+				<div class="form-group">
+					<label>Image:</label>
+					<input type="file" name="image" class="form-control-file">
+					<?php echo form_error('image','<p class="help-block text-danger">','</p>'); ?>
+					<?php if(!empty($resource['image'])){ ?>
+						<div class="img-box">
+							<img src="<?php echo base_url(IMAGE_DIR.$resource['image']); ?>">
+						</div>
+					<?php } ?>
+				</div>
+				<div class="form-check">
+					<input type="checkbox" name="filter" class="form-check-input" <?php if(array_key_exists('can_filter', $resource) && $resource['can_filter'] == 'on') echo 'checked'; ?>>
+					<label class="form-check-label">Allow Filtering</label>
+					<?php echo form_error('desc','<p class="help-block text-danger">','</p>'); ?>
+				</div>
+				
+				<a href="<?php echo base_url('admin/room_resources'); ?>" class="btn btn-secondary">Back</a>
+				<input type="hidden" name="id" value="<?php echo !empty($resource['id'])?$resource['id']:''; ?>">
+				<input type="submit" name="resSubmit" class="btn btn-success" value="SUBMIT">
+			</form>
+		</div>
+	</div>
+</div>
 
-<?php if(!isset($current_resource)): ?>
-<?php if(!isset($new)): ?>
+<?php else: ?>
 
 <!---
 	Create a table listing all of the existing rooms, and options available
 	for each room. This only appears when not editing/creating new rooms
 --->
 
-<h2>Room Resources</h2>
+<div class="container">
+	<h2><?php echo $title; ?></h2>
 
-<a href="<?=base_url()?>admin/room_resources/new">Add a new room resource</a>
+	<!-- Display status message -->
+	<?php if(!empty($success_msg)){ ?>
+	<div class="col-xs-12">
+		<div class="alert alert-success"><?php echo $success_msg; ?></div>
+	</div>
+	<?php }elseif(!empty($error_msg)){ ?>
+	<div class="col-xs-12">
+		<div class="alert alert-danger"><?php echo $error_msg; ?></div>
+	</div>
+	<?php } ?>
 
-<div class="table-responsive">
-	<table class="table table-striped">
-		<thead>
-			<tr>
-				<th>Name</th>
-				<th>Description</th>
-				<th>Allow filtering?</th>
-				<th>Options</th>
-			</tr>
-		</thead>
-		<tbody>
-			<?php foreach($resources->result() as $resource): ?>
-			<tr>
-				<td><?= $resource->name ?></td>
-				<td><?= $resource->desc ?></td>
-				<td><?= ($resource->can_filter)? '<span class="glyphicon glyphicon glyphicon-ok"></span>' : '<span class="glyphicon glyphicon-remove"></span>' ?></td>
-				<td>
-					<a href="<?= base_url() ?>admin/room_resources/edit/<?= $resource->resource_id ?>">
-						<button class="btn btn-default btn-sm" type="button"><span aria-hidden="true" class="glyphicon glyphicon-edit"></span> Edit </button>
-					</a> 
-					<a data-toggle="modal" data-target="#confirm-delete" data-href="<?= base_url() ?>admin/room_resources/delete/<?= $resource->resource_id ?>" href="#">
-					<button class="btn btn-default btn-sm" type="button"><span aria-hidden="true" class="glyphicon glyphicon-remove"></span> Remove</button>
-					</a>
-				</td>
-				
-			</tr>
-			<?php endforeach; ?>
-		</tbody>
-	</table>
+	<div class="row">
+		<div class="col-md-12 head">
+				<!-- Add link -->
+				<a href="<?=base_url()?>admin/room_resources/add">Add a new room resource</a>
+		</div>
+			
+		<!-- Data list table --> 
+		<table class="table table-striped table-bordered">
+			<thead class="thead-dark">
+				<tr>
+					<th>#</th>
+					<th></th>
+					<th>Name</th>
+					<th>Description</th>
+					<th>Allow Filtering</th>
+					<th>Options</th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php if(!empty($resources)){
+					$i=0;  
+					foreach($resources as $r){
+						$i++; 
+						$image = !empty($r['image'])?'<img width="100px" src="'.base_url().IMAGE_DIR.$r['image'].'" alt="" />':'Empty';
+						$filter = '<span class="glyphicon glyphicon-'.($r['can_filter']?'ok':'remove').'"></span>';
+				?>
+				<tr>
+					<td><?php echo $i; ?></td>
+					<td><?php echo $image; ?></td>
+					<td><?php echo $r['name']; ?></td>
+					<td><?php echo $r['desc']; ?></td>
+					<td><?php echo $filter; ?></td>
+					<td>
+						<a href="<?= base_url() ?>admin/room_resources/edit/<?= $r['resource_id'] ?>">
+							<button class="btn btn-default btn-sm" type="button">
+								<span aria-hidden="true" class="glyphicon glyphicon-edit"></span> Edit
+							</button>
+						</a> 
+						<a data-toggle="modal" data-target="#confirm-delete" data-href="<?= base_url() ?>admin/room_resources/delete/<?= $r['resource_id'] ?>" href="#">
+							<button class="btn btn-default btn-sm" type="button">
+								<span aria-hidden="true" class="glyphicon glyphicon-remove"></span> Remove
+							</button>
+						</a>
+					</td>
+				</tr>
+				<?php } }else{ ?>
+				<tr><td colspan="6">No resource(s) found...</td></tr>
+				<?php } ?>
+			</tbody>
+		</table>
+	</div>
 </div>
-
-<?php endif; ?>
-
-<!-- Back Button for edit page --->
-<?php else: ?>
-	<?php $current = $current_resource->row(); ?>
-	
-<?php endif; ?>
-
-<!--- 
-	Display new/edit form.
-	Depending on which feature was selected, the form may be pre-populated
---->
-<?php if(isset($new) || isset($current_resource)): ?>
-
-<?= (isset($new))? '<h2>Create new resource</h2>' : '<h2> Edit Resource</h2>'; ?>
-<a style="display:block" href="<?= base_url() ?>admin/room_resources">Back to all resources</a><br />
-
-<form role="form" method="post" action="<?= base_url() ?>admin/room_resources/<?php if(isset($current)):?>update<?php else: ?>add<?php endif; ?>">
-	<div class="form-group">
-		<label for="room_resource_name">Name</label>
-		<input class="form-control" type="text" id="room_resource_name" name="room_resource_name" value="<?php if(isset($current)) echo $current->name ?>" />
-	</div>
-	
-	<div class="form-group">
-		<label for="resource_desc">Description</label>
-		<textarea class="form-control" name="resource_desc" id="resource_desc" rows="3"><?php if(isset($current)) echo $current->desc ?></textarea>
-	</div>
-	
-	<div class="filter">
-		<label>
-			<input type="checkbox" name="filter" <?php if(isset($current) && $current->can_filter != 0) echo 'checked' ?>> Allow filtering
-		</label>
-	</div>
-
-  
-	<?php if(isset($current)): ?><input type="hidden" name="room_resource_id" value="<?= $current->resource_id ?>" /><?php endif; ?>
-	<button type="submit" class="btn btn-default">Submit</button>
-</form>
 
 <?php endif; ?>
 
@@ -117,14 +162,10 @@
 </div>
 <!--- End Modal --->
 
-
-	
 <script>
 	$('#confirm-delete').on('show.bs.modal', function(e) {
 		$(this).find('.danger').attr('href', $(e.relatedTarget).data('href'));
 	})
 </script>
-
-
 
 <?php $content = ob_get_contents();ob_end_clean();$this->template->set('content', $content);?>

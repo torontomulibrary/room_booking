@@ -12,12 +12,12 @@
 <html lang="en-US">
 <!--<![endif]-->
 <head>
-    <title><?php echo SITE_TITLE; ?></title>
+    <title><?php echo $settings['site_title']; ?></title>
     <meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/jquery.mobile-1.4.5.css" type="text/css" media="screen" />
-	<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/mobile.css" type="text/css" media="screen" />
+	<link rel="stylesheet" href="<?php echo base_url(); ?>assets/template/<?php echo $theme; ?>/css/mobile.css" type="text/css" media="screen" />
 	<script src="<?php echo base_url(); ?>assets/js/jquery.mobile-1.4.5.min.js"></script>
 
 	
@@ -31,7 +31,7 @@
 </head>
 <body>
 	<div data-role="header" >
-		<div><a rel="external" href="<?php echo base_url(); ?>mobile"><img id="logo_left" src="<?php echo SITE_LOGO; ?>" height="60" class="" alt="Site logo" ></a></div>
+		<div><a rel="external" href="<?php echo base_url(); ?>mobile"><img style="height: 60px" id="logo_left" src="<?php echo $settings['site_logo']; ?>" height="60" class="" alt="Site logo" ></a></div>
 		
 		
 		

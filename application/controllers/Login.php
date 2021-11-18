@@ -166,8 +166,9 @@ class Login extends CI_Controller {
 		
 		//Does the user have any roles in the system? No roles = no access
 		if(count($roles) === 0){
+			$data['settings'] = $this->settings_model->get_all_settings_array();
 			$this->log_model->log_event('login', $this->session->userdata('username'), "Login Denied", null, implode(',', $cas_roles));
-			$this->template->load(DEFAULT_TEMPLATE, 'denied');
+			$this->template->load(DEFAULT_TEMPLATE, 'denied', $data);
 			$this->session->sess_destroy();	
 			return;
 			

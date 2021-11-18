@@ -38,11 +38,11 @@
 			
 			
 			<?php if($resources->num_rows() > 0): ?>
-				
+					<?php //var_dump($resources); die; ?>
 				<span class="detail_label">Room Features</span>
 				<span style="display: inline-block; float: left">
-					<?php foreach($resources->result() as $resource): ?>
-						<?php echo $resource->name; ?><br />
+					<?php foreach($resources as $resource): ?>
+						<?php //echo $resource->name; ?><br />
 					<?php endforeach; ?>
 					
 					
@@ -65,7 +65,7 @@
 						
 						$max_per_day = $room_data->max_daily_hours - $limits['day_used'];
 						$max_per_week = $limits['week_remaining'];
-						$start_time = $this->input->get('slot') + (30*60); //Start at the starting time + 30 minutes as the first slot to book
+						$start_time = $this->input->get('slot') + ($room_data->minimum_slot * 60);
 						
 						//Figure out the end time. It's either the users max allowed booking time, or midnight
 						$end_time = $start_time + (($room_data->max_daily_hours - $limits['day_used'])*60*60 ); 
@@ -100,7 +100,7 @@
 							
 							echo '<option value="'.$slot.'">'.date('g:iA', $slot).'</option>';
 							
-							$slot += 30*60;
+							$slot += $room_data->minimum_slot*60;
 							$max_per_day -= 0.5;
 							$max_per_week -= 0.5;
 						}
@@ -136,18 +136,47 @@
 									
 									<span class="detail_label select_label">'.$form_element->field_name.'</span>
 									<textarea rows="5" name="fc_'.$form_element->fc_id.'" class="text_area_height"></textarea>';
-							
-							
+						}
+						else if($form_element->field_type === "check") {
+							switch($form_element->field_name) {
+								case "cov19-1":
+									'<div style="margin-top: 1em" class="form_left">'
+										.phrase("Informed Consent").'</div><div style="clear:both">
+									</div>
+									<p>
+										While Ryerson University (the “University”) has put in place reasonable measures to reduce the spread of COVID-19, the University cannot guarantee that any individual 
+										using the University’s facilities, or participating in activities organized by the University, whether on-campus or off-campus (including student internships and placements)
+										(collectively, the “Activities”) will not become infected with COVID-19. Prior to participation, all participants in the Activities are required to complete the COVID-19
+										<a href="https://www.ryerson.ca/covid-19/health-screening-reporting-cases/health-screening/student-health-screening/">Health Screening</a> prior to coming to campus each day. 
+										Health Screening can be accessed via the <a href="https://www.ryerson.ca/community-safety-security/ryersonsafe/ryersonsafe-mobile-app/">RyersonSafe</a> mobile app or via 
+										<a href="https://ryerson.apparmor.com/WebApp/default.aspx?menu=Start%20Health%20Screening">web browser</a> if you do not have the RyersonSafe app on your mobile phone.
+									</p>
+									<p>
+										If I am unable to confirm or agree with all the statements below I understand I will not be able to make a Library study space booking at this time.
+									</p>
+									<p>	
+										PLEASE NOTE: Completion of form is for a single (one day only) student booking time.  Student bookings are only available up to one week in advance. 
+										Please contact <a href="mailto:access@ryerson.ca">access@ryerson.ca</a> for any cancellation required.
+									</p>';
+								break;
+								/*
+								case "cov19-3":
+									echo '<p>I accept that:</p>';
+								break;
+								case "cov19-11":
+									echo '<p>In consideration of the University permitting me to use the Facilities I agree: </p>';
+								break;
+								*/
+							}
+							echo '<div class="form-group form-check-group">
+									<input aria-label="Consent item" class="form-check-input form-checkbox" required data-msg="You must agree before continuing." id="fc_'.$form_element->fc_id.'" name="fc_'.$form_element->fc_id.'" type="checkbox">
+									<label for="fc_'.$form_element->fc_id.'" class="form-check-label">'.$form_element->field_desc.'</label>
+									<div style="clear:both"></div>
+								</div>';
 						}
 						
 					}
 				?>
-				
-				
-				
-				
-				
-				
 
 				<input type="hidden" name="slot" value="<?php echo $this->input->get('slot'); ?>">
 				<input type="hidden" name="room_id" value="<?php echo $this->input->get('room_id'); ?>">
@@ -156,9 +185,6 @@
 			</form>
 		</div>
 	</div>
-
-
-
 
 
 <div class="back_img" style="margin-top: 5em">

@@ -13,10 +13,13 @@ class Booking extends CI_Controller {
 	**/
 	 
 	//$this->template->load(template, view, vars) 
+	
 	function __construct(){
 		parent::__construct();
 		
 		$this->load->library('cas');
+		
+
 		if(!$this->cas->is_authenticated()){
 			$CI =& get_instance();
 			$url = $CI->config->site_url($CI->uri->uri_string());
@@ -40,13 +43,13 @@ class Booking extends CI_Controller {
 		
 	
 		//If site constant is set to debug, enable the profiler (gives analytics for page load). 
-		//DO NOT USE ON LIVE SITE
-		if($this->input->get('debug') !== NULL) $this->output->enable_profiler(DEBUG_MODE);
-		//$this->output->enable_profiler(DEBUG_MODE);
+		if($this->input->get('debug') !== NULL) $this->output->enable_profiler($this->settings_model->check_debug());
+
 	}
 
 	
 	public function booking_main(){
+		
 		//Default to today if no date is selected
 		if($this->input->get('month') === NULL && $this->input->get('date') === NULL){
 			
@@ -73,7 +76,8 @@ class Booking extends CI_Controller {
 		$data['roles'] = $this->role_model->list_roles();
 		$data['rooms'] = array();
 		
-		$data['resources_filter'] = $this->resource_model->list_resources(true);
+		$con = array('where' => array('can_filter' => 1));
+		$data['resources_filter'] = $this->resource_model->list_resources($con);
 		$data['buildings'] = $this->room_model->list_buildings();
 		
 		//Load the room data for every role the user has
@@ -124,7 +128,7 @@ class Booking extends CI_Controller {
 			$data['calendar'] = $this->bookingcalendar->drawCalendar();
 		}
 		
-		
+		$data['settings'] = $this->settings_model->get_all_settings_array();
 		$this->template->load($this->role_model->get_theme(), 'booking/booking_main', $data);
 	}
 	
@@ -139,6 +143,7 @@ class Booking extends CI_Controller {
 		
 		$data['limits'] = $this->booking_model->remaining_hours($this->session->userdata('username'), time());
 		
+		$data['settings'] = $this->settings_model->get_all_settings_array();
 		$this->template->load($this->role_model->get_theme(), 'booking/landing_page', $data);
 	}
 	
@@ -154,7 +159,7 @@ class Booking extends CI_Controller {
 		$data['previous'] = $this->booking_model->get_previous_bookings($this->session->userdata('username'), 5);
 		$data['current'] = $this->booking_model->get_current_bookings($this->session->userdata('username'), 5);
 		
-		
+		$data['settings'] = $this->settings_model->get_all_settings_array();
 		$this->template->load($this->role_model->get_theme(), 'booking/my_bookings', $data);
 	}
 	
@@ -193,6 +198,7 @@ class Booking extends CI_Controller {
 			$data['next_booking'] = $this->booking_model->next_booking($this->input->get('slot'), $this->input->get('room_id'));
 			$data['role'] = $this->role_model->get_priority_role($this->input->get('room_id'));
 			
+			$data['settings'] = $this->settings_model->get_all_settings_array();
 			$this->template->load($this->role_model->get_theme(), 'booking/book_room_form', $data);
 		}
 	}
@@ -201,12 +207,13 @@ class Booking extends CI_Controller {
 		$this->load->model('booking_model');
 		$this->load->model('room_model');
 		$this->load->model('interface_model');
+		$this->load->model('hours_model');
 		
 		$start_time = $this->input->post('slot');
 		$finish_time = $this->input->post('finish_time');
 		$room_id = $this->input->post('room_id');
 		$comment = $this->input->post('comment');
-		
+		$hours = $this->hours_model->getAllHours(mktime(0,0,0, date('n',$start_time),date('j',$start_time),date('Y',$start_time)));
 		
 		
 		//Get customized fields
@@ -233,8 +240,23 @@ class Booking extends CI_Controller {
 		
 		//Validate all the date/times submitted 
 		if(is_numeric($start_time) && ($start_time % 1800) == 0 && is_numeric($finish_time) && ($finish_time % 1800) == 0 && is_numeric($room_id) && $start_time > $time){
+			//Make sure the start/end time respect the time interval slots
+			if(($finish_time - $start_time) % ($room->minimum_slot*60) !== 0){
+				//Ignore this check if $finish_time == END OF DAY
+				//$this->session->set_flashdata('danger', "Your booking length is not valid");
+				//	redirect(base_url() . 'booking/booking_main?month='.date('Ym', $start_time).'&date='.date('Ymd',$start_time));
+			}
+			
 			//Was this user allowed to book this room?
 			if($this->booking_model->is_allowed($room_id)){
+				//Does this user have a booking in a different room, which conflicts with this new booking?
+				if($this->settings_model->get_property('allow_booking_overlap') == FALSE){
+					if($this->booking_model->has_overlap($this->session->userdata('username'), $start_time, $finish_time)){
+						$this->session->set_flashdata('danger', "You have an existing booking which conflicts with this new booking. The new booking has not been made");
+						redirect(base_url() . 'booking/booking_main?month='.date('Ym', $start_time).'&date='.date('Ymd',$start_time));
+					}
+				}
+				
 				//Check the users remaining bookable hours
 				$limits = $this->booking_model->remaining_hours($this->session->userdata('username'), $start_time);
 				$requested_time = (($finish_time - $start_time) / 60 / 60);
@@ -360,6 +382,7 @@ class Booking extends CI_Controller {
 							$data['end'] = $finish_time;
 							$data['room'] = $room;
 							$data['booking_id'] = $id;
+							$data['settings'] = $this->settings_model->get_all_settings_array();
 							
 							$this->booking_model->generate_ics($id);
 							
@@ -451,6 +474,8 @@ class Booking extends CI_Controller {
 		
 		//Check if user has already checked out of this booking
 		$data['checked_out'] = $this->booking_model->is_checked_out($this->input->get('booking_id'));
+		
+		$data['settings'] = $this->settings_model->get_all_settings_array();
 		
 		$this->template->load($this->role_model->get_theme(), 'booking/edit_book_room_form', $data);
 	}

@@ -213,6 +213,7 @@
 				<?php if($super_admin):?>
 				<ul class="nav nav-sidebar">
 					<li class="<?php echo ($method === "auth_denied" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/auth_denied">Authentication Denied Logs</a></li>         
+					<li class="<?php echo ($method === "global_settings" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/global_settings">Global settings</a></li>         
 					<li class="<?php echo ($method === "error_logs" ? 'active' : ''); ?>"><a href="<?= base_url() ?>admin/error_logs">Error Logs</a></li>         
 				</ul>
 				<?php endif; ?>

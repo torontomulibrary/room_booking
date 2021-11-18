@@ -25,7 +25,8 @@
 	<table class="table table-striped">
 		<thead>
 			<tr>
-				<th>Field Title</th>
+				<th>Field Name</th>
+				<th>Field Description</th>
 				<th>Field Type</th>
 				<th>Roles</th>
 				<th>Menu items</th>
@@ -38,11 +39,8 @@
 			<?php foreach($form_components->result() as $component): ?>
 			<tr>
 				<td><?= $component->field_name ?></td>
+				<td><?= $component->field_desc ?></td>
 				<td><?= $component->field_type ?></td>
-				
-				
-				
-				
 				<td>
 					<?php 
 						
@@ -119,8 +117,13 @@
 <form role="form" method="post" action="<?= base_url() ?>admin/form_customization/<?php if(isset($current)):?>update<?php else: ?>add<?php endif; ?>">
 
 	<div class="form-group">
-		<label for="field_title">Field Title</label>
+		<label for="field_title">Field Name</label>
 		<input type="text" class="form-control" id="field_title" placeholder="Enter the title for this field" name="field_title" <?php if(isset($current)): ?>value="<?= $current->field_name ?>" <?php endif; ?>>
+	</div>
+
+	<div class="form-group">
+		<label for="field_desc">Field Description</label>
+		<textarea class="form-control" name="field_desc" id="field_desc" rows="3"> <?php if(isset($current)): ?><?= $current->field_desc ?><?php endif; ?></textarea>
 	</div>
 	
 	<div class="form-group" id="field_type_container">
@@ -129,11 +132,10 @@
 			<option value="text" <?php if(isset($current) && $current->field_type === "text") echo 'selected="selected"'; ?>>Text Field</option>
 			<option value="textarea" <?php if(isset($current) && $current->field_type === "textarea") echo 'selected="selected"'; ?>>Large Text Field</option>
 			<option value="select" <?php if(isset($current) && $current->field_type === "select") echo 'selected="selected"'; ?>>Dropdown</option>
+			<option value="check" <?php if(isset($current) && $current->field_type === "check") echo 'selected="selected"'; ?>>Checkbox</option>
 		</select> 
 	</div>
   
-
-
 	<div class="form-group">
 		<label for="role">Roles:</label>
 		<select id="role" class="form-control" name="role[]" multiple size="7">
@@ -146,7 +148,7 @@
 	<div class="form-group">
 		<label for="priority">Priority (Bigger numbers will appear first when displaying)</label>
 		<select id="priority" class="form-control" name="priority">
-			<?php for($i=0; $i <= 10; $i++): ?>
+			<?php for($i=0; $i <= 100; $i++): ?>
 				<option value="<?php echo $i; ?>" <?php if(isset($current) && $current->priority == $i) echo 'selected="selected"'; ?>><?php echo $i; ?></option>
 			<?php endfor; ?>
 		</select>

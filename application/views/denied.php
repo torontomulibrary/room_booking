@@ -4,7 +4,7 @@
 
 <?php ob_start();?>
 
-<h3 style="text-align: center; font-weight: bold; margin-bottom: 1em;"><?php echo SITE_TITLE; ?></h3>
+<h3 style="text-align: center; font-weight: bold; margin-bottom: 1em;"><?php echo $settings['site_title']; ?></h3>
 <span style="text-align: center">
 	<p>You do not have access to the Room Booking System</p>
 

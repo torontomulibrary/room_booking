@@ -193,6 +193,31 @@
 										}
 									}
 									
+									//Does the time line up with the minimum interval
+									if(!$skip){
+										$open_time = round(($hours[$room->building_id]->STARTTIME) * 24,1); //8.5 = 8:30am
+										
+										$oTime = strtotime("today") + $open_time * 60 * 60;
+										
+										//diffTime is number of seconds between selected time & opening time
+										$diffTime = $this->input->get('set_time') - $oTime;
+										
+										//Convert to minutes
+										$diffTime = $diffTime / 60;
+
+										if ($diffTime % $room->minimum_slot == 0){
+										}
+										else{
+											$skip = true;
+											break;
+										}
+								
+										
+										
+									}
+									
+									
+									
 									if(!$skip){
 										$count++;								
 										echo '	<li>

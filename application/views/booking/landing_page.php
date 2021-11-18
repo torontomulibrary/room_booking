@@ -17,7 +17,7 @@
 		<div class="nav_link orange" id="book_room"><a href="<?php echo base_url(); ?>booking/booking_main"><?php echo phrase("Book a Room");?></a></div>
 		<div id="calendar_icon" class="nav_link grey "><a href="<?php echo base_url(); ?>booking/booking_main"><img src="<?php echo base_url();?>assets/img/Book-Room-Icon2.png" alt="Calendar" /></a></div>
 		<div class="nav_link aqua"><a href="<?php echo base_url(); ?>booking/my_bookings/">My Bookings</a></div>
-		<div class="nav_link dark"><a href="<?php echo $policy_url; ?>">Booking Policy</a></div>
+		<div class="nav_link dark"><a href="<?php echo $policy_url; ?>"><?php echo phrase('Booking Policy'); ?></a></div>
 		<div class="nav_link blue"><a href="<?php echo base_url();?>logout">Logout</a></div>
 	</div>
 
