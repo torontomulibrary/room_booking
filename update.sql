@@ -5,6 +5,10 @@ ADD COLUMN `image` VARCHAR(255) NULL DEFAULT NULL COMMENT '' AFTER `name`;
 ALTER TABLE `form_customization`
 ADD COLUMN `field_desc` VARCHAR(1000) NULL DEFAULT NULL COMMENT '' AFTER `field_type`;
 
+ALTER TABLE `rooms` 
+ADD COLUMN `minimum_slot` INT(11) NULL DEFAULT 30 AFTER `requires_moderation`;
+
+
 CREATE TABLE `settings` (
   `property` VARCHAR(100) NOT NULL COMMENT '',
   `value` VARCHAR(1000) NULL COMMENT '',
