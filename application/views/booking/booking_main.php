@@ -500,8 +500,14 @@
 									
 									//If too far in the future (past the roles booking window)
 									else if($tNow > (mktime(0,0,0, date("n"), date("j")+1)+($role->booking_window*24*60*60)) ){
-										echo '<td colspan="'. $free_slot_width.'" class="not_avail booking_cell"><div class="table_cell_height">'.date("g:iA",$tNow).'</div></td>';
+										//If the slot goes past the end of day (possible if building hours for other buildings are longer then current room hours)
+										while(($tNow + 30*$free_slot_width) >= $tEnd){
+											$free_slot_width -=1;										
+										}
+										
+										echo '<td colspan="'. $free_slot_width.'" class="not_avail booking_cell"><div class="table_cell_height">'.date("g:iA",$tNow).'</div></td>';									
 									}
+									
 									//If there are not enough hours for the day/week to make a booking
 									else if($limits['day_used'] >= $room->max_daily_hours || $limits['week_remaining'] <= 0){
 											echo '<td colspan="'. $free_slot_width.'" class="not_avail booking_cell"><div class="table_cell_height">'.date("g:iA",$tNow).'</div></td>';
